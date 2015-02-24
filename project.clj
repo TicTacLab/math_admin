@@ -11,6 +11,7 @@
                  [ch.qos.logback/logback-core "1.1.2"]
                  [ch.qos.logback/logback-classic "1.1.2"]
                  [org.clojure/tools.logging "0.3.1"]
+                 [clojurewerkz/cassaforte "2.0.0"]
                  [compojure "1.2.0"]
                  [selmer "0.7.2"]
                  [ring "1.3.2"]

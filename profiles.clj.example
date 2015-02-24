@@ -1,8 +1,16 @@
 {:dev-env {:env {:web-host "0.0.0.0"
                  :web-port 8080
-                 :c*-con-str ""
+
+                 :storage-nodes "localhost,"
+                 :storage-keyspace "malt_admin"
+                 :configuration-table "configuration"
+
                  :app-env "dev"}}
  :test-env {:env {:web-host "0.0.0.0"
-                  :web-port 8080
-                  :c*-con-str ""
+                  :web-port 8081
+
+                  :storage-nodes "localhost,"
+                  :storage-keyspace "malt_admin_test"
+                  :configuration-table "configuration"
+
                   :app-env "test"}}}

@@ -7,7 +7,7 @@
             [clojure.tools.logging :as log]
             [clojure.tools.trace :refer (trace)]
             [malt-admin.controller
-             [cluster :as cluster]]
+             [configuration :as configuration]]
             [malt-admin.view :refer (render)]
             [environ.core :as environ]
             [malt-admin.web.middleware :refer (wrap-check-session wrap-with-web wrap-with-stacktrace)]
@@ -20,8 +20,8 @@
              [keyword-params :refer (wrap-keyword-params)]]))
 
 (defroutes routes
-  (GET "/" req (res/redirect "/cluster"))
-  (GET "/cluster" req (cluster/index req))
+  (GET "/" req (res/redirect "/configuration"))
+  (GET "/configuration" req (configuration/index req))
   (route/not-found "<h1>Page not found!</h1>"))
 
 (defn app [web]
@@ -35,7 +35,7 @@
       (wrap-with-web web)
       (wrap-with-stacktrace)))
 
-(defrecord Web [host port server]
+(defrecord Web [host port server storage]
   component/Lifecycle
 
   (start [component]
