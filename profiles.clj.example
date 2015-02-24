@@ -1,0 +1,8 @@
+{:dev-env {:env {:web-host "0.0.0.0"
+                 :web-port 8080
+                 :c*-con-str ""
+                 :app-env "dev"}}
+ :test-env {:env {:web-host "0.0.0.0"
+                  :web-port 8080
+                  :c*-con-str ""
+                  :app-env "test"}}}

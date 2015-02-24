@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration>
+    <appender name="R" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <File>/var/log/malt_admin/malt_admin.log</File>
+        <encoder>
+            <pattern>%5p | %d | [%t] ||| %m%n</pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+            <maxIndex>1</maxIndex>
+            <FileNamePattern>/var/log/malt_admin/malt_admin.log.%i</FileNamePattern>
+        </rollingPolicy>
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="R"/>
+    </root>
+</configuration>
