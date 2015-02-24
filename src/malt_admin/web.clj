@@ -22,6 +22,12 @@
 (defroutes routes
   (GET "/" req (res/redirect "/configuration"))
   (GET "/configuration" req (configuration/index req))
+  (POST "/configuration" req (configuration/create req))
+  (GET "/configuration/new" req (configuration/new req))
+  (GET "/configuration/:profile/edit" req (configuration/edit req))
+  (POST "/configuration/:profile/delete" req (configuration/delete req))
+  (POST "/configuration/:profile" req (configuration/update req))
+
   (route/not-found "<h1>Page not found!</h1>"))
 
 (defn app [web]

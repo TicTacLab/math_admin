@@ -1,0 +1,16 @@
+[% extends "layout.html" %]
+[% block body %]
+
+<form action="/configuration" method="POST">
+  <div class="form-group">
+    <label for="config-profile">Profile</label>
+    <input type="text" name="profile" class="form-control" id="profile" value="[[profile]]">
+  </div>
+  <div class="form-group">
+    <label for="config">Password</label>
+    <textarea name="config" class="form-control" id="config" placeholder="Enter configuration" rows="10">[[config|pprint]]</textarea>
+  </div>
+  <button type="submit" class="btn btn-primary">Update</button>
+</form>
+
+[% endblock %]

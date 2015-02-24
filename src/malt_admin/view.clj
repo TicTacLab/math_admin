@@ -14,6 +14,14 @@
              (.setTimeZone (TimeZone/getTimeZone "GMT")))
            timestamp)))
 
+(defn- pprint-str [value]
+  (let [s (java.io.StringWriter.)]
+    (binding [*out* s]
+      (clojure.pprint/pprint value)
+      (.toString s))))
+
+(filters/add-filter! :pprint pprint-str)
+
 (filters/add-filter! :js-date #(format-timestamp "yyyy-MM-dd" %))
 (filters/add-filter! :name name)
 

@@ -1,4 +1,25 @@
 [% extends "layout.html" %]
 [% block body %]
-<h1>Configurations:</h1>
+<h1>Configuration</h1>
+<a href="/configuration/new" class="btn btn-primary btn-lg">Create</a>
+<table class="table table-hover">
+    <tr>
+        <th>Profile</th>
+        <th>Actions</th>
+    </tr>
+    [% for profile in profiles %]
+    <tr>
+        <td>[[profile]]</td>
+        <td>
+          <form action="/configuration/[[profile]]/delete" method="POST"
+                <div class="btn-group">
+                  <a href="/configuration/[[profile]]/edit" class="btn btn-default">Edit</a>
+                  <button type="submit" class="btn btn-default">Delete</button>
+
+                </div>
+         </form>
+        </td>
+    </tr>
+    [% endfor %]
+</table>
 [% endblock %]
