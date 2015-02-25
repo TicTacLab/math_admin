@@ -7,7 +7,8 @@
             [clojure.tools.logging :as log]
             [clojure.tools.trace :refer (trace)]
             [malt-admin.controller
-             [configuration :as configuration]]
+             [configuration :as configuration]
+             [models :as models]]
             [malt-admin.view :refer (render)]
             [environ.core :as environ]
             [malt-admin.web.middleware :refer (wrap-check-session wrap-with-web wrap-with-stacktrace)]
@@ -20,13 +21,16 @@
              [keyword-params :refer (wrap-keyword-params)]]))
 
 (defroutes routes
-  (GET "/" req (res/redirect "/configuration"))
-  (GET "/configuration" req (configuration/index req))
+  (GET  "/" req (res/redirect "/configuration"))
+  
+  (GET  "/configuration" req (configuration/index req))
   (POST "/configuration" req (configuration/create req))
-  (GET "/configuration/new" req (configuration/new req))
-  (GET "/configuration/:profile/edit" req (configuration/edit req))
+  (GET  "/configuration/new" req (configuration/new req))
+  (GET  "/configuration/:profile/edit" req (configuration/edit req))
   (POST "/configuration/:profile/delete" req (configuration/delete req))
   (POST "/configuration/:profile" req (configuration/update req))
+  
+  (GET  "/models" req (models/index req))
 
   (route/not-found "<h1>Page not found!</h1>"))
 
