@@ -18,7 +18,8 @@
              [session :refer (wrap-session)]
              [params :refer (wrap-params)]
              [webjars :refer (wrap-webjars)]
-             [keyword-params :refer (wrap-keyword-params)]]))
+             [keyword-params :refer (wrap-keyword-params)]
+             [multipart-params :refer (wrap-multipart-params)]]))
 
 (defroutes routes
   (GET  "/" req (res/redirect "/configuration"))
@@ -31,6 +32,9 @@
   (POST "/configuration/:profile" req (configuration/update req))
   
   (GET  "/models" req (models/index req))
+  (GET "/models/upload" req (models/upload req))
+  (wrap-multipart-params
+    (POST "/models" req (models/do-upload req)))
 
   (route/not-found "<h1>Page not found!</h1>"))
 
