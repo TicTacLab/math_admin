@@ -1,34 +1,24 @@
 (ns malt-admin.storage.configuration
   (:require [clojurewerkz.cassaforte.cql :as cql]
             [clojurewerkz.cassaforte.query :refer [where columns]]
+            [cheshire.core :as json]
             [clojure.tools.logging :as log]))
 
 
-(defn get-profiles [storage]
+(defn write-config! [storage config]
   (let [{:keys [conn configuration-table]} storage]
-    (->> (columns :profile)
-         (cql/select conn configuration-table)
-         (map :profile))))
-
-(defn write-config! [storage profile config]
-  (let [{:keys [conn configuration-table]} storage]
+    (cql/truncate conn configuration-table)
     (some->> config
-             pr-str
-             (hash-map :profile profile :config)
+             json/generate-string
+             (hash-map :config)
              (cql/insert conn configuration-table))))
 
-(defn read-config [storage profile]
+(defn read-config [storage]
   (let [{:keys [conn configuration-table]} storage]
     (try
-      (some->> {:profile profile}
-               where
-               (cql/select conn configuration-table)
-               first
-               :config
-               read-string)
+      (json/parse-string (some->> (cql/select conn configuration-table)
+                                  first
+                                  :config)
+                         true)
       (catch Exception e
         (log/error e "occured while reading config")))))
-
-(defn delete-config! [storage profile]
-  (let [{:keys [conn configuration-table]} storage]
-    (cql/delete conn configuration-table (where {:profile profile}))))
