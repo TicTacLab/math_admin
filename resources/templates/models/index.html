@@ -1,13 +1,25 @@
 [% extends "layout.html" %]
 [% block body %]
 <h1>Models</h1>
-<a href="/models/upload" class="btn btn-primary btn-lg">Upload</a>
+<a href="/models/upload" class="btn btn-primary btn-lg">Upload New</a>
 <table class="table table-hover">
     <tr>
         <th>ID</th>
         <th>Name</th>
-        <th>File</th>
+        <th>File Name</th>
+        <th>In Sheet Name</th>
+        <th>Out Sheet Name</th>
         <th>Actions</th>
     </tr>
+    [% for model in models %]
+    <tr>
+        <td>[[model.id]]</td>
+        <td>[[model.name]]</td>
+        <td>[[model.file_name]]</td>
+        <td>[[model.in_sheet_name]]</td>
+        <td>[[model.out_sheet_name]]</td>
+        <td></td>
+    </tr>
+    [% endfor %]
 </table>
 [% endblock %]

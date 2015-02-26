@@ -2,7 +2,7 @@
                  :web-port 8080
 
                  :storage-nodes "localhost,"
-                 :storage-keyspace "malt_admin"
+                 :storage-keyspace "malt"
                  :configuration-table "configuration"
 
                  :app-env "dev"}}
@@ -10,7 +10,7 @@
                   :web-port 8081
 
                   :storage-nodes "localhost,"
-                  :storage-keyspace "malt_admin_test"
+                  :storage-keyspace "malt_test"
                   :configuration-table "configuration"
 
                   :app-env "test"}}}
