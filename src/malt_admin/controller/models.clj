@@ -39,7 +39,6 @@
     (let [values (->> params
                       (fp/parse-params form/upload-form)
                       (prepare-file-attrs))]
-      (prn values)
       (storage/write-model! storage values)
       (res/redirect "/models"))))
 
