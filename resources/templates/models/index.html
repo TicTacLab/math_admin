@@ -21,6 +21,7 @@
         <td>
             <form action="/models/[[model.id]]" method="POST">
                 <input type="hidden" name="_method" value="DELETE"/>
+                <a class="btn btn-primary" href="/models/[[model.id]]/download">Download</a>
                 <a class="btn btn-default" href="/models/[[model.id]]/edit">Replace</a>
                 <button type="submit" class="btn btn-danger">Delete</button>
             </form>

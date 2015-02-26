@@ -6,7 +6,8 @@
             [ring.util.response :as res]
             [formative.core :as f]
             [malt-admin.storage.models :as storage])
-  (:refer-clojure :exclude [replace]))
+  (:refer-clojure :exclude [replace])
+  (:import (java.nio.file Files Paths)))
 
 (defn index [{{storage :storage} :web :as req}]
   (render "models/index" req {:models (storage/get-models storage)}))
@@ -20,11 +21,14 @@
                                                              params)
                                               :problems problems)}))
 
+(defn read-file [file]
+  )
+
 (defn ^:private prepare-file-attrs [{{tempfile "tempfile" filename "filename" size "size" content-type "content-type"} :file :as params}]
   (if (zero? size)
     (dissoc params :file)
     (assoc params
-      :file (.getBytes (slurp tempfile))
+      :file (Files/readAllBytes (Paths/get (.toURI tempfile)))
       :file_name filename
       :content_type content-type)))
 
@@ -66,3 +70,11 @@
                :as req}]
   (storage/delete-model! storage (Integer. id))
   (res/redirect "/models"))
+
+(defn download [{{id :id} :params
+                 {storage :storage} :web
+                 :as req}]
+  (let [file (storage/get-model-file storage (Integer. id))]
+    {:body    (:file file)
+     :headers {"Content-Type"        (:content_type file)
+               "Content-Disposition" (str "attachment; filename=" (:file_name file))}}))

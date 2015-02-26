@@ -30,6 +30,7 @@
   (GET    "/models" req (models/index req))
   (GET    "/models/upload" req (models/upload req))
   (GET    "/models/:id/edit" req (models/edit req))
+  (GET    "/models/:id/download" req (models/download req))
   (PUT    "/models/:id" req (models/replace req))
   (DELETE "/models/:id" req (models/delete req))
   (POST   "/models" req (models/do-upload req))
