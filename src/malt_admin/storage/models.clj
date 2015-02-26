@@ -13,6 +13,11 @@
                 (set (dissoc model :id))
                 (where [[= :id (:id model)]]))))
 
+(defn delete-model! [storage model-id]
+  (let [{:keys [conn]} storage]
+    (cql/delete conn "models"
+                (where [[= :id model-id]]))))
+
 (defn get-models [storage]
   (let [{:keys [conn]} storage]
     (cql/select conn "models" (columns :id :name :file :file_name :in_sheet_name :out_sheet_name))))

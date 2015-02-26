@@ -59,3 +59,9 @@
                      (select-keys [:id :file :file_name :in_sheet_name :out_sheet_name]))]
       (storage/replace-model! storage values)
       (res/redirect "/models"))))
+
+(defn delete [{{id :id} :params
+               {storage :storage} :web
+               :as req}]
+  (storage/delete-model! storage (Integer. id))
+  (res/redirect "/models"))

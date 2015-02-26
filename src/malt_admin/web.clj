@@ -1,5 +1,5 @@
 (ns malt-admin.web
-  (:require [compojure.core :refer (defroutes GET POST PUT wrap-routes)]
+  (:require [compojure.core :refer (defroutes GET POST PUT DELETE wrap-routes)]
             [schema.core :as s]
             [compojure.route :as route]
             [org.httpkit.server :as http-kit]
@@ -22,16 +22,18 @@
              [multipart-params :refer (wrap-multipart-params)]]))
 
 (defroutes routes
-  (GET  "/" req (res/redirect "/configuration"))
+  (GET    "/" req (res/redirect "/configuration"))
 
-  (GET  "/configuration" req (configuration/index req))
-  (POST "/configuration" req (configuration/update req))
+  (GET    "/configuration" req (configuration/index req))
+  (POST   "/configuration" req (configuration/update req))
 
-  (GET  "/models" req (models/index req))
-  (GET  "/models/upload" req (models/upload req))
-  (GET  "/models/:id/edit" req (models/edit req))
-  (PUT  "/models/:id" req (models/replace req))
-  (POST "/models" req (models/do-upload req))
+  (GET    "/models" req (models/index req))
+  (GET    "/models/upload" req (models/upload req))
+  (GET    "/models/:id/edit" req (models/edit req))
+  (PUT    "/models/:id" req (models/replace req))
+  (DELETE "/models/:id" req (models/delete req))
+  (POST   "/models" req (models/do-upload req))
+  
   
   (route/not-found "<h1>Page not found!</h1>"))
 

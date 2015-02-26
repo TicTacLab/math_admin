@@ -19,7 +19,11 @@
         <td>[[model.in_sheet_name]]</td>
         <td>[[model.out_sheet_name]]</td>
         <td>
-            <a class="btn btn-default" href="/models/[[model.id]]/edit">Replace</a>
+            <form action="/models/[[model.id]]" method="POST">
+                <input type="hidden" name="_method" value="DELETE"/>
+                <a class="btn btn-default" href="/models/[[model.id]]/edit">Replace</a>
+                <button type="submit" class="btn btn-danger">Delete</button>
+            </form>
         </td>
     </tr>
     [% endfor %]
