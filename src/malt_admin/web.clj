@@ -1,5 +1,5 @@
 (ns malt-admin.web
-  (:require [compojure.core :refer (defroutes GET POST wrap-routes)]
+  (:require [compojure.core :refer (defroutes GET POST PUT wrap-routes)]
             [schema.core :as s]
             [compojure.route :as route]
             [org.httpkit.server :as http-kit]
@@ -28,17 +28,18 @@
   (POST "/configuration" req (configuration/update req))
 
   (GET  "/models" req (models/index req))
-  (GET "/models/upload" req (models/upload req))
-  (wrap-multipart-params
-    (POST "/models" req (models/do-upload req)))
-
+  (GET  "/models/upload" req (models/upload req))
+  (GET  "/models/:id/edit" req (models/edit req))
+  (PUT  "/models/:id" req (models/replace req))
+  (POST "/models" req (models/do-upload req))
+  
   (route/not-found "<h1>Page not found!</h1>"))
 
 (defn app [web]
   (-> routes
-#_      (wrap-check-session)
       (wrap-webjars)
       (wrap-keyword-params)
+      (wrap-multipart-params)
       (wrap-params)
       (wrap-session)
       (wrap-cookies)
