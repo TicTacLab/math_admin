@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS malt.models (
        name varchar,
        file blob,
        file_name varchar,
+       content_type varchar,
        in_sheet_name varchar,
        out_sheet_name varchar
 );

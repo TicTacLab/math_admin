@@ -20,21 +20,22 @@
                                                              params)
                                               :problems problems)}))
 
-(defn ^:private prepare-file-attrs [{{:keys [tempfile filename size]} :file :as params}]
+(defn ^:private prepare-file-attrs [{{tempfile "tempfile" filename "filename" size "size" content-type "content-type"} :file :as params}]
   (if (zero? size)
     (dissoc params :file)
     (assoc params
       :file (.getBytes (slurp tempfile))
-      :file_name filename)))
+      :file_name filename
+      :content_type content-type)))
 
 (defn do-upload [{params :params
                   {storage :storage} :web
                   :as req}]
   (fp/with-fallback #(malt-admin.controller.models/upload (assoc req :problems %))
     (let [values (->> params
-                      (prepare-file-attrs)
                       (fp/parse-params form/upload-form)
-                      )]
+                      (prepare-file-attrs))]
+      (prn values)
       (storage/write-model! storage values)
       (res/redirect "/models"))))
 
@@ -54,9 +55,9 @@
                 :as                req}]
   (fp/with-fallback #(malt-admin.controller.models/edit (assoc req :problems %))
     (let [values (-> params
-                     (prepare-file-attrs)
                      (#(fp/parse-params form/edit-form %))
-                     (select-keys [:id :file :file_name :in_sheet_name :out_sheet_name]))]
+                     (prepare-file-attrs)
+                     (select-keys [:id :file :file_name :content_type :in_sheet_name :out_sheet_name]))]
       (storage/replace-model! storage values)
       (res/redirect "/models"))))
 
