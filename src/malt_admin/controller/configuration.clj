@@ -1,27 +1,31 @@
 (ns malt-admin.controller.configuration
   (:require [malt-admin.view :refer (render)]
             [malt-admin.storage.configuration :as st]
+            [malt-admin.form.configuration :as forms]
             [formative.parse :as fp]
-            [ring.util.response :as res]
-            [formative.core :as f]))
+            [formative.core :as fc]
+            [ring.util.response :as res]))
 
-(defn index [{{storage :storage} :web :as req}]
-  (render "configuration/index" req {:profiles (st/get-profiles storage)}))
+(defn index [{{storage :storage} :web
+              params :params
+              problems :problems
+              :as req}]
+  (let [config (if (contains? params :submit)
+                 (dissoc params :submit)
+                 (st/read-config storage))]
 
-(defn create [{{storage :storage} :web
-               {:keys [config profile]} :params :as req}]
-  (st/write-config! storage profile config)
-  (res/redirect-after-post "/configuration"))
+    (render "configuration/index"
+            req
+            {:form (assoc forms/config
+                     :values config
+                     :problems problems
+                     :action "/configuration"
+                     :method "POST"
+                     :submit-label "Update")})))
 
-(defn new [req] (render "configuration/new" req {}))
-
-(defn update [req] (create req))
-(defn edit [{{profile :profile} :params
-             {storage :storage} :web :as req}]
-  (let [config (st/read-config storage profile)]
-    (render "configuration/edit" req {:profile profile :config config})))
-
-(defn delete [{{profile :profile} :params
-               {storage :storage} :web :as req}]
-  (st/delete-config! storage profile)
-  (res/redirect-after-post "/configuration"))
+(defn update [{{storage :storage} :web
+               params :params :as req}]
+  (fp/with-fallback #(index (assoc req :problems %))
+    (let [config (fp/parse-params forms/config params)]
+      (st/write-config! storage config)
+      (res/redirect "/configuration"))))

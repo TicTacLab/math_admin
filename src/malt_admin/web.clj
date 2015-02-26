@@ -23,14 +23,10 @@
 
 (defroutes routes
   (GET  "/" req (res/redirect "/configuration"))
-  
+
   (GET  "/configuration" req (configuration/index req))
-  (POST "/configuration" req (configuration/create req))
-  (GET  "/configuration/new" req (configuration/new req))
-  (GET  "/configuration/:profile/edit" req (configuration/edit req))
-  (POST "/configuration/:profile/delete" req (configuration/delete req))
-  (POST "/configuration/:profile" req (configuration/update req))
-  
+  (POST "/configuration" req (configuration/update req))
+
   (GET  "/models" req (models/index req))
   (GET "/models/upload" req (models/upload req))
   (wrap-multipart-params
