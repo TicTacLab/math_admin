@@ -1,11 +1,10 @@
-CREATE KEYSPACE malt WITH REPLICATION = {'class' : 'SimpleStrategy', 'replication_factor' : 1};
+CREATE KEYSPACE IF NOT EXISTS malt WITH REPLICATION = {'class' : 'SimpleStrategy', 'replication_factor' : 1};
 
-CREATE TABLE malt_admin.configuration (
-       profile varchar PRIMARY KEY,
-       config varchar
+CREATE TABLE IF NOT EXISTS malt.configuration (
+       config varchar PRIMARY KEY
 );
 
-CREATE TABLE IF NOT EXISTS malt_admin.models (
+CREATE TABLE IF NOT EXISTS malt.models (
        id int PRIMARY KEY,
        name varchar,
        file blob,
