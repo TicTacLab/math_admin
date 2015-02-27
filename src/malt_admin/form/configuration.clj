@@ -6,5 +6,6 @@
             {:name :rest-port :type :text :datatype :int}
             {:name :hosts :type :text}
             {:name :username :type :text}
-            {:name :password :type :text}]
-   :validations [[:required [:session-ttl :cache-table :rest-port :hosts :username :password]]]})
+            {:name :password :type :text}
+            {:name :malt-nodes :type :text}]
+   :validations [[:required [:session-ttl :malt-nodes :cache-table :rest-port :hosts :username :password]]]})
