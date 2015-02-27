@@ -34,8 +34,7 @@
   (PUT    "/models/:id" req (models/replace req))
   (DELETE "/models/:id" req (models/delete req))
   (POST   "/models" req (models/do-upload req))
-  
-  
+
   (route/not-found "<h1>Page not found!</h1>"))
 
 (defn app [web]

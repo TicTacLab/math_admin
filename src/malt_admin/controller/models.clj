@@ -2,12 +2,34 @@
   (:require [malt-admin.view :refer (render)]
             [malt-admin.storage.configuration :as st]
             [malt-admin.form.model :as form]
+            [malt-admin.helpers :refer [csv-to-list]]
             [formative.parse :as fp]
             [ring.util.response :as res]
             [formative.core :as f]
-            [malt-admin.storage.models :as storage])
+            [org.httpkit.client :as http]
+            [malt-admin.storage.models :as storage]
+            [clojure.tools.logging :as log])
   (:refer-clojure :exclude [replace])
   (:import (java.nio.file Files Paths)))
+
+
+(defn notify-malt [node port url model-id]
+  (try (let [{:keys [status error]} @(http/post (str "http://" node ":" port url)
+                                                {:timeout 3000
+                                                 :form-params {:id model-id}})]
+         (if error (throw error))
+         (if-not (= status 200)
+           (log/errorf "Malt %s returned code %d while notifying" node status))
+         status)
+       (catch Exception e
+         (log/errorf e "Error while notifying malt %s" node)
+         400)))
+
+(defn notify-malts [storage model-id]
+  (let [{:keys [malt-nodes rest-port malt-reload-model-url] :as config} (st/read-config storage)
+        malt-nodes (csv-to-list malt-nodes)]
+    (zipmap malt-nodes
+            (map #(notify-malt % rest-port malt-reload-model-url model-id) malt-nodes))))
 
 (defn index [{{storage :storage} :web :as req}]
   (render "models/index" req {:models (storage/get-models storage)}))
@@ -20,9 +42,6 @@
                                                               :out_sheet_name "OUT"}
                                                              params)
                                               :problems problems)}))
-
-(defn read-file [file]
-  )
 
 (defn ^:private prepare-file-attrs [{{tempfile "tempfile" filename "filename" size "size" content-type "content-type"} :file :as params}]
   (if (zero? size)
@@ -40,6 +59,7 @@
                       (fp/parse-params form/upload-form)
                       (prepare-file-attrs))]
       (storage/write-model! storage values)
+      (notify-malts storage (:id values))
       (res/redirect "/models"))))
 
 (defn edit [{{storage :storage} :web
@@ -62,12 +82,14 @@
                      (prepare-file-attrs)
                      (select-keys [:id :file :file_name :content_type :in_sheet_name :out_sheet_name]))]
       (storage/replace-model! storage values)
+      (notify-malts storage (:id values))
       (res/redirect "/models"))))
 
 (defn delete [{{id :id} :params
                {storage :storage} :web
                :as req}]
   (storage/delete-model! storage (Integer. id))
+  (notify-malts storage id)
   (res/redirect "/models"))
 
 (defn download [{{id :id} :params
