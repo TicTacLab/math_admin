@@ -31,8 +31,22 @@
     (zipmap malt-nodes
             (map #(notify-malt % rest-port malt-reload-model-url model-id) malt-nodes))))
 
-(defn index [{{storage :storage} :web :as req}]
-  (render "models/index" req {:models (storage/get-models storage)}))
+(defn make-notify-malts-result-flash [malt-results]
+  (let [failed-hosts (->> malt-results
+                          (remove (comp #(= 200 %) second))
+                          clojure.tools.trace/trace
+                          (map (fn [[host code]] (format "%s(%d)" host code))))]
+    (if (empty? failed-hosts)
+      {:success "Malts notified!"}
+      {:error (str "Failed to nofity malts: " (clojure.string/join ", " failed-hosts))})))
+
+(defn redirect-with-flash [url flash]
+  (assoc (res/redirect-after-post url) :flash flash))
+
+(defn index [{{storage :storage} :web
+              flash :flash :as req}]
+  (render "models/index" req {:models (storage/get-models storage)
+                              :flash flash}))
 
 (defn upload [{:keys [problems params] :as req}]
   (render "models/upload" req {:upload-form (assoc form/upload-form
@@ -59,8 +73,10 @@
                       (fp/parse-params form/upload-form)
                       (prepare-file-attrs))]
       (storage/write-model! storage values)
-      (notify-malts storage (:id values))
-      (res/redirect "/models"))))
+      (->> (:id values)
+           (notify-malts storage)
+           make-malts-notify-result-flash
+           (redirect-with-flash "/models")))))
 
 (defn edit [{{storage :storage} :web
              {id :id :as params} :params
@@ -82,15 +98,18 @@
                      (prepare-file-attrs)
                      (select-keys [:id :file :file_name :content_type :in_sheet_name :out_sheet_name]))]
       (storage/replace-model! storage values)
-      (notify-malts storage (:id values))
-      (res/redirect "/models"))))
+      (->> (:id values)
+           (notify-malts storage)
+           make-malts-notify-result-flash
+           (redirect-with-flash "/models")))))
 
 (defn delete [{{id :id} :params
                {storage :storage} :web
                :as req}]
   (storage/delete-model! storage (Integer. id))
-  (notify-malts storage id)
-  (res/redirect "/models"))
+  (->> (notify-malts storage id)
+       make-malts-notify-result-flash
+       (redirect-with-flash "/models")))
 
 (defn download [{{id :id} :params
                  {storage :storage} :web
