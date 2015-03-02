@@ -44,6 +44,7 @@
   (PUT    "/users/:login" req (users/update req))
   (GET    "/users/:login/edit-password" req (users/edit-password req))
   (PUT    "/users/:login/update-password" req (users/update-password req))
+  (PUT    "/users/:login/change-status" req (users/change-status req))
 
   (route/not-found "<h1>Page not found!</h1>"))
 

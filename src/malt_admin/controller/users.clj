@@ -34,7 +34,7 @@
 
 (defn index [{{storage :storage} :web
               :as req}]
-  (let [users (storage/get-users storage)]
+  (let [users (sort-by :status (storage/get-users storage))]
     (render "users/index" req {:users users})))
 
 (defn edit [{{storage :storage}        :web
@@ -49,8 +49,7 @@
                                            :method "PUT")
                               :user      user})))
 
-(defn edit-password [{{storage :storage}        :web
-                      {login :login :as params} :params
+(defn edit-password [{{login :login :as params} :params
                       problems                  :problems
                       :as                       req}]
   (render "users/edit-password" req {:edit-password-form (assoc form/edit-password-form
@@ -77,3 +76,14 @@
                                                         (encrypt-password)
                                                         (dissoc :password_confirmation)))
       (redirect-with-flash "/users" {:success (format "Password for \"%s\" successfully updated" (:name values))}))))
+
+(defn change-status [{{:keys [action login]} :params
+                      {storage :storage}     :web}]
+  (if-let [status (case action
+                    "activate" "active"
+                    "deactivate" "inactive"
+                    nil)]
+    (do
+      (storage/update-user! storage login {:status status})
+      (redirect-with-flash "/users" {:success (format "Change status for user \"%s\" to \"%s\"" login status)}))
+    (redirect-with-flash "/users" {:error (format "Bad action \"%s\"" action)})))
