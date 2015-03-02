@@ -12,12 +12,12 @@
         <th>Actions</th>
     </tr>
     [% for model in models %]
-    <tr>
-        <td>[[model.id]]</td>
-        <td>[[model.name]]</td>
-        <td>[[model.file_name]]</td>
-        <td>[[model.in_sheet_name]]</td>
-        <td>[[model.out_sheet_name]]</td>
+    <tr class="model">
+        <td class="model-id">[[model.id]]</td>
+        <td class="model-name">[[model.name]]</td>
+        <td class="model-file-name">[[model.file_name]]</td>
+        <td class="model-in-sheet-name">[[model.in_sheet_name]]</td>
+        <td class="model-out-sheet-name">[[model.out_sheet_name]]</td>
         <td>
             <form action="/models/[[model.id]]" method="POST">
                 <input type="hidden" name="_method" value="DELETE"/>

@@ -24,7 +24,8 @@
                  [hiccup "1.0.5"]
                  [ring-webjars "0.1.0" :exclusions [org.slf4j/slf4j-nop]]
                  [org.webjars/bootstrap "3.3.2"]
-                 [org.webjars/jquery "2.1.3"]]
+                 [org.webjars/jquery "2.1.3"]
+                 [kerodon "0.5.0"]]
   :repl-options {:timeout 120000
                  :init-ns user}
   :main favfeed-admin.main
