@@ -34,7 +34,6 @@
 (defn make-notify-malts-result-flash [malt-results]
   (let [failed-hosts (->> malt-results
                           (remove (comp #(= 200 %) second))
-                          clojure.tools.trace/trace
                           (map (fn [[host code]] (format "%s(%d)" host code))))]
     (if (empty? failed-hosts)
       {:success "Malts notified!"}
@@ -107,7 +106,8 @@
                {storage :storage} :web
                :as req}]
   (storage/delete-model! storage (Integer. id))
-  (->> (notify-malts storage id)
+  (->> id
+       (notify-malts storage)
        make-malts-notify-result-flash
        (redirect-with-flash "/models")))
 
