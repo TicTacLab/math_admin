@@ -13,3 +13,9 @@
 (def edit-form
   {:fields      [{:name :name :type :text}]
    :validations [[:required [:name]]]})
+
+(def edit-password-form
+  {:fields      [{:name :password :type :password}
+                 {:name :password_confirmation :type :password}]
+   :validations [[:required [:password :password_confirmation]]
+                 [:equal [:password :password_confirmation]]]})

@@ -49,6 +49,17 @@
                                            :method "PUT")
                               :user      user})))
 
+(defn edit-password [{{storage :storage}        :web
+                      {login :login :as params} :params
+                      problems                  :problems
+                      :as                       req}]
+  (render "users/edit-password" req {:edit-password-form (assoc form/edit-password-form
+                                                           :values params
+                                                           :problems problems
+                                                           :action (format "/users/%s/update-password" login)
+                                                           :method "PUT")
+                                     :user               {:login login}}))
+
 (defn update [{params :params
                {storage :storage} :web
                :as req}]
@@ -56,3 +67,13 @@
     (let [values (fp/parse-params form/edit-form params)]
       (storage/update-user! storage (:login params) values)
       (redirect-with-flash "/users" {:success (format "User \"%s\" successfully updated" (:name values))}))))
+
+(defn update-password [{params :params
+                        {storage :storage} :web
+                        :as req}]
+  (fp/with-fallback #(malt-admin.controller.users/edit-password (assoc req :problems %))
+    (let [values (fp/parse-params form/edit-password-form params)]
+      (storage/update-user! storage (:login params) (-> values
+                                                        (encrypt-password)
+                                                        (dissoc :password_confirmation)))
+      (redirect-with-flash "/users" {:success (format "Password for \"%s\" successfully updated" (:name values))}))))
