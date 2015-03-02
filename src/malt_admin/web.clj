@@ -72,11 +72,12 @@
       (wrap-with-web web)
       (wrap-with-stacktrace)))
 
-(defrecord Web [host port server storage]
+(defrecord Web [host port server storage handler]
   component/Lifecycle
 
   (start [component]
-    (let [srv (http-kit/run-server (app component) {:port port
+    (let [handler (app component)
+          srv (http-kit/run-server handler {:port port
                                                     :host host
                                                     :max-body 52428800 ;; 50Mb
                                                     :join? false})]
@@ -86,13 +87,17 @@
         (selmer.parser/cache-off!))
 
       (log/info "Web service started at:" (str host ":" port))
-      (assoc component :server srv)))
+      (assoc component
+        :server srv
+        :handler handler)))
 
   (stop [component]
     (when server
       (server)
       (log/info "Web service stopped"))
-    (assoc component :server nil)))
+    (assoc component
+      :server nil
+      :handler nil)))
 
 (def WebSchema
   {:port s/Int
