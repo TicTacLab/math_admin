@@ -33,10 +33,12 @@
   (GET    "/models/upload" req (models/upload req))
   (GET    "/models/:id/edit" req (models/edit req))
   (GET    "/models/:id/download" req (models/download req))
+  (GET    "/models/:id/profile" req (models/profile req))
+  (POST   "/models/:id/profile" req (models/profile-execute req))
   (PUT    "/models/:id" req (models/replace req))
   (DELETE "/models/:id" req (models/delete req))
   (POST   "/models" req (models/do-upload req))
-  
+
   (GET    "/users" req (users/index req))
   (GET    "/users/new" req (users/new* req))
   (POST   "/users" req (users/create req))

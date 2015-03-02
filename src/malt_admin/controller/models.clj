@@ -3,10 +3,12 @@
             [malt-admin.storage.configuration :as st]
             [malt-admin.form.model :as form]
             [malt-admin.helpers :refer [csv-to-list redirect-with-flash]]
+            [cheshire.core :as json]
             [formative.parse :as fp]
             [ring.util.response :as res]
             [formative.core :as f]
             [org.httpkit.client :as http]
+            [clojure.tools.trace :refer [trace]]
             [malt-admin.storage.models :as storage]
             [clojure.tools.logging :as log])
   (:refer-clojure :exclude [replace])
@@ -113,3 +115,74 @@
     {:body    (:file file)
      :headers {"Content-Type"        (:content_type file)
                "Content-Disposition" (str "attachment; filename=" (:file_name file))}}))
+
+
+
+
+(defn- malt-params->form-fileds [malt-params]
+  (some->> malt-params
+           (map (fn [{:keys [id name type code]}]
+                  (let [f-label (format "%s (%s/%s)" name type code)
+                        f-name (-> id str keyword)]
+                    {:name f-name :label f-label :type :text})))))
+
+(defn- malt-params->form-values [malt-params]
+  (some->> malt-params
+       (map (fn [{:keys [id value]}]
+              (vector (-> id str keyword)
+                      value)))
+       (into {})))
+
+(defn- malt-params->form-validations [malt-params]
+  (some->> malt-params
+           (map :id)
+           (map str)
+           (map keyword)))
+
+(defn- malt-params->form [malt-params]
+  {:fields (malt-params->form-fileds malt-params)
+   :values (malt-params->form-values malt-params)
+   :validations [[:required (malt-params->form-validations malt-params)]]})
+
+(defn get-malt-params [node port model-id]
+  (let [url (format "http://%s:%s/model/%s/in-params"
+                    node
+                    port
+                    model-id)]
+    (some-> url
+            (http/get {:as :text})
+            deref
+            :body
+            (json/parse-string true))))
+
+(defn profile [{{id :id} :params
+                problems :problems
+                {storage :storage} :web :as req}]
+  (let [{:keys [malt-nodes rest-port]} (st/read-config storage)
+        form (some-> malt-nodes
+                     csv-to-list
+                     first
+                     (get-malt-params rest-port id)
+                     malt-params->form)]
+    (render "models/profile" req {:profile-form (merge form
+                                                       {:action (str "/models/" id "/profile")
+                                                        :method "POST"
+                                                        :problems problems})})))
+
+(defn profile-execute [{{storage :storage} :web
+                        params :params :as req}]
+  (let [id (:id params)
+        {:keys [malt-nodes rest-port]} (st/read-config storage)
+        form (some-> malt-nodes
+                     csv-to-list
+                     first
+                     (get-malt-params rest-port id)
+                     malt-params->form)
+        ;;        malt-nodes (csv-to-list malt-nodes)
+        ;;        malt-params (get-malt-params (first malt-nodes) rest-port id)
+        ;;        form (malt-params->form malt-params)
+        ]
+    (fp/with-fallback #(profile (assoc req :problems %))
+      (fp/parse-params  form params)
+      (log/warn "STUB! Should pass collected params to malt for output")
+      (res/redirect-after-post (str "/models/" id "/profile")))))

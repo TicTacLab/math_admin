@@ -19,3 +19,5 @@
       (f/merge-fields [{:name :id :readonly true}
                        {:name :name :readonly true}
                        {:name :file_name :type :text :disabled true}])))
+
+(def profile-form {})
