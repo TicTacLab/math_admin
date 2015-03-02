@@ -2,7 +2,7 @@
   (:require [malt-admin.view :refer (render)]
             [malt-admin.storage.configuration :as st]
             [malt-admin.form.model :as form]
-            [malt-admin.helpers :refer [csv-to-list]]
+            [malt-admin.helpers :refer [csv-to-list redirect-with-flash]]
             [formative.parse :as fp]
             [ring.util.response :as res]
             [formative.core :as f]
@@ -39,13 +39,8 @@
       {:success "Malts notified!"}
       {:error (str "Failed to nofity malts: " (clojure.string/join ", " failed-hosts))})))
 
-(defn redirect-with-flash [url flash]
-  (assoc (res/redirect-after-post url) :flash flash))
-
-(defn index [{{storage :storage} :web
-              flash :flash :as req}]
-  (render "models/index" req {:models (storage/get-models storage)
-                              :flash flash}))
+(defn index [{{storage :storage} :web :as req}]
+  (render "models/index" req {:models (storage/get-models storage)}))
 
 (defn upload [{:keys [problems params] :as req}]
   (render "models/upload" req {:upload-form (assoc form/upload-form
