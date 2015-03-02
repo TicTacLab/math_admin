@@ -40,6 +40,8 @@
   (GET    "/users" req (users/index req))
   (GET    "/users/new" req (users/new* req))
   (POST   "/users" req (users/create req))
+  (GET    "/users/:login/edit" req (users/edit req))
+  (PUT    "/users/:login" req (users/update req))
 
   (route/not-found "<h1>Page not found!</h1>"))
 

@@ -15,12 +15,11 @@
         <td>[[user.name]]</td>
         <td>[[user.status]]</td>
         <td>
-            <!--<form action="/users/[[model.id]]" method="POST">
+            <form action="/users/[[user.login]]" method="POST">
                 <input type="hidden" name="_method" value="DELETE"/>
-                &lt;!&ndash;<a class="btn btn-primary" href="/models/[[model.id]]/download">Download</a>
-                <a class="btn btn-default" href="/models/[[model.id]]/edit">Replace</a>&ndash;&gt;
-                <button type="submit" class="btn btn-danger">Deactivate</button>
-            </form>-->
+                <a class="btn btn-default" href="/users/[[user.login]]/edit">Edit</a>
+                <!--<button type="submit" class="btn btn-danger">Deactivate</button>-->
+            </form>
         </td>
     </tr>
     [% endfor %]

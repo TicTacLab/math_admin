@@ -13,7 +13,7 @@
 
 
 (defn new* [{:keys [problems params] :as req}]
-  (render "users/new" req {:new-form (assoc form/form
+  (render "users/new" req {:new-form (assoc form/new-form
                                        :problems problems
                                        :values params
                                        :action "/users"
@@ -26,13 +26,33 @@
                {storage :storage} :web
                :as req}]
   (fp/with-fallback #(malt-admin.controller.users/new* (assoc req :problems %))
-    (let [values (fp/parse-params form/form params)]
+    (let [values (fp/parse-params form/new-form params)]
       (storage/write-user! storage (-> values
                                        (encrypt-password)
                                        (dissoc :password_confirmation)))
-      (redirect-with-flash "/users" {:success (format "User \"%s\" was created" (:name values))}))))
+      (redirect-with-flash "/users" {:success (format "User \"%s\" successfully created" (:name values))}))))
 
 (defn index [{{storage :storage} :web
               :as req}]
   (let [users (storage/get-users storage)]
     (render "users/index" req {:users users})))
+
+(defn edit [{{storage :storage}        :web
+             {login :login :as params} :params
+             problems                  :problems
+             :as                       req}]
+  (let [user (storage/get-user storage login)]
+    (render "users/edit" req {:edit-form (assoc form/edit-form
+                                           :values (if problems params user)
+                                           :problems problems
+                                           :action (format "/users/%s" login)
+                                           :method "PUT")
+                              :user      user})))
+
+(defn update [{params :params
+               {storage :storage} :web
+               :as req}]
+  (fp/with-fallback #(malt-admin.controller.users/edit (assoc req :problems %))
+    (let [values (fp/parse-params form/edit-form params)]
+      (storage/update-user! storage (:login params) values)
+      (redirect-with-flash "/users" {:success (format "User \"%s\" successfully updated" (:name values))}))))
