@@ -31,7 +31,7 @@
     (zipmap malt-nodes
             (map #(notify-malt % rest-port malt-reload-model-url model-id) malt-nodes))))
 
-(defn make-notify-malts-result-flash [malt-results]
+(defn make-malts-notify-result-flash [malt-results]
   (let [failed-hosts (->> malt-results
                           (remove (comp #(= 200 %) second))
                           (map (fn [[host code]] (format "%s(%d)" host code))))]

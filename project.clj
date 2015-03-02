@@ -27,7 +27,7 @@
                  [org.webjars/jquery "2.1.3"]]
   :repl-options {:timeout 120000
                  :init-ns user}
-  :main favfeed-admin.main
+  :main malt-admin.main
   :plugins [[org.apache.maven.wagon/wagon-ssh-external "2.6"]
             [lein-environ "1.0.0"]
             [com.aphyr/prism "0.1.1"]]

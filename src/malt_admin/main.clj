@@ -1,6 +1,6 @@
 (ns malt-admin.main
   (:require [environ.core :as environ]
-            [mait-admin.system :as s]
+            [malt-admin.system :as s]
             [com.stuartsierra.component :as component])
   (:gen-class))
 
