@@ -1,4 +1,4 @@
-(ns malt-admin.web.middleware
+(ns malt-admin.middleware
   (:require [ring.util.response :as res]
             [clojure.tools.logging :as log]
             [ring.middleware.stacktrace :as stacktrace]
@@ -12,7 +12,7 @@
 
 (defn non-authorizible? [uri]
   (some #(re-find % uri)
-        [#"^/$" #"^/auth.*" #"^/assets/.*"]))
+        [#"^/$" #"^/auth.*" #"^/static/.*"]))
 
 (defmiddleware wrap-check-session
   [h] [{uri :uri :as req}]

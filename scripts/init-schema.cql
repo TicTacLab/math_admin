@@ -20,3 +20,14 @@ CREATE TABLE IF NOT EXISTS malt.users (
        password varchar,
        status varchar
 );
+
+INSERT INTO
+       malt.users (login,name,password,status)
+VALUES
+	('admin', 'Admin', '$s0$e0801$eRcvK6dZYIhXWbvWJjCZ0g==$8dePdNlKUclyFiXrrMTRXg3xNwuZHVl22yeaBvzU+34=', 'active');
+
+
+CREATE TABLE IF NOT EXISTS malt.sessions (
+       session_id uuid PRIMARY KEY,
+       login varchar
+);
