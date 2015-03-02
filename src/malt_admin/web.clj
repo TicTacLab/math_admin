@@ -8,7 +8,8 @@
             [clojure.tools.trace :refer (trace)]
             [malt-admin.controller
              [configuration :as configuration]
-             [models :as models]]
+             [models :as models]
+             [users :as users]]
             [malt-admin.view :refer (render)]
             [environ.core :as environ]
             [malt-admin.web.middleware :refer (wrap-check-session wrap-with-web wrap-with-stacktrace)]
@@ -35,6 +36,10 @@
   (PUT    "/models/:id" req (models/replace req))
   (DELETE "/models/:id" req (models/delete req))
   (POST   "/models" req (models/do-upload req))
+  
+  (GET    "/users" req (users/index req))
+  (GET    "/users/new" req (users/new* req))
+  (POST   "/users" req (users/create req))
 
   (route/not-found "<h1>Page not found!</h1>"))
 

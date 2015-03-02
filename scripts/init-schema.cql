@@ -13,3 +13,10 @@ CREATE TABLE IF NOT EXISTS malt.models (
        in_sheet_name varchar,
        out_sheet_name varchar
 );
+
+CREATE TABLE IF NOT EXISTS malt.users (
+       login varchar PRIMARY KEY,
+       name varchar,
+       password varchar,
+       status varchar
+);

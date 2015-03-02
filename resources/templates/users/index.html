@@ -1,0 +1,28 @@
+[% extends "layout.html" %]
+[% block body %]
+<h1>Users</h1>
+<a href="/users/new" class="btn btn-primary btn-lg">Create</a>
+<table class="table table-hover">
+    <tr>
+        <th>Login</th>
+        <th>Name</th>
+        <th>Status</th>
+        <th>Actions</th>
+    </tr>
+    [% for user in users %]
+    <tr>
+        <td>[[user.login]]</td>
+        <td>[[user.name]]</td>
+        <td>[[user.status]]</td>
+        <td>
+            <!--<form action="/users/[[model.id]]" method="POST">
+                <input type="hidden" name="_method" value="DELETE"/>
+                &lt;!&ndash;<a class="btn btn-primary" href="/models/[[model.id]]/download">Download</a>
+                <a class="btn btn-default" href="/models/[[model.id]]/edit">Replace</a>&ndash;&gt;
+                <button type="submit" class="btn btn-danger">Deactivate</button>
+            </form>-->
+        </td>
+    </tr>
+    [% endfor %]
+</table>
+[% endblock %]
