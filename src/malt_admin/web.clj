@@ -15,6 +15,7 @@
             [ring.util.response :as res]
             [ring.middleware
              [cookies :refer (wrap-cookies)]
+             [flash :refer (wrap-flash)]
              [session :refer (wrap-session)]
              [params :refer (wrap-params)]
              [webjars :refer (wrap-webjars)]
@@ -43,6 +44,7 @@
       (wrap-keyword-params)
       (wrap-multipart-params)
       (wrap-params)
+      (wrap-flash)
       (wrap-session)
       (wrap-cookies)
       (wrap-with-web web)
