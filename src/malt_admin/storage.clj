@@ -8,6 +8,7 @@
 (defrecord Storage [conn
                     storage-nodes
                     storage-keyspace
+                    settings-table
                     configuration-table]
   component/Lifecycle
 
@@ -27,6 +28,7 @@
 (def StorageSchema
   {:storage-nodes [s/Str]
    :storage-keyspace s/Str
+   :settings-table s/Str
    :configuration-table s/Str})
 
 (defn new-storage [m]

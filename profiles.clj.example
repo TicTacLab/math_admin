@@ -4,6 +4,7 @@
                  :storage-nodes "localhost,"
                  :storage-keyspace "malt"
                  :configuration-table "configuration"
+                 :settings-table "settings"
 
                  :app-env "dev"}}
  :test-env {:env {:web-host "0.0.0.0"
@@ -12,5 +13,6 @@
                   :storage-nodes "localhost,"
                   :storage-keyspace "malt_test"
                   :configuration-table "configuration"
+                  :settings-table "settings"
 
                   :app-env "test"}}}
