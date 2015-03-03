@@ -12,6 +12,7 @@
                  [ch.qos.logback/logback-classic "1.1.2"]
                  [org.clojure/tools.logging "0.3.1"]
                  [clojurewerkz/cassaforte "2.0.0"]
+                 [clojurewerkz/scrypt "1.2.0"]
                  [compojure "1.2.0"]
                  [selmer "0.7.2"]
                  [ring "1.3.2"]
@@ -28,7 +29,7 @@
                  [kerodon "0.5.0"]]
   :repl-options {:timeout 120000
                  :init-ns user}
-  :main favfeed-admin.main
+  :main malt-admin.main
   :plugins [[org.apache.maven.wagon/wagon-ssh-external "2.6"]
             [lein-environ "1.0.0"]
             [com.aphyr/prism "0.1.1"]]

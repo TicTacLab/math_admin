@@ -1,0 +1,36 @@
+[% extends "layout.html" %]
+[% block body %]
+<h1>Users</h1>
+<a href="/users/new" class="btn btn-primary btn-lg">Create</a>
+<table class="table table-hover">
+    <tr>
+        <th>Login</th>
+        <th>Name</th>
+        <th>Status</th>
+        <th>Actions</th>
+    </tr>
+    [% for user in users %]
+    <tr>
+        <td>[[user.login]]</td>
+        <td>[[user.name]]</td>
+        <td>
+            <span class='label [% ifequal user.status "active" %] label-primary [% else %] label-default [% endifequal %]'>
+                [[user.status]]
+            </span>
+        </td>
+        <td>
+            <form action="/users/[[user.login]]/change-status" method="POST">
+                <input type="hidden" name="_method" value="PUT"/>
+                <a class="btn btn-default" href="/users/[[user.login]]/edit">Edit</a>
+                <a class="btn btn-default" href="/users/[[user.login]]/edit-password">Password</a>
+                [% ifequal user.status "active" %]
+                <button type="submit" class="btn btn-danger" name="action" value="deactivate">Deactivate</button>
+                [% else %]
+                <button type="submit" class="btn btn-primary" name="action" value="activate">Activate</button>
+                [% endifequal %]
+            </form>
+        </td>
+    </tr>
+    [% endfor %]
+</table>
+[% endblock %]

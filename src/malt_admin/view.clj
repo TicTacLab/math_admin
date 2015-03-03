@@ -15,10 +15,7 @@
            timestamp)))
 
 (defn- pprint-str [value]
-  (let [s (java.io.StringWriter.)]
-    (binding [*out* s]
-      (clojure.pprint/pprint value)
-      (.toString s))))
+  (with-out-str (clojure.pprint/pprint value)))
 
 (filters/add-filter! :pprint pprint-str)
 
@@ -32,10 +29,12 @@
                                 (h/html)))
 
 (defn render [template-name req context]
-  (let [{session-id :session-id} req
+  (let [{session-id :session-id
+         flash      :flash} req
         default-context {:signed-in? (boolean session-id)
                          :uri (:uri req)
-                         :env environ/env}
+                         :env environ/env
+                         :flash flash}
         context (merge context default-context)]
     (selmer/render-file (str template-name ".html") context
                         {:tag-open \[

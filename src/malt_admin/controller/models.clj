@@ -2,11 +2,14 @@
   (:require [malt-admin.view :refer (render)]
             [malt-admin.storage.configuration :as st]
             [malt-admin.form.model :as form]
-            [malt-admin.helpers :refer [csv-to-list]]
+            [cheshire.core :as json]
+            [malt-admin.helpers :refer [csv-to-list redirect-with-flash error!]]
             [formative.parse :as fp]
             [ring.util.response :as res]
             [formative.core :as f]
             [org.httpkit.client :as http]
+            [clojure.tools.trace :refer [trace]]
+            [clojure.pprint :refer [pprint]]
             [malt-admin.storage.models :as storage]
             [clojure.tools.logging :as log])
   (:refer-clojure :exclude [replace])
@@ -30,6 +33,14 @@
         malt-nodes (csv-to-list malt-nodes)]
     (zipmap malt-nodes
             (map #(notify-malt % rest-port malt-reload-model-url model-id) malt-nodes))))
+
+(defn make-malts-notify-result-flash [malt-results]
+  (let [failed-hosts (->> malt-results
+                          (remove (comp #(= 200 %) second))
+                          (map (fn [[host code]] (format "%s(%d)" host code))))]
+    (if (empty? failed-hosts)
+      {:success "Malts notified!"}
+      {:error (str "Failed to nofity malts: " (clojure.string/join ", " failed-hosts))})))
 
 (defn index [{{storage :storage} :web :as req}]
   (render "models/index" req {:models (storage/get-models storage)}))
@@ -56,13 +67,15 @@
                   :as req}]
   (fp/with-fallback #(malt-admin.controller.models/upload (assoc req :problems %))
     (if (storage/model-exists? storage (Integer. (:id params)))
-      (throw (ex-info "Problem parsing params" {:problems [{:keys [:id] :msg (str "Model with this ID already exists: " (:id params))}]}))
+      (error! [:id] (str "Model with this ID already exists: " (:id params)))
       (let [values (->> params
                         (fp/parse-params form/upload-form)
                         (prepare-file-attrs))]
         (storage/write-model! storage values)
-        (notify-malts storage (:id values))
-        (res/redirect "/models")))))
+        (->> (:id values)
+             (notify-malts storage)
+             make-malts-notify-result-flash
+             (redirect-with-flash "/models"))))))
 
 (defn edit [{{storage :storage} :web
              {id :id :as params} :params
@@ -84,15 +97,19 @@
                      (prepare-file-attrs)
                      (select-keys [:id :file :file_name :content_type :in_sheet_name :out_sheet_name]))]
       (storage/replace-model! storage values)
-      (notify-malts storage (:id values))
-      (res/redirect "/models"))))
+      (->> (:id values)
+           (notify-malts storage)
+           make-malts-notify-result-flash
+           (redirect-with-flash "/models")))))
 
 (defn delete [{{id :id} :params
                {storage :storage} :web
                :as req}]
   (storage/delete-model! storage (Integer. id))
-  (notify-malts storage id)
-  (res/redirect "/models"))
+  (->> id
+       (notify-malts storage)
+       make-malts-notify-result-flash
+       (redirect-with-flash "/models")))
 
 (defn download [{{id :id} :params
                  {storage :storage} :web
@@ -101,3 +118,103 @@
     {:body    (:file file)
      :headers {"Content-Type"        (:content_type file)
                "Content-Disposition" (str "attachment; filename=" (:file_name file))}}))
+
+
+
+
+(defn- malt-params->form-fileds [malt-params]
+  (some->> malt-params
+           (map (fn [{:keys [id name type code]}]
+                  (let [f-label (format "%s (%s/%s)" name type code)
+                        f-name (-> id str keyword)]
+                    {:name f-name :label f-label :type :text})))))
+
+(defn- malt-params->form-values [malt-params]
+  (some->> malt-params
+       (map (fn [{:keys [id value]}]
+              (vector (-> id str keyword)
+                      value)))
+       (into {})))
+
+(defn- malt-params->form-validations [malt-params]
+  (some->> malt-params
+           (map :id)
+           (map str)
+           (map keyword)))
+
+(defn- malt-params->form
+  ([malt-params]
+     (malt-params->form malt-params []))
+  ([malt-params values]
+     {:fields (malt-params->form-fileds malt-params)
+      :values values
+      :validations [[:required (malt-params->form-validations malt-params)]]}))
+
+(defn- get-malt-params [node port model-id]
+  (let [url (format "http://%s:%s/model/%s/in-params"
+                    node
+                    port
+                    model-id)]
+    (some-> url
+            (http/get {:as :text})
+            deref
+            :body
+            (json/parse-string true))))
+
+(defn- calculate-in-params [node port ssid id params]
+  (try
+    (let [url (format "http://%s:%s/model/calc"
+                      node
+                      port)
+          malt-params {:id id
+                       :ssid ssid
+                       :params (map (fn [[id value]] {:id id :value value}) params)}
+          {:keys [body error status]} @(http/post url {:body (json/generate-string malt-params)
+                                                       :headers {"Content-type" "text/plain"}
+                                                       :timeout 60000})]
+      (if error (throw error))
+      (if-not (= status 200)
+        (throw (RuntimeException. (format "%s %s" status body))))
+      {:result body})
+    (catch Exception e
+      (log/error e "While malt calculation")
+      {:error (format "Error: %s" (.getLocalizedMessage e))})))
+
+(defn profile [{params :params
+                problems :problems
+                calc-result :calc-result
+                {storage :storage} :web :as req}]
+  (let [id (:id params)
+        {:keys [calculation-malt-node calculation-malt-port]} (st/read-config storage)
+        malt-params (get-malt-params calculation-malt-node calculation-malt-port id)
+        values (if (contains? params :submit)
+                 params
+                 (malt-params->form-values malt-params))
+        form (malt-params->form malt-params values)]
+    (render "models/profile" req {:calc-result (json/parse-string calc-result)
+                                  :profile-form (merge form
+                                                       {:action (str "/models/" id "/profile")
+                                                        :method "POST"
+                                                        :submit-label "Calculate"
+                                                        :problems problems})})))
+
+(defn profile-execute [{{storage :storage} :web
+                        session-id :session-id
+                        params :params :as req}]
+  (let [id (:id params)
+        {:keys [calculation-malt-node calculation-malt-port]} (st/read-config storage)
+        form (some->> id
+                      (get-malt-params calculation-malt-node calculation-malt-port)
+                      malt-params->form)]
+    (fp/with-fallback #(profile (assoc req :problems %))
+      (fp/parse-params  form params)
+      (let [result (calculate-in-params calculation-malt-node
+                                        calculation-malt-port
+                                        session-id
+                                        id
+                                        (dissoc params :submit :id))]
+        (if (contains? result :result)
+          (profile (assoc req
+                     :calc-result (:result result)
+                     :flash {:success "DONE"}))
+          (profile (assoc req :flash result)))))))
