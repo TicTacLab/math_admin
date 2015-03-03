@@ -25,7 +25,28 @@
 
        (has (t/element? [:.model]) "Should have one model")
        (within [:.model :.model-name]
-         (has (text? "Test Model"))))
+         (has (text? "Test Model")))
+       
+       (within [:.model]
+         (follow "Replace"))
+       
+       (fill-in "In sheet name" "MEGASHIT")
+       (attach-file "File" (io/file *file*))
+       (press "Submit")
+       (follow-redirect)
+
+       (within [:.model :.model-in-sheet-name]
+         (has (text? "MEGASHIT")))
+       
+       (within [:.model]
+         (t/download-file "Download"))
+       
+       (has (status? 200) "Should return file")
+       
+       (visit "/models")
+       (press "Delete")
+       (follow-redirect)
+       (has (missing? [:.model])))
 
    (finally
      (component/stop system)))))
