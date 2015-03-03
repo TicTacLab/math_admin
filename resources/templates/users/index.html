@@ -13,14 +13,22 @@
     <tr>
         <td>[[user.login]]</td>
         <td>[[user.name]]</td>
-        <td>[[user.status]]</td>
         <td>
-            <!--<form action="/users/[[model.id]]" method="POST">
-                <input type="hidden" name="_method" value="DELETE"/>
-                &lt;!&ndash;<a class="btn btn-primary" href="/models/[[model.id]]/download">Download</a>
-                <a class="btn btn-default" href="/models/[[model.id]]/edit">Replace</a>&ndash;&gt;
-                <button type="submit" class="btn btn-danger">Deactivate</button>
-            </form>-->
+            <span class='label [% ifequal user.status "active" %] label-primary [% else %] label-default [% endifequal %]'>
+                [[user.status]]
+            </span>
+        </td>
+        <td>
+            <form action="/users/[[user.login]]/change-status" method="POST">
+                <input type="hidden" name="_method" value="PUT"/>
+                <a class="btn btn-default" href="/users/[[user.login]]/edit">Edit</a>
+                <a class="btn btn-default" href="/users/[[user.login]]/edit-password">Password</a>
+                [% ifequal user.status "active" %]
+                <button type="submit" class="btn btn-danger" name="action" value="deactivate">Deactivate</button>
+                [% else %]
+                <button type="submit" class="btn btn-primary" name="action" value="activate">Activate</button>
+                [% endifequal %]
+            </form>
         </td>
     </tr>
     [% endfor %]

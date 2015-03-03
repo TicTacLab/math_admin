@@ -30,7 +30,8 @@
                 <li><a href="/models">Models</a></li>
             </ul>
             [% if signed-in? %]
-            <form action="/auth/signout" method="post">
+            <form action="/auth" method="post">
+                <input type="hidden" name="_method" value="DELETE"/>
               <button type="submit" class="navbar-right btn btn-default navbar-btn">Logout</button>
             </form>
             [% endif %]

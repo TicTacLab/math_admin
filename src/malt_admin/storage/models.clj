@@ -33,3 +33,11 @@
     (first (cql/select conn "models"
                        (columns :id :file_name :file :content_type)
                        (where [[= :id id]])))))
+
+(defn model-exists? [storage id]
+  (let [{:keys [conn]} storage]
+    (-> (cql/select conn "models"
+                    (columns :id)
+                    (where [[= :id id]]))
+        (first)
+        (boolean))))

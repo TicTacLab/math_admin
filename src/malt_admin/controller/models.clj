@@ -2,8 +2,8 @@
   (:require [malt-admin.view :refer (render)]
             [malt-admin.storage.configuration :as st]
             [malt-admin.form.model :as form]
-            [malt-admin.helpers :refer [csv-to-list redirect-with-flash]]
             [cheshire.core :as json]
+            [malt-admin.helpers :refer [csv-to-list redirect-with-flash error!]]
             [formative.parse :as fp]
             [ring.util.response :as res]
             [formative.core :as f]
@@ -66,14 +66,16 @@
                   {storage :storage} :web
                   :as req}]
   (fp/with-fallback #(malt-admin.controller.models/upload (assoc req :problems %))
-    (let [values (->> params
-                      (fp/parse-params form/upload-form)
-                      (prepare-file-attrs))]
-      (storage/write-model! storage values)
-      (->> (:id values)
-           (notify-malts storage)
-           make-malts-notify-result-flash
-           (redirect-with-flash "/models")))))
+    (if (storage/model-exists? storage (Integer. (:id params)))
+      (error! [:id] (str "Model with this ID already exists: " (:id params)))
+      (let [values (->> params
+                        (fp/parse-params form/upload-form)
+                        (prepare-file-attrs))]
+        (storage/write-model! storage values)
+        (->> (:id values)
+             (notify-malts storage)
+             make-malts-notify-result-flash
+             (redirect-with-flash "/models"))))))
 
 (defn edit [{{storage :storage} :web
              {id :id :as params} :params

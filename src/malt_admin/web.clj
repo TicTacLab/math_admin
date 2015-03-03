@@ -9,10 +9,11 @@
             [malt-admin.controller
              [configuration :as configuration]
              [models :as models]
-             [users :as users]]
+             [users :as users]
+             [auth :as auth]]
             [malt-admin.view :refer (render)]
             [environ.core :as environ]
-            [malt-admin.web.middleware :refer (wrap-check-session wrap-with-web wrap-with-stacktrace)]
+            [malt-admin.middleware :refer (wrap-check-session wrap-with-web wrap-with-stacktrace)]
             [ring.util.response :as res]
             [ring.middleware
              [cookies :refer (wrap-cookies)]
@@ -25,10 +26,14 @@
 
 (defroutes routes
   (GET    "/" req (res/redirect "/configuration"))
+  
+  (GET    "/auth" req (auth/index req))
+  (POST   "/auth" req (auth/sign-in req))
+  (DELETE "/auth" req (auth/sign-out req))
 
   (GET    "/configuration" req (configuration/index req))
   (POST   "/configuration" req (configuration/update req))
-
+  
   (GET    "/models" req (models/index req))
   (GET    "/models/upload" req (models/upload req))
   (GET    "/models/:id/edit" req (models/edit req))
@@ -42,11 +47,17 @@
   (GET    "/users" req (users/index req))
   (GET    "/users/new" req (users/new* req))
   (POST   "/users" req (users/create req))
+  (GET    "/users/:login/edit" req (users/edit req))
+  (PUT    "/users/:login" req (users/update req))
+  (GET    "/users/:login/edit-password" req (users/edit-password req))
+  (PUT    "/users/:login/update-password" req (users/update-password req))
+  (PUT    "/users/:login/change-status" req (users/change-status req))
 
   (route/not-found "<h1>Page not found!</h1>"))
 
 (defn app [web]
   (-> routes
+      (wrap-check-session)
       (wrap-webjars)
       (wrap-keyword-params)
       (wrap-multipart-params)
