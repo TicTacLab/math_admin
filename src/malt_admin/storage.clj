@@ -15,6 +15,7 @@
   (start [component]
     (let [conn (cc/connect storage-nodes
                            storage-keyspace)]
+
       (log/info "Storage started")
       (assoc component :conn conn)))
 

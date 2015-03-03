@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS malt.configuration (
+CREATE TABLE IF NOT EXISTS configuration (
        config varchar PRIMARY KEY
 );
 

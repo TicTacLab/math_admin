@@ -3,4 +3,5 @@
 (def signin
   {:fields [{:name :login :type :text}
             {:name :password :type :password}]
-   :validations [[:required [:login :password]]]})
+   :validations [[:required [:login :password]]]
+   :submit-label "Sign In"})

@@ -3,7 +3,9 @@
             [malt-admin.system :as s]
             [clojure.pprint :refer [pprint]]
             [com.stuartsierra.component :as component]
-            [environ.core :as environ]))
+            [environ.core :as environ]
+            [com.aphyr.prism :as p]
+            [clojure.java.io :as io]))
 
 (defonce system nil)
 
@@ -32,3 +34,6 @@
   (stop)
   (reload-ns)
   (go))
+ 
+(defn autotest! []
+  (p/autotest! [(io/file "src")] [(io/file "test")]))
