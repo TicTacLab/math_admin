@@ -199,10 +199,10 @@
                                                         :problems problems})})))
 
 (defn profile-execute [{{storage :storage} :web
+                        session-id :session-id
                         params :params :as req}]
   (let [id (:id params)
         {:keys [calculation-malt-node calculation-malt-port]} (st/read-config storage)
-        ssid "BADA55"
         form (some->> id
                       (get-malt-params calculation-malt-node calculation-malt-port)
                       malt-params->form)]
@@ -210,7 +210,7 @@
       (fp/parse-params  form params)
       (let [result (calculate-in-params calculation-malt-node
                                         calculation-malt-port
-                                        ssid
+                                        session-id
                                         id
                                         (dissoc params :submit :id))]
         (if (contains? result :result)
