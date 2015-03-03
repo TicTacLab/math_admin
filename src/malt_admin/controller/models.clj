@@ -155,22 +155,10 @@
             :body
             (json/parse-string true))))
 
-(defn profile [{{id :id} :params
+(defn profile [{params :params
                 problems :problems
                 {storage :storage} :web :as req}]
-  (let [{:keys [malt-nodes rest-port]} (st/read-config storage)
-        form (some-> malt-nodes
-                     csv-to-list
-                     first
-                     (get-malt-params rest-port id)
-                     malt-params->form)]
-    (render "models/profile" req {:profile-form (merge form
-                                                       {:action (str "/models/" id "/profile")
-                                                        :method "POST"
-                                                        :problems problems})})))
-
-(defn profile-execute [{{storage :storage} :web
-                        params :params :as req}]
+  (clojure.pprint/pprint params)
   (let [id (:id params)
         {:keys [malt-nodes rest-port]} (st/read-config storage)
         form (some-> malt-nodes
@@ -178,11 +166,44 @@
                      first
                      (get-malt-params rest-port id)
                      malt-params->form)
-        ;;        malt-nodes (csv-to-list malt-nodes)
-        ;;        malt-params (get-malt-params (first malt-nodes) rest-port id)
-        ;;        form (malt-params->form malt-params)
-        ]
+        ;; inject params from invalid validation
+        form (if (contains? params :submit)
+               (assoc form :values params)
+               form)]
+    (render "models/profile" req {:profile-form (merge form
+                                                       {:action (str "/models/" id "/profile")
+                                                        :method "POST"
+                                                        :problems problems})})))
+
+(defn- calculate-in-params [node port ssid id params]
+  (try
+    (let [url (format "http://%s:%s/model/calc"
+                      node
+                      port)
+          malt-params {:id id :ssid ssid :params (map (fn [[id value]] {:id id :value value}) params)}
+          {:keys [body error status]} @(http/post url {:body (json/generate-string malt-params)
+                                                       :headers {"Content-type" "text/plain"}
+                                                       :timeout 60000})]
+      (if error (throw error))
+      (if (= status 200)
+        body
+        (log/errorf "Got code %s while calculation with body: %s" status body)))
+    (catch Exception e
+      (log/error e "While calculation"))))
+
+(defn profile-execute [{{storage :storage} :web
+                        params :params :as req}]
+  (let [id (:id params)
+        {:keys [malt-nodes rest-port]} (st/read-config storage)
+        malt-nodes (csv-to-list malt-nodes)
+        ssid "BADA55"
+        form (some-> malt-nodes
+                     first
+                     (get-malt-params rest-port id)
+                     malt-params->form)]
     (fp/with-fallback #(profile (assoc req :problems %))
       (fp/parse-params  form params)
-      (log/warn "STUB! Should pass collected params to malt for output")
-      (res/redirect-after-post (str "/models/" id "/profile")))))
+      (log/warn "STUB! Should pass collected params to malt for calculation")
+      (if-let [result (calculate-in-params (first malt-nodes) rest-port ssid id (dissoc params :submit :id))]
+        result
+        "ERROR"))))
