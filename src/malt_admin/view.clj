@@ -15,10 +15,7 @@
            timestamp)))
 
 (defn- pprint-str [value]
-  (let [s (java.io.StringWriter.)]
-    (binding [*out* s]
-      (clojure.pprint/pprint value)
-      (.toString s))))
+  (with-out-str (clojure.pprint/pprint value)))
 
 (filters/add-filter! :pprint pprint-str)
 
