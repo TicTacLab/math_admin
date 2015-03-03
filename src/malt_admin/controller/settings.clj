@@ -1,6 +1,6 @@
 (ns malt-admin.controller.settings
   (:require [malt-admin.view :refer (render)]
-            [malt-admin.storage.settings :as st]
+            [malt-admin.storage.configuration :as cfg]
             [malt-admin.form.settings :as forms]
             [formative.parse :as fp]
             [formative.core :as fc]
@@ -12,9 +12,9 @@
               :as req}]
   (let [settings (if (contains? params :submit)
                  (dissoc params :submit)
-                 (st/read-settings storage))]
+                 (cfg/read-settings storage))]
 
-    (render "configuration/index"
+    (render "settings/index"
             req
             {:form (assoc forms/settings
                      :values settings
@@ -27,5 +27,5 @@
                params :params :as req}]
   (fp/with-fallback #(index (assoc req :problems %))
     (let [settings (fp/parse-params forms/settings params)]
-      (st/write-settings! storage settings)
+      (cfg/write-settings! storage settings)
       (res/redirect-after-post "/settings"))))

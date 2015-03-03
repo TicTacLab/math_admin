@@ -1,7 +1,6 @@
 (ns malt-admin.controller.models
   (:require [malt-admin.view :refer (render)]
-            [malt-admin.storage.configuration :as st]
-            [malt-admin.storage.settings :as settings]
+            [malt-admin.storage.configuration :as cfg]
             [malt-admin.form.model :as form]
             [cheshire.core :as json]
             [malt-admin.helpers :refer [csv-to-list redirect-with-flash error!]]
@@ -30,8 +29,8 @@
          400)))
 
 (defn notify-malts [storage model-id]
-  (let [{:keys [rest-port]} (st/read-config storage)
-        {:keys [malt-nodes]} (settings/read-settings storage)
+  (let [{:keys [rest-port]} (cfg/read-config storage)
+        {:keys [malt-nodes]} (cfg/read-settings storage)
         malt-reload-model-url "/model/refresh"
         malt-nodes (csv-to-list malt-nodes)]
     (zipmap malt-nodes
@@ -189,7 +188,7 @@
                 {storage :storage} :web :as req}]
   (let [id (:id params)
         {malt-host :profiling-malt-host
-         malt-port :profiling-malt-port} (settings/read-settings storage)
+         malt-port :profiling-malt-port} (cfg/read-settings storage)
         malt-params (get-malt-params malt-host malt-port id)
         values (if (contains? params :submit)
                  params
@@ -207,7 +206,7 @@
                         params :params :as req}]
   (let [id (:id params)
         {malt-host :profiling-malt-host
-         malt-port :profiling-malt-port} (settings/read-settings storage)
+         malt-port :profiling-malt-port} (cfg/read-settings storage)
         form (some->> id
                       (get-malt-params malt-host malt-port)
                       malt-params->form)]
