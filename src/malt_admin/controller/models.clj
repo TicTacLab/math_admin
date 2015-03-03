@@ -188,8 +188,9 @@
                 calc-result :calc-result
                 {storage :storage} :web :as req}]
   (let [id (:id params)
-        {:keys [calculation-malt-node calculation-malt-port]} (settings/read-settings storage)
-        malt-params (get-malt-params calculation-malt-node calculation-malt-port id)
+        {malt-host :profiling-malt-host
+         malt-port :profiling-malt-port} (settings/read-settings storage)
+        malt-params (get-malt-params malt-host malt-port id)
         values (if (contains? params :submit)
                  params
                  (malt-params->form-values malt-params))
@@ -205,14 +206,15 @@
                         session-id :session-id
                         params :params :as req}]
   (let [id (:id params)
-        {:keys [calculation-malt-node calculation-malt-port]} (settings/read-settings storage)
+        {malt-host :profiling-malt-host
+         malt-port :profiling-malt-port} (settings/read-settings storage)
         form (some->> id
-                      (get-malt-params calculation-malt-node calculation-malt-port)
+                      (get-malt-params malt-host malt-port)
                       malt-params->form)]
     (fp/with-fallback #(profile (assoc req :problems %))
       (fp/parse-params  form params)
-      (let [result (calculate-in-params calculation-malt-node
-                                        calculation-malt-port
+      (let [result (calculate-in-params malt-host
+                                        malt-port
                                         session-id
                                         id
                                         (dissoc params :submit :id))]
