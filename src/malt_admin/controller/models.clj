@@ -187,7 +187,7 @@
         malt-params (get-malt-params calculation-malt-node calculation-malt-port id)
         values (if (contains? params :submit)
                  params
-                 (malt-params->values malt-params))
+                 (malt-params->form-values malt-params))
         form (malt-params->form malt-params values)]
     (render "models/profile" req {:calc-result (json/parse-string calc-result)
                                   :profile-form (merge form
