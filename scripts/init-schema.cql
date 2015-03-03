@@ -4,6 +4,10 @@ CREATE TABLE IF NOT EXISTS malt.configuration (
        config varchar PRIMARY KEY
 );
 
+CREATE TABLE IF NOT EXISTS malt.settings (
+       settings varchar PRIMARY KEY
+);
+
 CREATE TABLE IF NOT EXISTS malt.models (
        id int PRIMARY KEY,
        name varchar,

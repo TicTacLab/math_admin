@@ -5,20 +5,36 @@
             [clojure.tools.logging :as log]))
 
 
+(defn- write-configuration! [conn table column value]
+  (cql/truncate conn table)
+  (some->> value
+           json/generate-string
+           (hash-map column)
+           (cql/insert conn table)))
+
+(defn- read-configuration [conn table column]
+  (try
+    (json/parse-string (some-> (cql/select conn table)
+                               first
+                               (get column))
+                       true)
+    (catch Exception e
+      (log/error e "occured while reading configuration"))))
+
 (defn write-config! [storage config]
   (let [{:keys [conn configuration-table]} storage]
-    (cql/truncate conn configuration-table)
-    (some->> config
-             json/generate-string
-             (hash-map :config)
-             (cql/insert conn configuration-table))))
+    (write-configuration! conn configuration-table :config config)))
 
 (defn read-config [storage]
   (let [{:keys [conn configuration-table]} storage]
-    (try
-      (json/parse-string (some->> (cql/select conn configuration-table)
-                                  first
-                                  :config)
-                         true)
-      (catch Exception e
-        (log/error e "occured while reading config")))))
+    (read-configuration conn configuration-table :config)))
+
+
+(defn write-settings! [storage settings]
+  (let [{:keys [conn settings-table]} storage]
+    (write-configuration! conn settings-table :settings settings)))
+
+
+(defn read-settings [storage]
+  (let [{:keys [conn settings-table]} storage]
+    (read-configuration conn settings-table :settings)))

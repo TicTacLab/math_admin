@@ -8,6 +8,7 @@
             [clojure.tools.trace :refer (trace)]
             [malt-admin.controller
              [configuration :as configuration]
+             [settings :as settings]
              [models :as models]
              [users :as users]
              [auth :as auth]]
@@ -26,14 +27,17 @@
 
 (defroutes routes
   (GET    "/" req (res/redirect "/configuration"))
-  
+
   (GET    "/auth" req (auth/index req))
   (POST   "/auth" req (auth/sign-in req))
   (DELETE "/auth" req (auth/sign-out req))
 
   (GET    "/configuration" req (configuration/index req))
   (POST   "/configuration" req (configuration/update req))
-  
+
+  (GET    "/settings" req (settings/index req))
+  (POST   "/settings" req (settings/update req))
+
   (GET    "/models" req (models/index req))
   (GET    "/models/upload" req (models/upload req))
   (GET    "/models/:id/edit" req (models/edit req))

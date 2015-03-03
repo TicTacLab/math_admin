@@ -1,6 +1,6 @@
 (ns malt-admin.controller.models
   (:require [malt-admin.view :refer (render)]
-            [malt-admin.storage.configuration :as st]
+            [malt-admin.storage.configuration :as cfg]
             [malt-admin.form.model :as form]
             [cheshire.core :as json]
             [malt-admin.helpers :refer [csv-to-list redirect-with-flash error!]]
@@ -29,7 +29,9 @@
          400)))
 
 (defn notify-malts [storage model-id]
-  (let [{:keys [malt-nodes rest-port malt-reload-model-url] :as config} (st/read-config storage)
+  (let [{:keys [rest-port]} (cfg/read-config storage)
+        {:keys [malt-nodes]} (cfg/read-settings storage)
+        malt-reload-model-url "/model/refresh"
         malt-nodes (csv-to-list malt-nodes)]
     (zipmap malt-nodes
             (map #(notify-malt % rest-port malt-reload-model-url model-id) malt-nodes))))
@@ -185,8 +187,9 @@
                 calc-result :calc-result
                 {storage :storage} :web :as req}]
   (let [id (:id params)
-        {:keys [calculation-malt-node calculation-malt-port]} (st/read-config storage)
-        malt-params (get-malt-params calculation-malt-node calculation-malt-port id)
+        {malt-host :profiling-malt-host
+         malt-port :profiling-malt-port} (cfg/read-settings storage)
+        malt-params (get-malt-params malt-host malt-port id)
         values (if (contains? params :submit)
                  params
                  (malt-params->form-values malt-params))
@@ -202,14 +205,15 @@
                         session-id :session-id
                         params :params :as req}]
   (let [id (:id params)
-        {:keys [calculation-malt-node calculation-malt-port]} (st/read-config storage)
+        {malt-host :profiling-malt-host
+         malt-port :profiling-malt-port} (cfg/read-settings storage)
         form (some->> id
-                      (get-malt-params calculation-malt-node calculation-malt-port)
+                      (get-malt-params malt-host malt-port)
                       malt-params->form)]
     (fp/with-fallback #(profile (assoc req :problems %))
       (fp/parse-params  form params)
-      (let [result (calculate-in-params calculation-malt-node
-                                        calculation-malt-port
+      (let [result (calculate-in-params malt-host
+                                        malt-port
                                         session-id
                                         id
                                         (dissoc params :submit :id))]

@@ -9,6 +9,7 @@
            web-host
            storage-nodes
            storage-keyspace
+           settings-table
            configuration-table] :as config}]
 
   (component/system-map
@@ -18,4 +19,5 @@
          {:storage :storage})
    :storage (storage/new-storage {:storage-nodes (csv-to-list storage-nodes)
                                   :storage-keyspace storage-keyspace
+                                  :settings-table settings-table
                                   :configuration-table configuration-table})))
