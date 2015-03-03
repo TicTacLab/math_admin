@@ -1,5 +1,11 @@
 [% extends "layout.html" %]
 [% block body %]
-<h1>Replace Model</h1>
+<h1>Model profiling</h1>
 [[ profile-form|form|safe ]]
+[% if calc-result %]
+<h3>Calculation result:</h3>
+<pre>
+  [[ calc-result|pprint ]]
+</pre>
+[% endif %]
 [% endblock %]
