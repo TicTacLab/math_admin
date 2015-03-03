@@ -1,14 +1,12 @@
-CREATE KEYSPACE IF NOT EXISTS malt WITH REPLICATION = {'class' : 'SimpleStrategy', 'replication_factor' : 1};
-
-CREATE TABLE IF NOT EXISTS malt.configuration (
+CREATE TABLE IF NOT EXISTS configuration (
        config varchar PRIMARY KEY
 );
 
-CREATE TABLE IF NOT EXISTS malt.settings (
+CREATE TABLE IF NOT EXISTS settings (
        settings varchar PRIMARY KEY
 );
 
-CREATE TABLE IF NOT EXISTS malt.models (
+CREATE TABLE IF NOT EXISTS models (
        id int PRIMARY KEY,
        name varchar,
        file blob,
@@ -18,7 +16,7 @@ CREATE TABLE IF NOT EXISTS malt.models (
        out_sheet_name varchar
 );
 
-CREATE TABLE IF NOT EXISTS malt.users (
+CREATE TABLE IF NOT EXISTS users (
        login varchar PRIMARY KEY,
        name varchar,
        password varchar,
@@ -26,45 +24,12 @@ CREATE TABLE IF NOT EXISTS malt.users (
 );
 
 INSERT INTO
-       malt.users (login,name,password,status)
+       users (login,name,password,status)
 VALUES
 	('admin', 'Admin', '$s0$e0801$eRcvK6dZYIhXWbvWJjCZ0g==$8dePdNlKUclyFiXrrMTRXg3xNwuZHVl22yeaBvzU+34=', 'active');
 
 
-CREATE TABLE IF NOT EXISTS malt.sessions (
+CREATE TABLE IF NOT EXISTS sessions (
        session_id uuid PRIMARY KEY,
        login varchar
 );
-
-CREATE KEYSPACE IF NOT EXISTS malt_test WITH REPLICATION = {'class' : 'SimpleStrategy', 'replication_factor' : 1};
-  
-CREATE TABLE IF NOT EXISTS malt_test.configuration (
-         config varchar PRIMARY KEY
-);
-  
-CREATE TABLE IF NOT EXISTS malt_test.models (
-         id int PRIMARY KEY,
-         name varchar,
-         file blob,
-         file_name varchar,
-         content_type varchar,
-         in_sheet_name varchar,
-         out_sheet_name varchar
- );
- CREATE TABLE IF NOT EXISTS malt.users (
-        login varchar PRIMARY KEY,
-        name varchar,
-        password varchar,
-        status varchar
- );
- 
- INSERT INTO
-        malt.users (login,name,password,status)
- VALUES
- 	('admin', 'Admin', '$s0$e0801$eRcvK6dZYIhXWbvWJjCZ0g==$8dePdNlKUclyFiXrrMTRXg3xNwuZHVl22yeaBvzU+34=', 'active');
- 
- 
- CREATE TABLE IF NOT EXISTS malt.sessions (
-        session_id uuid PRIMARY KEY,
-        login varchar
- );

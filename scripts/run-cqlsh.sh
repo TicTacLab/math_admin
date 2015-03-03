@@ -1,1 +1,1 @@
-docker run -it --rm spotify/cassandra:base cqlsh $1
+docker run -it --rm spotify/cassandra:base cqlsh $@

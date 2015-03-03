@@ -11,7 +11,7 @@
                  [ch.qos.logback/logback-core "1.1.2"]
                  [ch.qos.logback/logback-classic "1.1.2"]
                  [org.clojure/tools.logging "0.3.1"]
-                 [clojurewerkz/cassaforte "2.0.0"]
+                 [clojurewerkz/cassaforte "2.0.0" :exclusions [com.google.guava/guava]]
                  [clojurewerkz/scrypt "1.2.0"]
                  [compojure "1.2.0"]
                  [selmer "0.7.2"]
@@ -26,7 +26,9 @@
                  [ring-webjars "0.1.0" :exclusions [org.slf4j/slf4j-nop]]
                  [org.webjars/bootstrap "3.3.2"]
                  [org.webjars/jquery "2.1.3"]
-                 [kerodon "0.5.0"]]
+                 [kerodon "0.5.0"]
+                 [com.aphyr/prism "0.1.1"]
+                 [org.cassandraunit/cassandra-unit "2.0.2.2" :exclusions [org.slf4j/slf4j-log4j12]]]
   :repl-options {:timeout 120000
                  :init-ns user}
   :main malt-admin.main
@@ -52,8 +54,7 @@
                                    [aprint "0.1.0"]
                                    [http-kit.fake "0.2.1"]]}]
              :test [:test-env
-                    {:dependencies [[com.aphyr/prism "0.1.1"]
-                                    [http-kit.fake "0.2.1"]]}]})
+                    {:dependencies [[http-kit.fake "0.2.1"]]}]})
 (cemerick.pomegranate.aether/register-wagon-factory!
  "scp" #(let [c (resolve 'org.apache.maven.wagon.providers.ssh.external.ScpExternalWagon)]
           (clojure.lang.Reflector/invokeConstructor c (into-array []))))
