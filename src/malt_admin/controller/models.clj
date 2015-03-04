@@ -131,17 +131,19 @@
 
 (defn- malt-params->form-fileds [malt-params]
   (some->> malt-params
+           (sort-by :id)
            (map (fn [{:keys [id name type code]}]
-                  (let [f-label (format "%s (%s/%s)" name type code)
+                  (let [f-label (format "%s. %s (%s/%s)" id name type code)
                         f-name (-> id str keyword)]
-                    {:name f-name :label f-label :type :text})))))
+                    {:name f-name :label f-label :type :text})))
+           trace))
 
 (defn- malt-params->form-values [malt-params]
   (some->> malt-params
-       (map (fn [{:keys [id value]}]
-              (vector (-> id str keyword)
-                      value)))
-       (into {})))
+           (map (fn [{:keys [id value]}]
+                  (vector (-> id str keyword)
+                          value)))
+           (into {})))
 
 (defn- malt-params->form-validations [malt-params]
   (some->> malt-params
