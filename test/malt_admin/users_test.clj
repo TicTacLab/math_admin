@@ -48,4 +48,12 @@
       (testing "Activation/Deactivation"
         (click (second (elements b "Deactivate")))
         (is (= "inactive" (text b (second (elements b :.user-status)))) "User status should be changed to inactive")
-        (signin b "super-duper" "simple-password")))))
+        (signin b "super-duper" "simple-password")
+        (is (re-find #"Invalid login or password"
+                     (text b :.form-problems))
+            "Inactive user should not be able to singin")
+        (signin b)
+        (click b "Activate")
+        (signout b)
+        (signin b "super-duper" "simple-password")
+        (is (= "You successfully signed in" (text b :#flash)) "Active user should be allowed to singin")))))
