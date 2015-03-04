@@ -2,8 +2,7 @@
   (:use clojure.test)
   (:require [malt-admin.test-helper :as t :refer [test-system signin signout go fill-in]]
             [clj-webdriver.taxi :as w :refer [elements click send-keys text accept implicit-wait]]
-            [environ.core :as environ]
-            [clj-webdriver.taxi :as w]))
+            [environ.core :as environ]))
 
 (deftest models-test
   (t/with-system [s (test-system environ/env)]
