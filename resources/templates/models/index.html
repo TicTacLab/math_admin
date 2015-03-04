@@ -24,10 +24,15 @@
                 <a class="btn btn-primary" href="/models/[[model.id]]/profile">Profile</a>
                 <a class="btn btn-default" href="/models/[[model.id]]/download">Download</a>
                 <a class="btn btn-default" href="/models/[[model.id]]/edit">Replace</a>
-                <button type="submit" class="btn btn-danger">Delete</button>
+                <button type="submit" class="btn btn-danger model-delete-btn">Delete</button>
             </form>
         </td>
     </tr>
     [% endfor %]
 </table>
+
+<script>
+    $('.model-delete-btn').click(function() { return confirm('Are you sure?') })
+</script>
+
 [% endblock %]

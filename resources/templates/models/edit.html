@@ -2,4 +2,8 @@
 [% block body %]
 <h1>Replace Model</h1>
 [[ edit-form|form|safe ]]
+
+<script>
+    $('#field-submit').click(function() { return confirm('Are you sure?') })
+</script>
 [% endblock %]

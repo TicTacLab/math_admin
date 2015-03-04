@@ -79,6 +79,7 @@
     (let [handler (app component)
           srv (http-kit/run-server handler {:port port
                                                     :host host
+                                                    :max-body 52428800 ;; 50Mb
                                                     :join? false})]
       (selmer.parser/set-resource-path! (clojure.java.io/resource "templates"))
       (if (= (:app-env environ/env) "production")

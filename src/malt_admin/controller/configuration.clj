@@ -2,6 +2,7 @@
   (:require [malt-admin.view :refer (render)]
             [malt-admin.storage.configuration :as st]
             [malt-admin.form.configuration :as forms]
+            [malt-admin.audit :refer [audit]]
             [formative.parse :as fp]
             [formative.core :as fc]
             [ring.util.response :as res]))
@@ -12,7 +13,9 @@
               :as req}]
   (let [config (if (contains? params :submit)
                  (dissoc params :submit)
-                 (st/read-config storage))]
+                 (-> storage
+                     st/read-config
+                     (update-in [:session-ttl] / 60)))]
 
     (render "configuration/index"
             req
@@ -26,6 +29,8 @@
 (defn update [{{storage :storage} :web
                params :params :as req}]
   (fp/with-fallback #(index (assoc req :problems %))
-    (let [config (fp/parse-params forms/config params)]
+    (let [config (-> (fp/parse-params forms/config params)
+                     (update-in [:session-ttl] * 60))]
       (st/write-config! storage config)
+      (audit req :udpate-configuration config)
       (res/redirect-after-post "/configuration"))))
