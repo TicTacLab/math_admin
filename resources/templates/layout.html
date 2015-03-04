@@ -33,24 +33,27 @@
             [% if signed-in? %]
             <form action="/auth" method="post">
                 <input type="hidden" name="_method" value="DELETE"/>
-              <button type="submit" class="navbar-right btn btn-default navbar-btn">Logout</button>
+              <button type="submit" class="navbar-right btn btn-default navbar-btn">Sign out</button>
             </form>
             [% endif %]
         </div><!--/.nav-collapse -->
     </div>
 </nav>
 <div class="container">
-    [% if flash.success %]
-    <div class="alert alert-success">
-        [[flash.success]]
-    </div>
-    [% endif %]
+    <div id="flash">
+        [% if flash.success %]
+        <div class="alert alert-success">
+            [[flash.success]]
+        </div>
+        [% endif %]
 
-    [% if flash.error %]
-    <div class="alert alert-danger">
-        [[flash.error]]
+        [% if flash.error %]
+        <div class="alert alert-danger">
+            [[flash.error]]
+        </div>
+        [% endif %]
     </div>
-    [% endif %]
+
     [% block body %]
     [% endblock %]
 </div>

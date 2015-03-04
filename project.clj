@@ -26,7 +26,8 @@
                  [ring-webjars "0.1.0" :exclusions [org.slf4j/slf4j-nop]]
                  [org.webjars/bootstrap "3.3.2"]
                  [org.webjars/jquery "2.1.3"]
-                 [kerodon "0.5.0"]
+                 [clj-webdriver "0.6.1" :exclusions [com.google.guava/guava org.seleniumhq.selenium/selenium-server]]
+                 [org.seleniumhq.selenium/selenium-server "2.44.0" :exclusions [com.google.guava/guava org.yaml/snakeyaml]]
                  [com.aphyr/prism "0.1.1"]
                  [org.cassandraunit/cassandra-unit "2.0.2.2" :exclusions [org.slf4j/slf4j-log4j12]]]
   :repl-options {:timeout 120000
@@ -44,7 +45,7 @@
                               :username [:gpg :env/bagira_username]
                               :password [:gpg :env/bagira_password]
                               :private-key-file [:gpg :env/private_key_file]}]]
-  :jvm-opts ["-Dlogback.configurationFile=logback.xml"]
+  :jvm-opts ["-Dlogback.configurationFile=logback.xml" "-Dwebdriver.chrome.driver=/usr/lib/chromium-browser/chromedriver"]
   :uberjar-name "malt-admin-standalone.jar"
   :profiles {:production {:jvm-opts ["-Dlogback.configurationFile=logback.production.xml"]}
              :staging {:jvm-opts ["-Dlogback.configurationFile=logback.production.xml"]}

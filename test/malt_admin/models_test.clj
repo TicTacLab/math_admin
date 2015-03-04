@@ -1,52 +1,34 @@
 (ns malt-admin.models-test
-  (:use clojure.test
-        kerodon.core
-        kerodon.test)
+  (:use clojure.test)
   (:require [malt-admin.test-helper :as t :refer [test-system]]
             [environ.core :as environ]
-            [com.stuartsierra.component :as component]
-            [clojure.java.io :as io]))
+            [clj-webdriver.taxi :as w]))
 
 (deftest models-test
- (let [{{handler :handler} :web :as system} (component/start (test-system environ/env))]
-  (try
-   (-> (session handler)
-       (t/signin)
-       (visit "/models")
-       (has (missing? [:.model]) "Should have no models")
+  (t/with-system [s (test-system environ/env)]
+    (let [b (t/start-browser! s)]
+      (t/signin b)
+      (t/go b "/models")
+      (is (empty? (w/elements b :.model)))
 
-       (follow "Upload New")
-       
-       (fill-in "ID" 1)
-       (fill-in "Name" "Test Model")
-       (attach-file "File" (io/file *file*))
-       (press "Submit")
-       (follow-redirect)
+      (w/click b "Upload New")
+      (t/fill-in b "ID" "1")
+      (t/fill-in b "Name" "SuperName")
+      (w/send-keys b "File" *file*)
+      (w/click b "Submit")
+      (is (= "SuperName" (w/text b :.model-name)))
 
-       (has (t/element? [:.model]) "Should have one model")
-       (within [:.model :.model-name]
-         (has (text? "Test Model")))
-       
-       (within [:.model]
-         (follow "Replace"))
-       
-       (fill-in "In sheet name" "MEGASHIT")
-       (attach-file "File" (io/file *file*))
-       (press "Submit")
-       (follow-redirect)
+      (w/click b "Replace")
+      (t/fill-in b "In sheet name" "MEGASHIT")
+      (t/fill-in b "Out sheet name" "MEGASHUT")
+      (w/send-keys b "File" "/etc/hosts")
 
-       (within [:.model :.model-in-sheet-name]
-         (has (text? "MEGASHIT")))
-       
-       (within [:.model]
-         (t/download-file "Download"))
-       
-       (has (status? 200) "Should return file")
-       
-       (visit "/models")
-       (press "Delete")
-       (follow-redirect)
-       (has (missing? [:.model])))
+      (w/click b "Submit")
+      (is (= "MEGASHIT" (w/text b :.model-in-sheet-name)))
+      (is (= "MEGASHUT" (w/text b :.model-out-sheet-name)))
+      (is (= "hosts" (w/text b :.model-file-name)))
 
-   (finally
-     (component/stop system)))))
+      (w/click b "Download")
+
+      (w/click b "Delete")
+      (is (empty? (w/elements b :.model))))))
