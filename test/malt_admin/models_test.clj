@@ -1,8 +1,8 @@
 (ns malt-admin.models-test
-  (:use clojure.test
-        clj-webdriver.taxi)
+  (:use clojure.test)
   (:require [malt-admin.test-helper :as t :refer [test-system]]
             [environ.core :as environ]
+            [clj-webdriver.taxi :as w]
             [com.stuartsierra.component :as component]))
 
 (deftest models-test
@@ -10,26 +10,26 @@
     (let [b (t/start-browser! s)]
       (t/signin b)
       (t/go b "/models")
-      (is (empty? (elements b :.model)))
+      (is (empty? (w/elements b :.model)))
 
-      (click b "Upload New")
+      (w/click b "Upload New")
       (t/fill-in b "ID" "1")
       (t/fill-in b "Name" "SuperName")
-      (send-keys b "File" *file*)
-      (click b "Submit")
-      (is (= "SuperName" (text b :.model-name)))
+      (w/send-keys b "File" *file*)
+      (w/click b "Submit")
+      (is (= "SuperName" (w/text b :.model-name)))
 
-      (click b "Replace")
+      (w/click b "Replace")
       (t/fill-in b "In sheet name" "MEGASHIT")
       (t/fill-in b "Out sheet name" "MEGASHUT")
-      (send-keys b "File" "/etc/hosts")
+      (w/send-keys b "File" "/etc/hosts")
 
-      (click b "Submit")
-      (is (= "MEGASHIT" (text b :.model-in-sheet-name)))
-      (is (= "MEGASHUT" (text b :.model-out-sheet-name)))
-      (is (= "hosts" (text b :.model-file-name)))
+      (w/click b "Submit")
+      (is (= "MEGASHIT" (w/text b :.model-in-sheet-name)))
+      (is (= "MEGASHUT" (w/text b :.model-out-sheet-name)))
+      (is (= "hosts" (w/text b :.model-file-name)))
 
-      (click b "Download")
+      (w/click b "Download")
 
-      (click b "Delete")
-      (is (empty? (elements b :.model))))))
+      (w/click b "Delete")
+      (is (empty? (w/elements b :.model))))))

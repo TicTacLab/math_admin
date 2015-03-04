@@ -1,9 +1,9 @@
 (ns malt-admin.test-helper
-  (:use clojure.test
-        clj-webdriver.taxi)
+  (:use clojure.test)
   (:require [malt-admin.system :as sys]
             [malt-admin.embedded-storage :refer (map->EmbeddedStorage)]
             [malt-admin.helpers :refer [csv-to-list]]
+            [clj-webdriver.taxi :as w]
             [clj-webdriver.core :as webdriver]
             [clj-webdriver.element :refer [element-like?]]
             [com.stuartsierra.component :as component]))
@@ -15,45 +15,45 @@
   (swap! base-url (constantly (format "http://localhost:%d"
                                       (get-in system [:web :port]))))
   (or @browser
-      (swap! browser (constantly (set-driver! {:browser :chrome})))))
+      (swap! browser (constantly (w/set-driver! {:browser :chrome})))))
 
 (defn stop-browser! []
   (swap! browser (constantly nil))
   (swap! base-url (constantly nil))
-  (quit))
+  (w/quit))
 
 (.. Runtime
     (getRuntime)
     (addShutdownHook (Thread. stop-browser!)))
 
-(set-finder! (fn finder
+(w/set-finder! (fn finder
                ([q]
-                 (finder *driver* q))
+                 (finder w/*driver* q))
                ([driver q]
                 (cond
                   (element-like? q) q
-                  (keyword? q) (css-finder driver (name q))
-                  (string? q) (or (not-empty (xpath-finder driver (format "//a[text()='%s']" q)))
-                                  (not-empty (xpath-finder driver (format "//button[text()='%s']|//input[@type='submit' and @value='%s']" q q)))
-                                  (let [labels (xpath-finder driver
+                  (keyword? q) (w/css-finder driver (name q))
+                  (string? q) (or (not-empty (w/xpath-finder driver (format "//a[text()='%s']" q)))
+                                  (not-empty (w/xpath-finder driver (format "//button[text()='%s']|//input[@type='submit' and @value='%s']" q q)))
+                                  (let [labels (w/xpath-finder driver
                                                             (format "//label[text()='%s']" q))
                                         id (webdriver/attribute (first labels) :for)]
-                                    (not-empty (xpath-finder driver (format "//*[@id='%s']" id)))))))))
+                                    (not-empty (w/xpath-finder driver (format "//*[@id='%s']" id)))))))))
 
 (defn go [browser & [url]]
-  (to browser (str @base-url url)))
+  (w/to browser (str @base-url url)))
 
 (defn fill-in [browser q text]
-  (clear browser q)
-  (input-text browser q text))
+  (w/clear browser q)
+  (w/input-text browser q text))
 
 (defn signin [browser]
   (doto browser
     (go "/auth")
-    (input-text :#field-login "admin")
-    (input-text :#field-password "admin1488")
+    (w/input-text :#field-login "admin")
+    (w/input-text :#field-password "admin1488")
 
-    (submit :#field-submit)))
+    (w/submit :#field-submit)))
 
 (defn test-system [{:keys [storage-nodes
                            storage-keyspace
