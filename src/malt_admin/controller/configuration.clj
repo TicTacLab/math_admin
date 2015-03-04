@@ -31,7 +31,6 @@
   (fp/with-fallback #(index (assoc req :problems %))
     (let [config (-> (fp/parse-params forms/config params)
                      (update-in [:session-ttl] * 60))]
-      (clojure.pprint/pprint config)
       (st/write-config! storage config)
       (audit req :udpate-configuration config)
       (res/redirect-after-post "/configuration"))))
