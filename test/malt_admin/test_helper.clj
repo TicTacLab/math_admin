@@ -47,13 +47,19 @@
   (w/clear browser q)
   (w/input-text browser q text))
 
-(defn signin [browser]
-  (doto browser
-    (go "/auth")
-    (w/input-text :#field-login "admin")
-    (w/input-text :#field-password "admin1488")
+(defn signin
+  ([browser]
+    (signin browser "admin" "admin1488"))
+  ([browser login password]
+   (doto browser
+     (go "/auth")
+     (w/input-text :#field-login login)
+     (w/input-text :#field-password password)
 
-    (w/submit :#field-submit)))
+     (w/submit :#field-submit))))
+
+(defn signout [browser]
+  (w/click browser "Sign out"))
 
 (defn test-system [{:keys [storage-nodes
                            storage-keyspace

@@ -2,8 +2,7 @@
   (:use clojure.test)
   (:require [malt-admin.test-helper :as t :refer [test-system]]
             [environ.core :as environ]
-            [clj-webdriver.taxi :as w]
-            [com.stuartsierra.component :as component]))
+            [clj-webdriver.taxi :as w]))
 
 (deftest models-test
   (t/with-system [s (test-system environ/env)]

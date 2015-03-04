@@ -1,35 +1,51 @@
-(ns malt-admin.models-test
-  (:use clojure.test
-        clj-webdriver.taxi)
-  (:require [malt-admin.test-helper :as t :refer [test-system]]
-            [environ.core :as environ]
-            [com.stuartsierra.component :as component]))
+(ns malt-admin.users-test
+  (:use clojure.test)
+  (:require [malt-admin.test-helper :as t :refer [test-system signin signout go fill-in]]
+            [clj-webdriver.taxi :as w :refer [elements click send-keys text]]
+            [environ.core :as environ]))
 
 (deftest models-test
   (t/with-system [s (test-system environ/env)]
     (let [b (t/start-browser! s)]
-      (t/signin b)
-      (t/go b "/models")
-      (is (empty? (elements b :.model)))
+      (signin b)
+      (go b "/users")
+      (is (= 1 (count (elements b :.user))) "Should be only one user")
 
-      (click b "Upload New")
-      (t/fill-in b "ID" "1")
-      (t/fill-in b "Name" "SuperName")
-      (send-keys b "File" *file*)
-      (click b "Submit")
-      (is (= "SuperName" (text b :.model-name)))
+      (testing "Create"
+        (click b "Create")
+        (fill-in b "Name" "Superman")
+        (fill-in b "Login" "super-duper")
+        (fill-in b "Password" "super-password")
+        (fill-in b "Password confirmation" "super-password")
+        (click b "Submit")
 
-      (click b "Replace")
-      (t/fill-in b "In sheet name" "MEGASHIT")
-      (t/fill-in b "Out sheet name" "MEGASHUT")
-      (send-keys b "File" "/etc/hosts")
+        (is (= 2 (count (elements b :.user))) "Should be only two users"))
 
-      (click b "Submit")
-      (is (= "MEGASHIT" (text b :.model-in-sheet-name)))
-      (is (= "MEGASHUT" (text b :.model-out-sheet-name)))
-      (is (= "hosts" (text b :.model-file-name)))
+      (testing "Signin newly created user"
+        (signout b)
+        (signin b "super-duper" "super-password")
+        (is (= "You successfully signed in" (text b :#flash)) "User should be allowed to singin")
+        (signout b)
+        (signin b))
 
-      (click b "Download")
+      (testing "Edit"
+        (click (second (elements b "Edit")))
+        (fill-in b "Name" "God")
+        (click "Submit")
+        (is (= "God" (text b (second (elements b :.user-name)))) "Should change user name"))
 
-      (click b "Delete")
-      (is (empty? (elements b :.model))))))
+      (testing "Password change"
+        (click (second (elements b "Password")))
+        (fill-in b "Password" "simple-password")
+        (fill-in b "Password confirmation" "simple-password")
+        (click b "Submit")
+        (signout b)
+        (signin b "super-duper" "simple-password")
+        (is (= "You successfully signed in" (text b :#flash)) "User should be allowed to singin")
+        (signout b)
+        (signin b))
+      
+      (testing "Activation/Deactivation"
+        (click (second (elements b "Deactivate")))
+        (is (= "inactive" (text b (second (elements b :.user-status)))) "User status should be changed to inactive")
+        (signin b "super-duper" "simple-password")))))
