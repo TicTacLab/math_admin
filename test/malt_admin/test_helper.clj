@@ -4,6 +4,7 @@
   (:require [malt-admin.system :as sys]
             [malt-admin.embedded-storage :refer (map->EmbeddedStorage)]
             [malt-admin.helpers :refer [csv-to-list]]
+            [clj-webdriver.core :as webdriver]
             [clj-webdriver.element :refer [element-like?]]))
 
 (def browser (atom nil))
@@ -31,11 +32,19 @@
                 (cond
                   (element-like? q) q
                   (keyword? q) (css-finder driver (name q))
-                  (string? q) (xpath-finder driver
-                                            (format "//*[text()='%s']|//*[@value='%s']" q q))))))
+                  (string? q) (or (not-empty (xpath-finder driver (format "//a[text()='%s']" q)))
+                                  (not-empty (xpath-finder driver (format "//button[text()='%s']|//input[@type='submit' and @value='%s']" q q)))
+                                  (let [labels (xpath-finder driver
+                                                            (format "//label[text()='%s']" q))
+                                        id (webdriver/attribute (first labels) :for)]
+                                    (not-empty (xpath-finder driver (format "//*[@id='%s']" id)))))))))
 
 (defn go [browser & [url]]
   (to browser (str @base-url url)))
+
+(defn fill-in [browser q text]
+  (clear browser q)
+  (input-text browser q text))
 
 (defn signin [browser]
   (doto browser
