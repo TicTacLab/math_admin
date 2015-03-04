@@ -1,52 +1,43 @@
 (ns malt-admin.models-test
   (:use clojure.test
-        kerodon.core
-        kerodon.test)
+        clj-webdriver.taxi)
   (:require [malt-admin.test-helper :as t :refer [test-system]]
             [environ.core :as environ]
-            [com.stuartsierra.component :as component]
-            [clojure.java.io :as io]))
+            [com.stuartsierra.component :as component]))
 
 (deftest models-test
- (let [{{handler :handler} :web :as system} (component/start (test-system environ/env))]
-  (try
-   (-> (session handler)
-       (t/signin)
-       (visit "/models")
-       (has (missing? [:.model]) "Should have no models")
 
-       (follow "Upload New")
-       
-       (fill-in "ID" 1)
-       (fill-in "Name" "Test Model")
-       (attach-file "File" (io/file *file*))
-       (press "Submit")
-       (follow-redirect)
+ (let [system (component/start (test-system environ/env))
+       b (t/start-browser! system)]
+   
+   (try
+     (t/signin b)
+     (t/go b "/models")
+     (is (empty? (elements b :.model)))
+     
+     (click b "Upload New")
+     (input-text b :#field-id "1")
+     (input-text b :#field-name "SuperName")
+     (send-keys b :#field-file *file*)
+     (click b "Submit")
+     (is (= "SuperName" (text b :.model-name)))
+     
+     (click b "Replace")
+     (clear b :#field-in_sheet_name)
+     (input-text b :#field-in_sheet_name "MEGASHIT")
+     (clear b :#field-out_sheet_name)
+     (input-text b :#field-out_sheet_name "MEGASHUT")
+     (send-keys b :#field-file "/etc/hosts")
+     
+     (click b "Submit")
+     (is (= "MEGASHIT" (text b :.model-in-sheet-name)))
+     (is (= "MEGASHUT" (text b :.model-out-sheet-name)))
+     (is (= "hosts" (text b :.model-file-name)))
+     
+     (click b "Download")
+     
+     (click b "Delete")
+     (is (empty? (elements b :.model)))
 
-       (has (t/element? [:.model]) "Should have one model")
-       (within [:.model :.model-name]
-         (has (text? "Test Model")))
-       
-       (within [:.model]
-         (follow "Replace"))
-       
-       (fill-in "In sheet name" "MEGASHIT")
-       (attach-file "File" (io/file *file*))
-       (press "Submit")
-       (follow-redirect)
-
-       (within [:.model :.model-in-sheet-name]
-         (has (text? "MEGASHIT")))
-       
-       (within [:.model]
-         (t/download-file "Download"))
-       
-       (has (status? 200) "Should return file")
-       
-       (visit "/models")
-       (press "Delete")
-       (follow-redirect)
-       (has (missing? [:.model])))
-
-   (finally
-     (component/stop system)))))
+     (finally
+       (component/stop system)))))

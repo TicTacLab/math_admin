@@ -1,37 +1,49 @@
 (ns malt-admin.test-helper
   (:use clojure.test
-        kerodon.core
-        kerodon.test)
+        clj-webdriver.taxi)
   (:require [malt-admin.system :as sys]
             [malt-admin.embedded-storage :refer (map->EmbeddedStorage)]
             [malt-admin.helpers :refer [csv-to-list]]
-            [net.cgrand.enlive-html :as enlive]
-            [kerodon.impl :as impl]
-            [peridot.core :as peridot])
-  (:import (java.io File)))
+            [clj-webdriver.element :refer [element-like?]]))
 
-(defn signin [state]
-  (-> state
-      (visit "/auth")
-      (fill-in "Login" "admin")
-      (fill-in "Password" "admin1488")
-      (press "Sign In")))
+(def browser (atom nil))
+(def base-url (atom nil))
 
-(defmacro element? [selector]
-  `(validate >
-             #(count (enlive/select (:enlive %) ~selector))
-             0
-             (~'element? ~selector)))
+(defn start-browser! [system]
+  (swap! base-url (constantly (format "http://localhost:%d"
+                                      (get-in system [:web :port]))))
+  (or @browser
+      (swap! browser (constantly (set-driver! {:browser :chrome})))))
 
-(defn download-file [state selector]
-  (let [uri (impl/find-url state selector)]
-    (peridot/request state uri)))
+(defn stop-browser! []
+  (swap! browser (constantly nil))
+  (swap! base-url (constantly nil))
+  (quit))
 
-(defn render [state]
-  (let [file (File/createTempFile "kerodon" ".html")]
-    (spit file (get-in state [:response :body]))
-    (.. Runtime (getRuntime) (exec (str "xdg-open " (.getAbsolutePath file)))))
-  state)
+(.. Runtime
+    (getRuntime)
+    (addShutdownHook (Thread. stop-browser!)))
+
+(set-finder! (fn finder
+               ([q]
+                 (finder *driver* q))
+               ([driver q]
+                (cond
+                  (element-like? q) q
+                  (keyword? q) (css-finder driver (name q))
+                  (string? q) (xpath-finder driver
+                                            (format "//*[text()='%s']|//*[@value='%s']" q q))))))
+
+(defn go [browser & [url]]
+  (to browser (str @base-url url)))
+
+(defn signin [browser]
+  (doto browser
+    (go "/auth")
+    (input-text :#field-login "admin")
+    (input-text :#field-password "admin1488")
+
+    (submit :#field-submit)))
 
 (defn test-system [{:keys [storage-nodes
                            storage-keyspace
