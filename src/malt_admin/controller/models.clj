@@ -135,8 +135,7 @@
            (map (fn [{:keys [id name type code]}]
                   (let [f-label (format "%s. %s (%s/%s)" id name type code)
                         f-name (-> id str keyword)]
-                    {:name f-name :label f-label :type :text})))
-           trace))
+                    {:name f-name :label f-label :type :text})))))
 
 (defn- malt-params->form-values [malt-params]
   (some->> malt-params
