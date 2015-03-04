@@ -2,6 +2,7 @@
   (:require [malt-admin.view :refer (render)]
             [malt-admin.storage.configuration :as st]
             [malt-admin.form.configuration :as forms]
+            [malt-admin.audit :refer [audit]]
             [formative.parse :as fp]
             [formative.core :as fc]
             [ring.util.response :as res]))
@@ -28,4 +29,5 @@
   (fp/with-fallback #(index (assoc req :problems %))
     (let [config (fp/parse-params forms/config params)]
       (st/write-config! storage config)
+      (audit req :udpate-configuration config)
       (res/redirect-after-post "/configuration"))))

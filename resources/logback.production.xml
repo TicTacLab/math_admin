@@ -12,7 +12,23 @@
         </rollingPolicy>
     </appender>
 
+
+    <appender name="AUDIT" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <File>/var/log/malt_admin/audit.log</File>
+        <encoder>
+            <pattern>%d: %m%n</pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>/var/log/malt_admin/audit.log.%d{yyyy-MM-dd}</fileNamePattern>
+        </rollingPolicy>
+    </appender>
+
     <root level="INFO">
         <appender-ref ref="R"/>
     </root>
+
+   <logger name="malt-admin.audit" additivity="false" level="INFO">
+        <appender-ref ref="AUDIT"/>
+    </logger>
+
 </configuration>

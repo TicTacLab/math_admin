@@ -4,6 +4,7 @@
             [malt-admin.form.user :as form]
             [malt-admin.helpers :refer [redirect-with-flash]]
             [malt-admin.storage.users :as storage]
+            [malt-admin.audit :refer [audit]]
             [formative.parse :as fp]
             [ring.util.response :as res]
             [clojurewerkz.scrypt.core :as sc]
@@ -30,6 +31,7 @@
       (storage/write-user! storage (-> values
                                        (encrypt-password)
                                        (dissoc :password_confirmation)))
+      (audit req :create-user (dissoc values :password_confirmation :password))
       (redirect-with-flash "/users" {:success (format "User \"%s\" successfully created" (:name values))}))))
 
 (defn index [{{storage :storage} :web
@@ -65,6 +67,7 @@
   (fp/with-fallback #(malt-admin.controller.users/edit (assoc req :problems %))
     (let [values (fp/parse-params form/edit-form params)]
       (storage/update-user! storage (:login params) values)
+      (audit req :update-user (select-keys params [:login :name]))
       (redirect-with-flash "/users" {:success (format "User \"%s\" successfully updated" (:name values))}))))
 
 (defn update-password [{params :params
@@ -75,15 +78,17 @@
       (storage/update-user! storage (:login params) (-> values
                                                         (encrypt-password)
                                                         (dissoc :password_confirmation)))
+      (audit req :update-user-password (select-keys params [:login]))
       (redirect-with-flash "/users" {:success (format "Password for \"%s\" successfully updated" (:name values))}))))
 
 (defn change-status [{{:keys [action login]} :params
-                      {storage :storage}     :web}]
+                      {storage :storage}     :web :as req}]
   (if-let [status (case action
                     "activate" "active"
                     "deactivate" "inactive"
                     nil)]
     (do
       (storage/update-user! storage login {:status status})
+      (audit req :change-user-status {:login login :status status})
       (redirect-with-flash "/users" {:success (format "Change status for user \"%s\" to \"%s\"" login status)}))
     (redirect-with-flash "/users" {:error (format "Bad action \"%s\"" action)})))

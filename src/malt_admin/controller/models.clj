@@ -2,6 +2,7 @@
   (:require [malt-admin.view :refer (render)]
             [malt-admin.storage.configuration :as cfg]
             [malt-admin.form.model :as form]
+            [malt-admin.audit :refer [audit]]
             [cheshire.core :as json]
             [malt-admin.helpers :refer [csv-to-list redirect-with-flash error!]]
             [formative.parse :as fp]
@@ -74,6 +75,7 @@
                         (fp/parse-params form/upload-form)
                         (prepare-file-attrs))]
         (storage/write-model! storage values)
+        (audit req :upload-model (dissoc values :file))
         (->> (:id values)
              (notify-malts storage)
              make-malts-notify-result-flash
@@ -99,6 +101,7 @@
                      (prepare-file-attrs)
                      (select-keys [:id :file :file_name :content_type :in_sheet_name :out_sheet_name]))]
       (storage/replace-model! storage values)
+      (audit req :replace-model (dissoc values :file))
       (->> (:id values)
            (notify-malts storage)
            make-malts-notify-result-flash
@@ -108,6 +111,7 @@
                {storage :storage} :web
                :as req}]
   (storage/delete-model! storage (Integer. id))
+  (audit req :delete-model {:id id})
   (->> id
        (notify-malts storage)
        make-malts-notify-result-flash
@@ -117,6 +121,7 @@
                  {storage :storage} :web
                  :as req}]
   (let [file (storage/get-model-file storage (Integer. id))]
+    (audit req :download-model {:id id})
     {:body    (:file file)
      :headers {"Content-Type"        (:content_type file)
                "Content-Disposition" (str "attachment; filename=" (:file_name file))}}))

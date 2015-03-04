@@ -26,7 +26,8 @@
    (let [{:keys [login password]} (fp/parse-params form/signin params)]
      (if-let [session-id (storage/sign-in storage login password)]
        (-> (redirect-with-flash "/users" {:success "You successfully signed in"})
-           (assoc-in [:session :sid] session-id))
+           (assoc-in [:session :sid] session-id)
+           (assoc-in [:session :user] login))
        (error! [:login :password] "Invalid login or password")))))
 
 (defn sign-out [{{storage :storage} :web
