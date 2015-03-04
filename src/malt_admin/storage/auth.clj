@@ -13,12 +13,13 @@
     session-id))
 
 (defn sign-in [{conn :conn :as storage} login password]
-  (let [phash (-> (cql/select conn "users"
-                              (columns :password)
-                              (where [[= :login login]]))
-                  first
-                  :password)]
-    (when (and phash (sc/verify password phash))
+  (let [{phash :password status :status} (-> (cql/select conn "users"
+                                                         (columns :password :status)
+                                                         (where [[= :login login]]))
+                                             first)]
+    (when (and phash
+               (= status "active")
+               (sc/verify password phash))
       (create-session! storage login))))
 
 (defn sign-out [{conn :conn} session-id]
