@@ -5,7 +5,8 @@
             [malt-admin.embedded-storage :refer (map->EmbeddedStorage)]
             [malt-admin.helpers :refer [csv-to-list]]
             [clj-webdriver.core :as webdriver]
-            [clj-webdriver.element :refer [element-like?]]))
+            [clj-webdriver.element :refer [element-like?]]
+            [com.stuartsierra.component :as component]))
 
 (def browser (atom nil))
 (def base-url (atom nil))
@@ -64,3 +65,10 @@
                                              :configuration-table configuration-table
                                              :settings-table      settings-table
                                              }))))
+
+(defmacro with-system [[nm system] & body]
+  `(let [~nm (component/start ~system)]
+     (try 
+       ~@body
+       (finally
+         (component/stop ~nm)))))
