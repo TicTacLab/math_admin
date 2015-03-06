@@ -38,5 +38,5 @@ CREATE TABLE IF NOT EXISTS cache (
       model_id int,
       params blob,
       result blob,
-      PRIMARY KEY ((model_id, params))
+      PRIMARY KEY (model_id, params)
 );

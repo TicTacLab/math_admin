@@ -12,6 +12,7 @@
             [clojure.tools.trace :refer [trace]]
             [clojure.pprint :refer [pprint]]
             [malt-admin.storage.models :as storage]
+            [malt-admin.storage.cache :as cache]
             [clojure.tools.logging :as log])
   (:refer-clojure :exclude [replace])
   (:import (java.nio.file Files Paths)))
@@ -101,6 +102,7 @@
                      (prepare-file-attrs)
                      (select-keys [:id :file :file_name :content_type :in_sheet_name :out_sheet_name]))]
       (storage/replace-model! storage values)
+      (cache/clear storage (:id values))
       (audit req :replace-model (dissoc values :file))
       (->> (:id values)
            (notify-malts storage)
@@ -111,6 +113,7 @@
                {storage :storage} :web
                :as req}]
   (storage/delete-model! storage (Integer. id))
+  (cache/clear storage (Integer. id))
   (audit req :delete-model {:id id})
   (->> id
        (notify-malts storage)
