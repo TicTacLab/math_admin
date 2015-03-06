@@ -1,9 +1,7 @@
 (ns malt-admin.storage.auth
   (:require [clojurewerkz.cassaforte.cql :as cql]
             [clojurewerkz.cassaforte.query :refer [where columns]]
-            [clojurewerkz.scrypt.core :as sc]
-            [cheshire.core :as json]
-            [clojure.tools.logging :as log])
+            [clojurewerkz.scrypt.core :as sc])
   (:import (java.util UUID)))
 
 (defn create-session! [{conn :conn} login]

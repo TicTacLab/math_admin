@@ -4,7 +4,6 @@
             [malt-admin.form.configuration :as forms]
             [malt-admin.audit :refer [audit]]
             [formative.parse :as fp]
-            [formative.core :as fc]
             [ring.util.response :as res]))
 
 (defn index [{{storage :storage} :web

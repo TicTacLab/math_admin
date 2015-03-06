@@ -6,8 +6,6 @@
             [cheshire.core :as json]
             [malt-admin.helpers :refer [csv-to-list redirect-with-flash error!]]
             [formative.parse :as fp]
-            [ring.util.response :as res]
-            [formative.core :as f]
             [org.httpkit.client :as http]
             [clojure.tools.trace :refer [trace]]
             [clojure.pprint :refer [pprint]]

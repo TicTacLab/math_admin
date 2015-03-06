@@ -1,16 +1,11 @@
 (ns malt-admin.controller.users
   (:require [malt-admin.view :refer (render)]
-            [malt-admin.storage.configuration :as st]
             [malt-admin.form.user :as form]
             [malt-admin.helpers :refer [redirect-with-flash]]
             [malt-admin.storage.users :as storage]
             [malt-admin.audit :refer [audit]]
             [formative.parse :as fp]
-            [ring.util.response :as res]
-            [clojurewerkz.scrypt.core :as sc]
-            [formative.core :as f]
-            [org.httpkit.client :as http]
-            [clojure.tools.logging :as log]))
+            [clojurewerkz.scrypt.core :as sc]))
 
 
 (defn new* [{:keys [problems params] :as req}]

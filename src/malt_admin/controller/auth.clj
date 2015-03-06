@@ -1,15 +1,9 @@
 (ns malt-admin.controller.auth
   (:require [malt-admin.view :refer (render)]
-            [malt-admin.storage.configuration :as st]
             [malt-admin.form.auth :as form]
             [malt-admin.helpers :refer [redirect-with-flash error!]]
             [malt-admin.storage.auth :as storage]
-            [formative.parse :as fp]
-            [ring.util.response :as res]
-            [clojurewerkz.scrypt.core :as sc]
-            [formative.core :as f]
-            [org.httpkit.client :as http]
-            [clojure.tools.logging :as log]))
+            [formative.parse :as fp]))
 
 (defn index [{:keys [problems params]
               :as   req}]

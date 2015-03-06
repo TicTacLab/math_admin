@@ -1,7 +1,6 @@
 (ns malt-admin.storage.users
   (:require [clojurewerkz.cassaforte.cql :as cql]
-            [clojurewerkz.cassaforte.query :refer [where columns]]
-            [clojure.tools.logging :as log]))
+            [clojurewerkz.cassaforte.query :refer [where columns]]))
 
 (defn write-user! [{conn :conn} user]
   (let [defaults {:status "active"}]

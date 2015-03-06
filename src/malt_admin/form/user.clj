@@ -1,5 +1,4 @@
-(ns malt-admin.form.user
-  (:require [formative.core :as f]))
+(ns malt-admin.form.user)
 
 (def new-form
   {:fields      [{:name :name :type :text}
