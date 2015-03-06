@@ -1,12 +1,13 @@
 (ns malt-admin.test-helper
   (:use clojure.test)
-  (:require [malt-admin.system :as sys]
+  (:require [clj-webdriver.core :as webdriver]
+            [clj-webdriver.element :refer [element-like?]]
+            [clj-webdriver.taxi :as w]
+            [clojure.string :as str]
+            [com.stuartsierra.component :as component]
             [malt-admin.embedded-storage :refer (map->EmbeddedStorage)]
             [malt-admin.helpers :refer [csv-to-list]]
-            [clj-webdriver.taxi :as w]
-            [clj-webdriver.core :as webdriver]
-            [clj-webdriver.element :refer [element-like?]]
-            [com.stuartsierra.component :as component]))
+            [malt-admin.system :as sys]))
 
 (def browser (atom nil))
 (def base-url (atom nil))
@@ -30,9 +31,10 @@
                ([q]
                  (finder w/*driver* q))
                ([driver q]
-                (cond
+                  (cond
                   (element-like? q) q
                   (keyword? q) (w/css-finder driver (name q))
+                  (sequential? q) (w/css-finder driver (str/join " " (map name q)))
                   (string? q) (or (not-empty (w/xpath-finder driver (format "//a[text()='%s']" q)))
                                   (not-empty (w/xpath-finder driver (format "//button[text()='%s']|//input[@type='submit' and @value='%s']" q q)))
                                   (let [labels (w/xpath-finder driver
@@ -74,7 +76,7 @@
 
 (defmacro with-system [[nm system] & body]
   `(let [~nm (component/start ~system)]
-     (try 
+     (try
        ~@body
        (finally
          (component/stop ~nm)))))
