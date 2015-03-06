@@ -36,5 +36,5 @@
         (fill-in b "Session TTL (min)" "100")
         (click b "Update")
         (accept b)
-        (wait-until b (fn [b] (exists? b [:.form-problems :.control6-label])) 5000 0)
+        (wait-until b (fn [b] (exists? b [:.form-problems :.control-label])) 5000 0)
         (is (= "Session TTL (min): cannot be more than 60" (text b  :.control-label)))))))
