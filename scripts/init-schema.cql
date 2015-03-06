@@ -33,3 +33,10 @@ CREATE TABLE IF NOT EXISTS sessions (
        session_id uuid PRIMARY KEY,
        login varchar
 );
+
+CREATE TABLE IF NOT EXISTS cache (
+      model_id int,
+      params blob,
+      result blob,
+      PRIMARY KEY ((model_id, params))
+);
