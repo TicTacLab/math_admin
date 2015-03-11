@@ -217,8 +217,7 @@
   (let [id (:id params)
         {malt-host :profiling-malt-host
          malt-port :profiling-malt-port} (cfg/read-settings storage)
-        form (some->> id
-                      (get-malt-params malt-host malt-port session-id)
+        form (some->> (get-malt-params malt-host malt-port id session-id)
                       malt-params->form)]
     (fp/with-fallback #(profile (assoc req :problems %))
       (fp/parse-params  form params)
