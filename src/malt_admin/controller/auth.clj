@@ -18,10 +18,9 @@
                :as                req}]
   (fp/with-fallback #(malt-admin.controller.auth/index (assoc req :problems %))
    (let [{:keys [login password]} (fp/parse-params form/signin params)]
-     (if-let [session-id (storage/sign-in storage login password)]
+     (if-let [session-data (storage/sign-in storage login password)]
        (-> (redirect-with-flash "/users" {:success "You successfully signed in"})
-           (assoc-in [:session :sid] session-id)
-           (assoc-in [:session :user] login))
+           (assoc :session session-data))
        (error! [:login :password] "Invalid login or password")))))
 
 (defn sign-out [{{storage :storage} :web
