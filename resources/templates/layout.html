@@ -24,6 +24,7 @@
           <a class="navbar-brand" href="#">Malt Admin</a>
         </div>
         <div id="navbar" class="collapse navbar-collapse">
+          [% if signed-in? %]
             <ul class="nav navbar-nav">
                 [% if admin? %]
                 <li><a href="/configuration">Malts config</a></li>
@@ -32,7 +33,7 @@
                 [% endif %]
                 <li><a href="/models">Models</a></li>
             </ul>
-            [% if signed-in? %]
+
             <form action="/auth" method="post">
                 <input type="hidden" name="_method" value="DELETE"/>
               <button type="submit" class="navbar-right btn btn-default navbar-btn">Sign out</button>

@@ -25,37 +25,48 @@
              [keyword-params :refer (wrap-keyword-params)]
              [multipart-params :refer (wrap-multipart-params)]]))
 
+
+(defmacro allow [req role body]
+  `(if (or (= ~role :any)
+           (and (= ~role :admin)
+                (get-in ~req [:session :is-admin])))
+     ~body
+     (-> "U R nigger"
+         (res/response)
+         (res/status 403))))
+
+
 (defroutes routes
-  (GET    "/" req (res/redirect "/models"))
+  (GET    "/" req (allow req :any (res/redirect "/models")))
 
-  (GET    "/auth" req (auth/index req))
-  (POST   "/auth" req (auth/sign-in req))
-  (DELETE "/auth" req (auth/sign-out req))
+  (GET    "/auth" req (allow req :any (auth/index req)))
+  (POST   "/auth" req (allow req :any (auth/sign-in req)))
+  (DELETE "/auth" req (allow req :any (auth/sign-out req)))
 
-  (GET    "/configuration" req (configuration/index req))
-  (POST   "/configuration" req (configuration/update req))
+  (GET    "/configuration" req (allow req :admin (configuration/index req)))
+  (POST   "/configuration" req (allow req :admin (configuration/update req)))
 
-  (GET    "/settings" req (settings/index req))
-  (POST   "/settings" req (settings/update req))
+  (GET    "/settings" req (allow req :admin (settings/index req)))
+  (POST   "/settings" req (allow req :admin (settings/update req)))
 
-  (GET    "/models" req (models/index req))
-  (GET    "/models/upload" req (models/upload req))
-  (GET    "/models/:id/edit" req (models/edit req))
-  (GET    "/models/:id/download" req (models/download req))
-  (GET    "/models/:id/profile" req (models/profile req))
-  (POST   "/models/:id/profile" req (models/profile-execute req))
-  (PUT    "/models/:id" req (models/replace req))
-  (DELETE "/models/:id" req (models/delete req))
-  (POST   "/models" req (models/do-upload req))
+  (GET    "/models"              req (allow req :any   (models/index req)))
+  (GET    "/models/upload"       req (allow req :admin (models/upload req)))
+  (GET    "/models/:id/edit"     req (allow req :admin (models/edit req)))
+  (GET    "/models/:id/download" req (allow req :admin (models/download req)))
+  (GET    "/models/:id/profile"  req (allow req :any   (models/profile req)))
+  (POST   "/models/:id/profile"  req (allow req :any   (models/profile-execute req)))
+  (PUT    "/models/:id"          req (allow req :admin (models/replace req)))
+  (DELETE "/models/:id"          req (allow req :admin (models/delete req)))
+  (POST   "/models"              req (allow req :admin (models/do-upload req)))
 
-  (GET    "/users" req (users/index req))
-  (GET    "/users/new" req (users/new* req))
-  (POST   "/users" req (users/create req))
-  (GET    "/users/:login/edit" req (users/edit req))
-  (PUT    "/users/:login" req (users/update req))
-  (GET    "/users/:login/edit-password" req (users/edit-password req))
-  (PUT    "/users/:login/update-password" req (users/update-password req))
-  (PUT    "/users/:login/change-status" req (users/change-status req))
+  (GET    "/users"                        req (allow req :admin (users/index req)))
+  (GET    "/users/new"                    req (allow req :admin (users/new* req)))
+  (POST   "/users"                        req (allow req :admin (users/create req)))
+  (GET    "/users/:login/edit"            req (allow req :admin (users/edit req)))
+  (PUT    "/users/:login"                 req (allow req :admin (users/update req)))
+  (GET    "/users/:login/edit-password"   req (allow req :admin (users/edit-password req)))
+  (PUT    "/users/:login/update-password" req (allow req :admin (users/update-password req)))
+  (PUT    "/users/:login/change-status"   req (allow req :admin (users/change-status req)))
 
   (route/not-found "<h1>Page not found!</h1>"))
 
