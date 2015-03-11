@@ -20,13 +20,22 @@ CREATE TABLE IF NOT EXISTS users (
        login varchar PRIMARY KEY,
        name varchar,
        password varchar,
-       status varchar
+       status varchar,
+       is_admin boolean
 );
 
 INSERT INTO
-       users (login,name,password,status)
+       users (login,name,password,status, is_admin)
 VALUES
-	('admin', 'Admin', '$s0$e0801$eRcvK6dZYIhXWbvWJjCZ0g==$8dePdNlKUclyFiXrrMTRXg3xNwuZHVl22yeaBvzU+34=', 'active');
+	('admin', 'Admin', '$s0$e0801$eRcvK6dZYIhXWbvWJjCZ0g==$8dePdNlKUclyFiXrrMTRXg3xNwuZHVl22yeaBvzU+34=', 'active', true);
+
+
+INSERT INTO
+       users (login,name,password,status, is_admin)
+VALUES
+	('guest', 'Guest', '$s0$e0801$AVcxf3njSIifVxQKkxcmRw==$Q9IjCjfgnhI3Vl4wOUN4hYfRMZmfClAYNZVHb6UGm4g=', 'active', false);
+
+
 
 
 CREATE TABLE IF NOT EXISTS sessions (

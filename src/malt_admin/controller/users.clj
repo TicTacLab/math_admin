@@ -62,7 +62,7 @@
   (fp/with-fallback #(malt-admin.controller.users/edit (assoc req :problems %))
     (let [values (fp/parse-params form/edit-form params)]
       (storage/update-user! storage (:login params) values)
-      (audit req :update-user (select-keys params [:login :name]))
+      (audit req :update-user (select-keys params [:login :name :is_admin]))
       (redirect-with-flash "/users" {:success (format "User \"%s\" successfully updated" (:name values))}))))
 
 (defn update-password [{params :params
