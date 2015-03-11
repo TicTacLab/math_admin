@@ -26,7 +26,7 @@
              [multipart-params :refer (wrap-multipart-params)]]))
 
 (defroutes routes
-  (GET    "/" req (res/redirect "/configuration"))
+  (GET    "/" req (res/redirect "/models"))
 
   (GET    "/auth" req (auth/index req))
   (POST   "/auth" req (auth/sign-in req))
