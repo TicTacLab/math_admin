@@ -16,33 +16,6 @@
   (:import (java.nio.file Files Paths)))
 
 
-(defn notify-malt [node port url model-id]
-  (try (let [{:keys [status error]} @(http/post (str "http://" node ":" port url)
-                                                {:timeout 3000
-                                                 :form-params {:id model-id}})]
-         (if error (throw error))
-         (if-not (= status 200)
-           (log/errorf "Malt %s returned code %d while notifying" node status))
-         status)
-       (catch Exception e
-         (log/errorf e "Error while notifying malt %s" node)
-         400)))
-
-(defn notify-malts [storage model-id]
-  (let [{:keys [rest-port]} (cfg/read-config storage)
-        {:keys [malt-nodes]} (cfg/read-settings storage)
-        malt-reload-model-url "/model/refresh"
-        malt-nodes (csv-to-list malt-nodes)]
-    (zipmap malt-nodes
-            (map #(notify-malt % rest-port malt-reload-model-url model-id) malt-nodes))))
-
-(defn make-malts-notify-result-flash [malt-results]
-  (let [failed-hosts (->> malt-results
-                          (remove (comp #(= 200 %) second))
-                          (map (fn [[host code]] (format "%s(%d)" host code))))]
-    (if (empty? failed-hosts)
-      {:success "Malts notified!"}
-      {:error (str "Failed to nofity malts: " (clojure.string/join ", " failed-hosts))})))
 
 (defn index [{{storage :storage} :web :as req}]
   (render "models/index" req {:models (storage/get-models storage)}))
@@ -75,10 +48,7 @@
                         (prepare-file-attrs))]
         (storage/write-model! storage values)
         (audit req :upload-model (dissoc values :file))
-        (->> (:id values)
-             (notify-malts storage)
-             make-malts-notify-result-flash
-             (redirect-with-flash "/models"))))))
+        (redirect-with-flash "/models" {:success "DONE"})))))
 
 (defn edit [{{storage :storage} :web
              {id :id :as params} :params
@@ -102,10 +72,7 @@
       (storage/replace-model! storage values)
       (cache/clear storage (:id values))
       (audit req :replace-model (dissoc values :file))
-      (->> (:id values)
-           (notify-malts storage)
-           make-malts-notify-result-flash
-           (redirect-with-flash "/models")))))
+      (redirect-with-flash "/models" {:success "DONE"}))))
 
 (defn delete [{{id :id} :params
                {storage :storage} :web
@@ -113,10 +80,7 @@
   (storage/delete-model! storage (Integer. id))
   (cache/clear storage (Integer. id))
   (audit req :delete-model {:id id})
-  (->> id
-       (notify-malts storage)
-       make-malts-notify-result-flash
-       (redirect-with-flash "/models")))
+  (redirect-with-flash "/models" {:success "DONE"}))
 
 (defn download [{{id :id} :params
                  {storage :storage} :web
@@ -126,9 +90,6 @@
     {:body    (:file file)
      :headers {"Content-Type"        (:content_type file)
                "Content-Disposition" (str "attachment; filename=" (:file_name file))}}))
-
-
-
 
 (defn- malt-params->form-fileds [malt-params]
   (some->> malt-params
