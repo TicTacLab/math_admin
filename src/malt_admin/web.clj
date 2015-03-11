@@ -29,7 +29,7 @@
   (GET    "/" req (res/redirect "/configuration"))
 
   (GET    "/auth" req (auth/index req))
-  (POST   "/auth" req (auth/sign-in req))
+  (POST "/auth" req (auth/sign-in req))
   (DELETE "/auth" req (auth/sign-out req))
 
   (GET    "/configuration" req (configuration/index req))
