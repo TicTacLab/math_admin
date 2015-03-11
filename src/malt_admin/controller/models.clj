@@ -159,13 +159,15 @@
       :values values
       :validations [[:required (malt-params->form-validations malt-params)]]}))
 
-(defn- get-malt-params [node port model-id]
-  (let [url (format "http://%s:%s/model/%s/in-params"
+(defn make-model-sid [id ssid]
+  (str ssid \- id))
+
+(defn- get-malt-params [node port model-id ssid]
+  (let [url (format "http://%s:%s/model/in-params"
                     node
-                    port
-                    model-id)]
+                    port)]
     (some-> url
-            (http/get {:as :text})
+            (http/get {:query-params {:ssid (make-model-sid model-id ssid) :id model-id} :as :text})
             deref
             :body
             (json/parse-string true))))
@@ -176,7 +178,7 @@
                       node
                       port)
           malt-params {:id id
-                       :ssid ssid
+                       :ssid (make-model-sid id ssid)
                        :params (map (fn [[id value]] {:id id :value value}) params)}
           {:keys [body error status]} @(http/post url {:body (json/generate-string malt-params)
                                                        :headers {"Content-type" "text/plain"}
@@ -192,11 +194,12 @@
 (defn profile [{params :params
                 problems :problems
                 calc-result :calc-result
+                session-id :session-id
                 {storage :storage} :web :as req}]
   (let [id (:id params)
         {malt-host :profiling-malt-host
          malt-port :profiling-malt-port} (cfg/read-settings storage)
-        malt-params (get-malt-params malt-host malt-port id)
+        malt-params (get-malt-params malt-host malt-port id session-id)
         values (if (contains? params :submit)
                  params
                  (malt-params->form-values malt-params))
@@ -215,7 +218,7 @@
         {malt-host :profiling-malt-host
          malt-port :profiling-malt-port} (cfg/read-settings storage)
         form (some->> id
-                      (get-malt-params malt-host malt-port)
+                      (get-malt-params malt-host malt-port session-id)
                       malt-params->form)]
     (fp/with-fallback #(profile (assoc req :problems %))
       (fp/parse-params  form params)
