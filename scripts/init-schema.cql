@@ -49,3 +49,11 @@ CREATE TABLE IF NOT EXISTS cache (
       result blob,
       PRIMARY KEY (model_id, params)
 );
+
+CREATE TABLE IF NOT EXISTS calculation_log (
+      session_id varchar,
+      model_id int,
+      in_params varchar,
+      out_params varchar,
+      PRIMARY KEY ((session_id, model_id))
+);
