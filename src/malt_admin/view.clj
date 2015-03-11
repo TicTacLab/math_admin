@@ -31,11 +31,12 @@
 (defn render [template-name req context]
   (let [{session-id :session-id
          flash      :flash} req
-        default-context {:signed-in? (boolean session-id)
-                         :uri (:uri req)
-                         :env environ/env
-                         :flash flash}
-        context (merge context default-context)]
+         default-context {:signed-in? (boolean session-id)
+                          :admin? (get-in req [:session :is-admin])
+                          :uri (:uri req)
+                          :env environ/env
+                          :flash flash}
+         context (merge context default-context)]
     (selmer/render-file (str template-name ".html") context
                         {:tag-open \[
                          :tag-close \]

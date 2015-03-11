@@ -1,7 +1,9 @@
 [% extends "layout.html" %]
 [% block body %]
 <h1>Models</h1>
+[% if admin? %]
 <a href="/models/upload" class="btn btn-primary btn-lg">Upload New</a>
+[% endif %]
 <table class="table table-hover">
     <tr>
         <th>ID</th>
@@ -22,9 +24,11 @@
             <form action="/models/[[model.id]]" method="POST">
                 <input type="hidden" name="_method" value="DELETE"/>
                 <a class="btn btn-primary" href="/models/[[model.id]]/profile">Profile</a>
+                [% if admin? %]
                 <a class="btn btn-default" href="/models/[[model.id]]/download">Download</a>
                 <a class="btn btn-default" href="/models/[[model.id]]/edit">Replace</a>
                 <button type="submit" class="btn btn-danger model-delete-btn">Delete</button>
+                [% endif %]
             </form>
         </td>
     </tr>
