@@ -1,7 +1,7 @@
-(ns malt-admin.persmissions-test
+(ns malt-admin.permissions-test
   (:use clojure.test)
   (:require [malt-admin.test-helper :as t :refer [test-system signin signout go fill-in]]
-            [clj-webdriver.taxi :as w :refer [click send-keys text find-elements]]
+            [clj-webdriver.taxi :as w :refer [click send-keys text find-elements elements]]
             [environ.core :as environ]))
 
 (deftest models-test
