@@ -31,7 +31,7 @@
            (and (= ~role :admin)
                 (get-in ~req [:session :is-admin])))
      ~body
-     (-> "U R nigger"
+     (-> "<h1>Forbidden</h1>"
          (res/response)
          (res/status 403))))
 

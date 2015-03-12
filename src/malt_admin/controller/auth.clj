@@ -19,7 +19,7 @@
   (fp/with-fallback #(malt-admin.controller.auth/index (assoc req :problems %))
    (let [{:keys [login password]} (fp/parse-params form/signin params)]
      (if-let [session-data (storage/sign-in storage login password)]
-       (-> (redirect-with-flash "/" {:success "You successfully signed in"})
+       (-> (redirect-with-flash "/models" {:success "You successfully signed in"})
            (assoc :session session-data))
        (error! [:login :password] "Invalid login or password")))))
 
