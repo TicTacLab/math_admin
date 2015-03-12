@@ -1,11 +1,54 @@
 [% extends "layout.html" %]
 [% block body %]
-<h1>Model profiling</h1>
-[[ profile-form|form|safe ]]
-[% if calc-result %]
-<h3>Calculation result:</h3>
-<pre>
-  [[ calc-result|pprint ]]
-</pre>
-[% endif %]
+<style>
+.model-input-params .fieldset-submit > .form-group label {
+ display: inline-block;
+ width: 80%;
+ word-wrap: break-word;
+}
+.model-input-params .fieldset-submit > .form-group input[type="text"] {
+ display: inline-block;
+ text-align: right;
+ vertical-align: top;
+ width: 20%;
+}
+</style>
+
+
+
+<div class="row">
+  <div class="col-md-6">
+    <h1>Model profiling</h1>
+  </div>
+
+  <div class="col-md-6">
+    <div class="text-right">
+      <form class="form-inline" action="/models/[[model-id]]/load-log" method="POST">
+        <div class="form-group">
+          <div class="input-group">
+            <div class="input-group-addon">SID</div>
+            <input type="text" class="form-control" placeholder="Session token..." name="ssid">
+          </div>
+        </div>
+        <button type="submit" class="btn btn-default">Load from log</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-3">
+    <div class=" model-input-params">
+      [[ profile-form|form|safe ]]
+    </div>
+  </div>
+  <div class="col-md-9">
+    [% if calc-result %]
+    <h3>Calculation result:</h3>
+    <pre>
+      [[ calc-result|pprint ]]
+    </pre>
+    [% endif %]
+  </div>
+</div>
 [% endblock %]

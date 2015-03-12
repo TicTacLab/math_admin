@@ -92,12 +92,14 @@
                "Content-Disposition" (str "attachment; filename=" (:file_name file))}}))
 
 (defn- malt-params->form-fileds [malt-params]
-  (some->> malt-params
-           (sort-by :id)
-           (map (fn [{:keys [id name type code]}]
-                  (let [f-label (format "%s. %s (%s/%s)" id name type code)
-                        f-name (-> id str keyword)]
-                    {:name f-name :label f-label :type :text})))))
+  (let [fields (some->> malt-params
+                        (sort-by :id)
+                        (map (fn [{:keys [id name type code]}]
+                               (let [f-label (format "%s. %s" id code)
+                                     f-name (-> id str keyword)]
+                                 {:name f-name :label f-label :type :text}))))
+        submit (vector {:name :submit :type :submit :value "Calculate"})]
+    (concat submit fields submit)))
 
 (defn- malt-params->form-values [malt-params]
   (some->> malt-params
@@ -114,7 +116,7 @@
 
 (defn- malt-params->form
   ([malt-params]
-     (malt-params->form malt-params []))
+     (malt-params->form malt-params {}))
   ([malt-params values]
      {:fields (malt-params->form-fileds malt-params)
       :values values
@@ -152,6 +154,11 @@
       (log/error e "While malt calculation")
       {:error (format "Error: %s" (.getLocalizedMessage e))})))
 
+
+(defn parse-calc-result [calc-result]
+  (-> calc-result
+      (json/parse-string true)))
+
 (defn profile [{params :params
                 problems :problems
                 calc-result :calc-result
@@ -165,7 +172,9 @@
                  params
                  (malt-params->form-values malt-params))
         form (malt-params->form malt-params values)]
-    (render "models/profile" req {:calc-result (json/parse-string calc-result)
+
+    (render "models/profile" req {:calc-result (-> calc-result
+                                                   parse-calc-result)
                                   :profile-form (merge form
                                                        {:action (str "/models/" id "/profile")
                                                         :method "POST"
