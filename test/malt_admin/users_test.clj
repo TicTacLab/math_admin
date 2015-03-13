@@ -32,7 +32,7 @@
 
       (testing "Signin newly created user"
         (signin b "super-duper" "super-password")
-        (is (= "You successfully signed in" (text b :#flash)) "User should be allowed to singin")
+        (is (= "You successfully signed in" (text b :#flash-msg)) "User should be allowed to singin")
         (signout b))
 
       (testing "Edit"
@@ -53,7 +53,7 @@
         (click b "Submit")
         (signout b)
         (signin b "super-duper" "simple-password")
-        (is (= "You successfully signed in" (text b :#flash)) "User should be allowed to singin")
+        (is (= "You successfully signed in" (text b :#flash-msg)) "User should be allowed to singin")
         (signout b))
 
       (testing "Activation/Deactivation"
@@ -74,4 +74,4 @@
         (signout b)
 
         (signin b "super-duper" "simple-password")
-        (is (= "You successfully signed in" (text b :#flash)) "Active user should be allowed to singin")))))
+        (is (= "You successfully signed in" (text b :#flash-msg)) "Active user should be allowed to singin")))))

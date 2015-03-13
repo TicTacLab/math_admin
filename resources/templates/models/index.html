@@ -21,15 +21,17 @@
         <td class="model-in-sheet-name">[[model.in_sheet_name]]</td>
         <td class="model-out-sheet-name">[[model.out_sheet_name]]</td>
         <td>
-            <form action="/models/[[model.id]]" method="POST">
-                <input type="hidden" name="_method" value="DELETE"/>
+          <form action="/models/[[model.id]]" method="POST" class="form-inline">
+            <div class="btn-group">
                 <a class="btn btn-primary" href="/models/[[model.id]]/profile">Profile</a>
                 [% if admin? %]
                 <a class="btn btn-default" href="/models/[[model.id]]/download">Download</a>
                 <a class="btn btn-default" href="/models/[[model.id]]/edit">Replace</a>
+                <input type="hidden" name="_method" value="DELETE"/>
                 <button type="submit" class="btn btn-danger model-delete-btn">Delete</button>
                 [% endif %]
-            </form>
+            </div>
+          </form>
         </td>
     </tr>
     [% endfor %]
