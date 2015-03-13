@@ -3,6 +3,7 @@
             [malt-admin.storage.configuration :as cfg]
             [malt-admin.form.model :as form]
             [malt-admin.audit :refer [audit]]
+            [malt-admin.storage.log :as slog]
             [cheshire.core :as json]
             [malt-admin.helpers :refer [csv-to-list redirect-with-flash error!]]
             [formative.parse :as fp]
@@ -94,33 +95,24 @@
 (defn- malt-params->form-fileds [malt-params]
   (let [fields (some->> malt-params
                         (sort-by :id)
-                        (map (fn [{:keys [id name type code]}]
-                               (let [f-label (format "%s. %s" id code)
-                                     f-name (-> id str keyword)]
-                                 {:name f-name :label f-label :type :text}))))
+                        (map (juxt (comp keyword str :id)
+                                   #(format "%s. %s" (:id %) (:code %))
+                                   (constantly :text)))
+                        (map (partial zipmap [:name :label :type])))
         submit (vector {:name :submit :type :submit :value "Calculate"})]
     (concat submit fields submit)))
 
 (defn- malt-params->form-values [malt-params]
   (some->> malt-params
-           (map (fn [{:keys [id value]}]
-                  (vector (-> id str keyword)
-                          value)))
+           (map (juxt (comp str :id) :value))
            (into {})))
 
-(defn- malt-params->form-validations [malt-params]
-  (some->> malt-params
-           (map :id)
-           (map str)
-           (map keyword)))
-
-(defn- malt-params->form
-  ([malt-params]
-     (malt-params->form malt-params {}))
-  ([malt-params values]
-     {:fields (malt-params->form-fileds malt-params)
-      :values values
-      :validations [[:required (malt-params->form-validations malt-params)]]}))
+(defn- malt-params->form [malt-params]
+  (hash-map :fields (malt-params->form-fileds malt-params)
+            :validations (->> malt-params
+                              (map (comp keyword str :id))
+                              (vector :required)
+                              vector)))
 
 (defn make-model-sid [id ssid]
   (str ssid \- id))
@@ -156,48 +148,75 @@
 
 
 (defn parse-calc-result [calc-result]
-  (-> calc-result
-      (json/parse-string true)))
+  calc-result)
+
+(defn render-profile-page [req model-id & {:keys [problems flash in-params out-params log-session-id] :as xs}]
+  (pprint (dissoc xs :out-params))
+  (let [{malt-host :profiling-malt-host
+         malt-port :profiling-malt-port} (-> req :web :storage cfg/read-settings)
+         malt-params (get-malt-params malt-host malt-port model-id (:session-id req))
+         values (or in-params
+                    (malt-params->form-values malt-params))]
+    (render "models/profile"
+            (assoc req :flash flash)
+            {:model-id model-id
+             :log-session-id log-session-id
+             :calc-result (-> out-params parse-calc-result)
+             :profile-form (merge (malt-params->form malt-params)
+                                  {:action (str "/models/" model-id "/profile")
+                                   :method "POST"
+                                   :values values
+                                   :submit-label "Calculate"
+                                   :problems problems})})))
 
 (defn profile [{params :params
                 problems :problems
                 calc-result :calc-result
                 session-id :session-id
                 {storage :storage} :web :as req}]
-  (let [id (:id params)
-        {malt-host :profiling-malt-host
-         malt-port :profiling-malt-port} (cfg/read-settings storage)
-        malt-params (get-malt-params malt-host malt-port id session-id)
-        values (if (contains? params :submit)
-                 params
-                 (malt-params->form-values malt-params))
-        form (malt-params->form malt-params values)]
+  (let [id (:id params)]
+    (render-profile-page req (:id params))))
 
-    (render "models/profile" req {:calc-result (-> calc-result
-                                                   parse-calc-result)
-                                  :profile-form (merge form
-                                                       {:action (str "/models/" id "/profile")
-                                                        :method "POST"
-                                                        :submit-label "Calculate"
-                                                        :problems problems})})))
-
-(defn profile-execute [{{storage :storage} :web
-                        session-id :session-id
+(defn profile-execute [{session-id :session-id
                         params :params :as req}]
   (let [id (:id params)
         {malt-host :profiling-malt-host
-         malt-port :profiling-malt-port} (cfg/read-settings storage)
+         malt-port :profiling-malt-port} (-> req :web :storage cfg/read-settings)
         form (some->> (get-malt-params malt-host malt-port id session-id)
-                      malt-params->form)]
-    (fp/with-fallback #(profile (assoc req :problems %))
-      (fp/parse-params  form params)
+                      malt-params->form)
+        in-params (dissoc params :id :submit)]
+
+    (fp/with-fallback
+      (fp/parse-params form in-params) #(render-profile-page req id
+                                                             :problems %
+                                                             :in-params in-params)
       (let [result (calculate-in-params malt-host
                                         malt-port
                                         session-id
                                         id
-                                        (dissoc params :submit :id))]
+                                        in-params)]
+
         (if (contains? result :result)
-          (profile (assoc req
-                     :calc-result (:result result)
-                     :flash {:success "DONE"}))
-          (profile (assoc req :flash result)))))))
+          (render-profile-page req id
+                               :in-params in-params
+                               :out-params (-> result :result json/parse-string))
+          (render-profile-page req id
+                               :in-params in-params
+                               :flash result))))))
+
+(defn read-log [{{storage :storage} :web
+                 {:keys [id ssid]} :params :as req}]
+  (if-let [result (slog/read-log storage (Integer/valueOf id) ssid)]
+    (render-profile-page req id
+                         :in-params (-> result
+                                        :in_params
+                                        (json/parse-string true)
+                                        malt-params->form-values)
+                         :out-params (-> result
+                                         :out_params
+                                         json/parse-string)
+                         :log-session-id ssid
+                         :flash {:success "Loaded from log"})
+    (render-profile-page req id
+                         :log-session-id ssid
+                         :flash {:error "No such log entry."})))
