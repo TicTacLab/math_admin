@@ -55,7 +55,7 @@
   (GET    "/models/:id/download" req (allow req :admin (models/download req)))
   (GET    "/models/:id/profile"  req (allow req :any   (models/profile req)))
   (POST   "/models/:id/profile"  req (allow req :any   (models/profile-execute req)))
-  (POST   "/models/:id/read-log" req (allow req :any   (models/read-log req)))
+  (POST   "/models/:id/log"      req (allow req :any   (models/read-log req)))
   (PUT    "/models/:id"          req (allow req :admin (models/replace req)))
   (DELETE "/models/:id"          req (allow req :admin (models/delete req)))
   (POST   "/models"              req (allow req :admin (models/do-upload req)))

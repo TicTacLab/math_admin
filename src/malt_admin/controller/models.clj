@@ -150,8 +150,7 @@
 (defn parse-calc-result [calc-result]
   calc-result)
 
-(defn render-profile-page [req model-id & {:keys [problems flash in-params out-params log-session-id] :as xs}]
-  (pprint (dissoc xs :out-params))
+(defn render-profile-page [req model-id & {:keys [problems flash in-params out-params log-session-id]}]
   (let [{malt-host :profiling-malt-host
          malt-port :profiling-malt-port} (-> req :web :storage cfg/read-settings)
          malt-params (get-malt-params malt-host malt-port model-id (:session-id req))
@@ -186,10 +185,10 @@
                       malt-params->form)
         in-params (dissoc params :id :submit)]
 
-    (fp/with-fallback
-      (fp/parse-params form in-params) #(render-profile-page req id
-                                                             :problems %
-                                                             :in-params in-params)
+    (fp/with-fallback #(render-profile-page req id
+                                            :problems %
+                                            :in-params in-params)
+      (fp/parse-params form in-params)
       (let [result (calculate-in-params malt-host
                                         malt-port
                                         session-id
