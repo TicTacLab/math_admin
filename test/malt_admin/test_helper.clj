@@ -38,7 +38,7 @@
                   (string? q) (or (not-empty (w/xpath-finder driver (format "//a[text()='%s']" q)))
                                   (not-empty (w/xpath-finder driver (format "//button[text()='%s']|//input[@type='submit' and @value='%s']" q q)))
                                   (let [labels (w/xpath-finder driver
-                                                            (format "//label[text()='%s']" q))
+                                                            (format "//label[text()='%s']|//label[./*[text()='%s']]" q q))
                                         id (webdriver/attribute (first labels) :for)]
                                     (not-empty (w/xpath-finder driver (format "//*[@id='%s']" id)))))))))
 
