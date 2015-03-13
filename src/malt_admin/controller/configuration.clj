@@ -29,7 +29,8 @@
                params :params :as req}]
   (fp/with-fallback #(index (assoc req :problems %))
     (let [config (-> (fp/parse-params forms/config params)
-                     (update-in [:session-ttl] * 60))]
+                     (update-in [:session-ttl] * 60)
+                     (#(merge {:cache-on false} %)))]
       (st/write-config! storage config)
       (audit req :udpate-configuration config)
       (res/redirect-after-post "/configuration"))))

@@ -3,4 +3,4 @@ TRUNCATE configuration;
 INSERT INTO
        configuration (config)
 VALUES
-	('{"cache-table":"malt.workbook","hosts":"localhost,","password":"dem-pass","username":"dem","rest-port":3000,"session-ttl":120}');
+	('{"hosts":"localhost,","rest-port":3000,"session-ttl":120,"cache-on":false}');
