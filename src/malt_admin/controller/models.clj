@@ -12,6 +12,8 @@
             [clojure.pprint :refer [pprint]]
             [malt-admin.storage.models :as storage]
             [malt-admin.storage.cache :as cache]
+            [clojure.string :as string]
+            [clojure.walk :refer [keywordize-keys]]
             [clojure.tools.logging :as log])
   (:refer-clojure :exclude [replace])
   (:import (java.nio.file Files Paths)))
@@ -148,7 +150,21 @@
 
 
 (defn parse-calc-result [calc-result]
-  calc-result)
+  (let [calc-result (keywordize-keys calc-result)
+        calc-result (update-in calc-result [:data] #(map (fn [a] (assoc a :r_code (-> a
+                                                                                      :m_code
+                                                                                      (string/split #"_")
+                                                                                      first))) %))]
+    (update-in calc-result [:data]
+               (fn [d]
+                 (->> d
+                      (group-by :r_code)
+                      (map (fn [[r_code outcomes]]
+                             (vector r_code (->> outcomes
+                                                 (group-by (juxt :m_code :param))
+                                                 ))))
+                      (into (sorted-map))
+                      )))))
 
 (defn render-profile-page [req model-id & {:keys [problems flash in-params out-params log-session-id]}]
   (let [{malt-host :profiling-malt-host

@@ -1,4 +1,9 @@
 [% extends "layout.html" %]
+
+[% block head %]
+<link href="/assets/metroui/css/metro-bootstrap.css" rel="stylesheet" />
+[% endblock %]
+
 [% block body %]
 
 <style>
@@ -12,6 +17,11 @@
  text-align: right;
  vertical-align: top;
  width: 20%;
+}
+
+.metro .tile {
+    height: auto !important;
+    width: auto !important;
 }
 </style>
 
@@ -46,10 +56,20 @@
   <div class="col-md-9">
     [% if calc-result %]
     <h3>Calculation result:</h3>
-    <pre>
-      [[ calc-result|pprint ]]
-    </pre>
+      [% for r-code, markets in calc-result.data %]
+      <div class="metro">
+          <h1>[[ r-code ]]</h1>
+          [% for market, outcomes in markets %]
+          <div class="tile">
+              <h3>[[ market ]]</h3>
+              <pre>[[ outcomes|pprint ]]</pre>
+          </div>
+          [% endfor %]
+      </div>
+      [% endfor %]
     [% endif %]
   </div>
 </div>
+
+<script src="/assets/metroui/min/metro.min.js"></script>
 [% endblock %]
