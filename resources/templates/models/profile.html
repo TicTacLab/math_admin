@@ -1,74 +1,102 @@
 [% extends "layout.html" %]
 
 [% block head %]
-<link href="/assets/metroui/css/metro-bootstrap.css" rel="stylesheet" />
+<link href="/assets/metroui/css/metro-bootstrap.css" rel="stylesheet"/>
 [% endblock %]
 
 [% block body %]
 
 <style>
-.model-input-params .fieldset-submit > .form-group label {
- display: inline-block;
- width: 80%;
- word-wrap: break-word;
-}
-.model-input-params .fieldset-submit > .form-group input[type="text"] {
- display: inline-block;
- text-align: right;
- vertical-align: top;
- width: 20%;
-}
+    .model-input-params .fieldset-submit > .form-group label {
+    display: inline-block;
+    width: 80%;
+    word-wrap: break-word;
+    }
+    .model-input-params .fieldset-submit > .form-group input[type="text"] {
+    display: inline-block;
+    text-align: right;
+    vertical-align: top;
+    width: 20%;
+    }
 
-.metro .tile {
+    .metro .tile {
     height: auto !important;
     width: auto !important;
-}
+    cursor: auto;
+    }
+
+    .metro .center {
+    text-align: center;
+    }
 </style>
 
 <div class="row">
-  <div class="col-md-6">
-    <h1>Model profiling</h1>
-  </div>
+    <div class="col-md-6">
+        <h1>Model profiling</h1>
+    </div>
 
-  <div class="col-md-6">
-    <div class="text-right">
-      <form class="form-inline" action="/models/[[model-id]]/log" method="POST">
-        <div class="form-group">
-          <div class="input-group">
-            <div class="input-group-addon">SID</div>
-            <input type="text" class="form-control input-small" placeholder="Session token..." name="ssid" value="[[log-session-id]]">
+    <div class="col-md-6">
+        <div class="text-right">
+            <form class="form-inline" action="/models/[[model-id]]/log" method="POST">
+                <div class="form-group">
+                    <div class="input-group">
+                        <div class="input-group-addon">SID</div>
+                        <input type="text" class="form-control input-small" placeholder="Session token..." name="ssid"
+                               value="[[log-session-id]]">
             <span class="input-group-btn">
               <button type="submit" class="btn btn-default">Load from log</button>
             </span>
-          </div>
+                    </div>
+                </div>
+            </form>
         </div>
-      </form>
     </div>
-  </div>
 </div>
 
 <div class="row">
-  <div class="col-md-3">
-    <div class=" model-input-params">
-      [[ profile-form|form|safe ]]
+    <div class="col-md-3">
+        <div class=" model-input-params">
+            [[ profile-form|form|safe ]]
+        </div>
     </div>
-  </div>
-  <div class="col-md-9">
-    [% if calc-result %]
-    <h3>Calculation result:</h3>
-      [% for r-code, markets in calc-result.data %]
-      <div class="metro">
-          <h1>[[ r-code ]]</h1>
-          [% for market, outcomes in markets %]
-          <div class="tile">
-              <h3>[[ market ]]</h3>
-              <pre>[[ outcomes|pprint ]]</pre>
-          </div>
-          [% endfor %]
-      </div>
-      [% endfor %]
-    [% endif %]
-  </div>
+    <div class="col-md-9">
+        [% if calc-result %]
+        <h3>Calculation result:</h3>
+        [% for r-code, markets in calc-result.data %]
+        <div class="row">
+            <div class="metro">
+                <h1>[[ r-code ]]</h1>
+                [% for market, outcomes in markets %]
+                <div class="tile">
+                    <h6 class="center">[[ market.0 ]] ([[ market.1 ]])</h6>
+                    <table class="table">
+                        <tr>
+                            [% for outcome in outcomes %]
+                            <td class="center">
+                                [[outcome.o_code]]
+                                <br/>
+                                [[outcome.coef|double-format:2]]
+                                <br/>
+                                [% if outcome.timer %]
+                                  [% if outcome.timer = 0 %]
+                                    &lt; 1 ms
+                                  [% else %]
+                                    <span class="text-warning">
+                                    [[ outcome.timer ]] ms
+                                    </span>
+                                  [% endif %]
+                                [% endif %]
+                            </td>
+                            [% endfor %]
+                        </tr>
+                    </table>
+                </div>
+                [% endfor %]
+            </div>
+        </div>
+        [% endfor %]
+        [% endif %]
+    </div>
 </div>
 
 <script src="/assets/metroui/min/metro.min.js"></script>

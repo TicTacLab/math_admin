@@ -162,7 +162,8 @@
                       (map (fn [[r_code outcomes]]
                              (vector r_code (->> outcomes
                                                  (group-by (juxt :m_code :param))
-                                                 ))))
+                                                 (into (sorted-map-by #(compare (apply str %1)
+                                                                                (apply str %2))))))))
                       (into (sorted-map))
                       )))))
 
