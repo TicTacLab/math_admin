@@ -148,13 +148,15 @@
       (log/error e "While malt calculation")
       {:error (format "Error: %s" (.getLocalizedMessage e))})))
 
+(defn split [pred coll]
+  [(filter pred coll) (remove pred coll)])
 
 (defn parse-calc-result [calc-result]
   (let [calc-result (keywordize-keys calc-result)
-        calc-result (update-in calc-result [:data] #(map (fn [a] (assoc a :r_code (-> a
-                                                                                      :m_code
-                                                                                      (string/split #"_")
-                                                                                      first))) %))]
+        calc-result (update-in calc-result [:data] #(map (fn [a] (assoc a :r_code (some-> a
+                                                                                          :m_code
+                                                                                          (string/split #"_")
+                                                                                          first))) %))]
     (update-in calc-result [:data]
                (fn [d]
                  (->> d
@@ -162,10 +164,15 @@
                       (map (fn [[r_code outcomes]]
                              (vector r_code (->> outcomes
                                                  (group-by (juxt :m_code :param))
-                                                 (into (sorted-map-by #(compare (apply str %1)
-                                                                                (apply str %2))))))))
-                      (into (sorted-map))
-                      )))))
+                                                 (split (fn [[_market outcomes]]
+                                                               (<= (count outcomes) 2)))
+                                                 (mapcat (fn [part]
+                                                           (into (sorted-map-by #(compare (apply str %1)
+                                                                                          (apply str %2)))
+                                                                 part)))
+                                                 (map (fn [[market outcomes]]
+                                                        [market (partition-all 6 outcomes)]))))))
+                      (into (sorted-map)))))))
 
 (defn render-profile-page [req model-id & {:keys [problems flash in-params out-params log-session-id]}]
   (let [{malt-host :profiling-malt-host

@@ -25,6 +25,10 @@
     cursor: auto;
     }
 
+    .metro .tile:hover {
+    outline: none;
+    }
+
     .metro .center {
     text-align: center;
     }
@@ -60,16 +64,16 @@
         </div>
     </div>
     <div class="col-md-9">
-        [% if calc-result %]
-        <h3>Calculation result:</h3>
+        <span class="label label-default pull-right">Total time: [[ calc-result.total-time ]] ms</span>
         [% for r-code, markets in calc-result.data %]
         <div class="row">
             <div class="metro">
-                <h1>[[ r-code ]]</h1>
-                [% for market, outcomes in markets %]
+                <h3>[[ r-code ]]</h3>
+                [% for market, outcomes-groups in markets %]
                 <div class="tile">
                     <h6 class="center">[[ market.0 ]] ([[ market.1 ]])</h6>
                     <table class="table">
+                        [% for outcomes in outcomes-groups %]
                         <tr>
                             [% for outcome in outcomes %]
                             <td class="center">
@@ -89,13 +93,13 @@
                             </td>
                             [% endfor %]
                         </tr>
+                        [% endfor %]
                     </table>
                 </div>
                 [% endfor %]
             </div>
         </div>
         [% endfor %]
-        [% endif %]
     </div>
 </div>
 
