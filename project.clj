@@ -20,6 +20,8 @@
                  [http-kit "2.1.16"]
                  [org.clojure/tools.trace "0.7.8"]
                  [prismatic/schema "0.3.6"]
+                 [org.flatland/protobuf "0.8.1"]
+                 [com.google.protobuf/protobuf-java "2.5.0"]
                  [formative "0.8.8" :exclusions [org.clojure/clojurescript
                                                  clj-time]]
                  [hiccup "1.0.5"]
@@ -36,6 +38,7 @@
   :main malt-admin.main
   :plugins [[org.apache.maven.wagon/wagon-ssh-external "2.6"]
             [lein-environ "1.0.0"]
+            [lein-protobuf "0.4.1"]
             [com.aphyr/prism "0.1.1"]]
   :aliases {"autotest" ["with-profile" "test" "prism"]}
   :repositories [["snapshots" {:url "scp://bagira.favoritbet.com/home/erlybet/git-mvn/snapshots"

@@ -14,11 +14,11 @@
             [malt-admin.storage.cache :as cache]
             [clojure.string :as string]
             [clojure.walk :refer [keywordize-keys]]
-            [clojure.tools.logging :as log])
+            [clojure.tools.logging :as log]
+            [flatland.protobuf.core :as pb])
   (:refer-clojure :exclude [replace])
-  (:import (java.nio.file Files Paths)))
-
-
+  (:import (java.nio.file Files Paths)
+           (flatland.protobuf PersistentProtocolBufferMap$Def)))
 
 (defn index [{{storage :storage} :web :as req}]
   (render "models/index" req {:models (storage/get-models storage)}))
@@ -129,7 +129,18 @@
             :body
             (json/parse-string true))))
 
-(defn- calculate-in-params [node port ssid id params]
+(def Packet (pb/protodef outcome.Outcome$Packet
+                         {:naming-strategy PersistentProtocolBufferMap$Def/protobufNames}))
+
+(defn parse-calc-result! [body]
+  (let [packet (pb/protobuf-load Packet body)]
+    (if (= (:type packet) :error)
+      (throw (RuntimeException. (if (= (:error_type packet) :inprogress)
+                                  "Calculation already in progress"
+                                  (:error packet)))))
+    {:result packet}))
+
+(defn- calculate [node port ssid id params]
   (try
     (let [url (format "http://%s:%s/model/calc"
                       node
@@ -139,11 +150,12 @@
                        :params (map (fn [[id value]] {:id id :value value}) params)}
           {:keys [body error status]} @(http/post url {:body (json/generate-string malt-params)
                                                        :headers {"Content-type" "text/plain"}
-                                                       :timeout 60000})]
-      (if error (throw error))
-      (if-not (= status 200)
-        (throw (RuntimeException. (format "%s %s" status body))))
-      {:result body})
+                                                       :timeout 60000
+                                                       :as :byte-array})]
+      (when error (throw error))
+      (when-not (= status 200)
+        (throw (RuntimeException. (format "Bad Status Code: %d" status))))
+      (parse-calc-result! body))
     (catch Exception e
       (log/error e "While malt calculation")
       {:error (format "Error: %s" (.getLocalizedMessage e))})))
@@ -151,8 +163,8 @@
 (defn split [pred coll]
   [(filter pred coll) (remove pred coll)])
 
-(defn parse-calc-result [calc-result]
-  (let [calc-result (keywordize-keys calc-result)
+(defn format-calc-result [calc-result]
+  (let [calc-result (into {} calc-result)
         calc-result (update-in calc-result [:data] #(map (fn [a] (assoc a :r_code (some-> a
                                                                                           :m_code
                                                                                           (string/split #"_")
@@ -184,7 +196,7 @@
             (assoc req :flash flash)
             {:model-id model-id
              :log-session-id log-session-id
-             :calc-result (-> out-params parse-calc-result)
+             :calc-result (-> out-params format-calc-result)
              :profile-form (merge (malt-params->form malt-params)
                                   {:action (str "/models/" model-id "/profile")
                                    :method "POST"
@@ -213,16 +225,16 @@
                                             :problems %
                                             :in-params in-params)
       (fp/parse-params form in-params)
-      (let [result (calculate-in-params malt-host
-                                        malt-port
-                                        session-id
-                                        id
-                                        in-params)]
+      (let [result (calculate malt-host
+                              malt-port
+                              session-id
+                              id
+                              in-params)]
 
         (if (contains? result :result)
           (render-profile-page req id
                                :in-params in-params
-                               :out-params (-> result :result json/parse-string))
+                               :out-params (:result result))
           (render-profile-page req id
                                :in-params in-params
                                :flash result))))))
