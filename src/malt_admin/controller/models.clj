@@ -168,6 +168,19 @@
 (defn split [pred coll]
   [(filter pred coll) (remove pred coll)])
 
+
+(defn- make-prioritized-comparator [priority-list]
+  (let [priority-map (into {} (map-indexed #(vector %2 %1) priority-list))]
+    (comparator
+      (fn [key1 key2]
+        (let [first-val (get priority-map key1)
+              second-val (get priority-map key2)]
+          (cond
+            (and first-val second-val) (< first-val second-val)
+            first-val true
+            second-val false
+            :else (neg? (compare key1 key2))))))))
+
 (defn format-calc-result [calc-result]
   (let [calc-result (into {} calc-result)
         calc-result (update-in calc-result [:data] #(map (fn [a] (assoc a :r_code (some-> a
@@ -189,7 +202,7 @@
                                                                  part)))
                                                  (map (fn [[market outcomes]]
                                                         [market (partition-all 6 outcomes)]))))))
-                      (into (sorted-map)))))))
+                      (into (sorted-map-by (make-prioritized-comparator ["MATCH" "FULL_TIME"]))))))))
 
 (defn render-profile-page [req model-id & {:keys [problems flash in-params out-params log-session-id]}]
   (let [model-id (Integer/valueOf model-id)
