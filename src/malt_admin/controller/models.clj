@@ -192,14 +192,23 @@
                       (into (sorted-map)))))))
 
 (defn render-profile-page [req model-id & {:keys [problems flash in-params out-params log-session-id]}]
-  (let [{malt-host :profiling-malt-host
+  (let [model-id (Integer/valueOf model-id)
+        {malt-host :profiling-malt-host
          malt-port :profiling-malt-port} (-> req :web :storage cfg/read-settings)
          malt-params (get-malt-params malt-host malt-port model-id (:session-id req))
          values (or in-params
-                    (malt-params->form-values malt-params))]
+                    (malt-params->form-values malt-params))
+        {model-file :file_name model-name :name} (-> req
+                                                     :web
+                                                     :storage
+                                                     (storage/get-model model-id))]
     (render "models/profile"
             (assoc req :flash flash)
             {:model-id model-id
+             :model-file (->> model-file
+                              (re-matches #"^(.*)\..*$")
+                              second)
+             :model-name model-name
              :log-session-id log-session-id
              :calc-result (-> out-params format-calc-result)
              :profile-form (merge (malt-params->form malt-params)
