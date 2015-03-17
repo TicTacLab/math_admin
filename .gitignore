@@ -10,7 +10,6 @@ profiles.clj
 /.nrepl-port
 **/*.db
 .lein-env
-node_modules/
 resources/public/js/
 resources/public/cljs/
 resources/public/vendor/
