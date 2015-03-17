@@ -95,13 +95,13 @@
                                 [[outcome.coef|double-format:2]]
                                 <br/>
                                 [% if outcome.timer %]
-                                  [% if outcome.timer = 0 %]
-                                    &lt; 1 ms
-                                  [% else %]
-                                    <span class="text-warning">
-                                    [[ outcome.timer ]] ms
-                                    </span>
-                                  [% endif %]
+                                  <span class="[% if outcome.timer > 1 %]text-warning[% endif %]">
+                                      [% if outcome.timer = 0 %]
+                                      &lt; 1 ms
+                                      [% else %]
+                                      [[ outcome.timer ]] ms
+                                      [% endif %]
+                                  </span>
                                 [% endif %]
                             </td>
                             [% endfor %]
