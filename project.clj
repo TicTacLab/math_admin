@@ -38,7 +38,7 @@
   :main malt-admin.main
   :plugins [[org.apache.maven.wagon/wagon-ssh-external "2.6"]
             [lein-environ "1.0.0"]
-            [lein-protobuf "0.4.1"]
+            [lein-protobuf "0.4.2"]
             [com.aphyr/prism "0.1.1"]]
   :aliases {"autotest" ["with-profile" "test" "prism"]}
   :repositories [["snapshots" {:url "scp://bagira.favoritbet.com/home/erlybet/git-mvn/snapshots"
