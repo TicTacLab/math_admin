@@ -1,0 +1,51 @@
+package outcome;
+
+message ErrorProto
+{
+  required string field = 1;
+  optional string value = 2;
+  required string err = 3;
+}
+
+message OutcomeProto
+{
+  required uint32 id = 1;
+  optional string market = 2;
+  optional string outcome = 3;
+  required float coef = 4;
+  required float param = 5;
+  required string m_code = 6;
+  required string o_code = 7;
+  optional float param2 = 8;
+  repeated ErrorProto errors = 9;
+  optional int32 timer = 10;
+  
+}
+
+message Param {
+  required uint32 id = 1;
+  optional string param_str = 2;
+  optional float  param_float = 3;
+}
+
+enum PacketType {
+  OUTCOMES = 1;
+  PARAMS = 2;
+  ERROR = 3;
+}
+
+enum ErrorType {
+  INPROGRESS = 1;
+  CALCFALSE = 2;
+}
+
+message Packet
+{
+    required PacketType type = 1;
+    repeated OutcomeProto data = 2;
+    repeated Param param = 3;
+    optional string error = 4;
+    optional ErrorType error_type = 5;
+    optional uint32 timer = 6;
+}
+
