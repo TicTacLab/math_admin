@@ -54,6 +54,6 @@ CREATE TABLE IF NOT EXISTS calculation_log (
       session_id varchar,
       model_id int,
       in_params varchar,
-      out_params varchar,
+      out_params blob,
       PRIMARY KEY ((session_id, model_id))
 );

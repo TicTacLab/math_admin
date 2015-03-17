@@ -5,7 +5,7 @@
             [malt-admin.audit :refer [audit]]
             [malt-admin.storage.log :as slog]
             [cheshire.core :as json]
-            [malt-admin.helpers :refer [csv-to-list redirect-with-flash error!]]
+            [malt-admin.helpers :refer [csv-to-list redirect-with-flash error! Packet]]
             [formative.parse :as fp]
             [org.httpkit.client :as http]
             [clojure.tools.trace :refer [trace]]
@@ -129,9 +129,6 @@
             :body
             (json/parse-string true))))
 
-(def Packet (pb/protodef outcome.Outcome$Packet
-                         {:naming-strategy PersistentProtocolBufferMap$Def/protobufNames}))
-
 (defn parse-calc-result! [body]
   (let [packet (pb/protobuf-load Packet body)]
     (if (= (:type packet) :error)
@@ -247,11 +244,9 @@
                                         :in_params
                                         (json/parse-string true)
                                         malt-params->form-values)
-                         :out-params (-> result
-                                         :out_params
-                                         json/parse-string)
+                         :out-params (:out_params result)
                          :log-session-id ssid
-                         :flash {:success "Loaded from log"})
+                         :flash {:success "Loaded from log."})
     (render-profile-page req id
                          :log-session-id ssid
                          :flash {:error "No such log entry."})))
