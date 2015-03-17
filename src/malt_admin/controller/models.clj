@@ -182,7 +182,7 @@
                              (vector r_code (->> outcomes
                                                  (group-by (juxt :m_code :param))
                                                  (split (fn [[_market outcomes]]
-                                                               (<= (count outcomes) 2)))
+                                                               (<= (count outcomes) 3)))
                                                  (mapcat (fn [part]
                                                            (into (sorted-map-by #(compare (apply str %1)
                                                                                           (apply str %2)))
