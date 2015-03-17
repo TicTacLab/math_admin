@@ -44,14 +44,22 @@
                   {storage :storage} :web
                   :as req}]
   (fp/with-fallback #(malt-admin.controller.models/upload (assoc req :problems %))
-    (if (storage/model-exists? storage (Integer. (:id params)))
-      (error! [:id] (str "Model with this ID already exists: " (:id params)))
-      (let [values (->> params
-                        (fp/parse-params form/upload-form)
-                        (prepare-file-attrs))]
-        (storage/write-model! storage values)
-        (audit req :upload-model (dissoc values :file))
-        (redirect-with-flash "/models" {:success "DONE"})))))
+    (let [values (->> params
+                      (fp/parse-params form/upload-form)
+                      (prepare-file-attrs))]
+
+      (cond
+        (storage/model-exists? storage (:id values))
+        (error! [:id] (str "Model with this ID already exists: " (:id values)))
+
+        (not (contains? values :file))
+        (error! [:file] "You should specify file!")
+
+        :else
+        (do
+          (storage/write-model! storage values)
+          (audit req :upload-model (dissoc values :file))
+          (redirect-with-flash "/models" {:success "DONE"}))))))
 
 (defn edit [{{storage :storage} :web
              {id :id :as params} :params
