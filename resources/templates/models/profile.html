@@ -84,7 +84,12 @@
                 <h3>[[ r-code ]]</h3>
                 [% for market, outcomes-groups in markets %]
                 <div class="tile">
-                    <h6 class="center">[[ market.0 ]] ([[ market.1 ]])</h6>
+                    <h6 class="center">
+                        [[ market.0 ]]
+                        [% if market.1 < 999999 %]
+                        ([[ market.1 ]])
+                        [% endif %]
+                    </h6>
                     <table class="table">
                         [% for outcomes in outcomes-groups %]
                         <tr>
