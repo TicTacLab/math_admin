@@ -79,7 +79,7 @@
     (let [values (-> params
                      (#(fp/parse-params form/edit-form %))
                      (prepare-file-attrs)
-                     (select-keys [:id :file :file_name :content_type :in_sheet_name :out_sheet_name]))]
+                     (select-keys [:id :file :name :file_name :content_type :in_sheet_name :out_sheet_name]))]
       (storage/replace-model! storage values)
       (cache/clear storage (:id values))
       (audit req :replace-model (dissoc values :file))
