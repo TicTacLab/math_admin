@@ -7,8 +7,8 @@
 
 
 (defn read-log [{conn :conn} id ssid]
-  (-> (cql/select conn "calculation_log"
-                  (columns :session_id :model_id :in_params :out_params)
-                  (where [[= :session_id ssid] [= :model_id id]]))
-      (first)
-      (update-in [:out_params] #(pb/protobuf-load Packet (Bytes/getArray %)))))
+  (some-> (cql/select conn "calculation_log"
+                      (columns :session_id :model_id :in_params :out_params)
+                      (where [[= :session_id ssid] [= :model_id id]]))
+          (first)
+          (update-in [:out_params] #(pb/protobuf-load Packet (Bytes/getArray %)))))
