@@ -169,40 +169,35 @@
   [(filter pred coll) (remove pred coll)])
 
 
-(defn- make-prioritized-comparator [priority-list]
-  (let [priority-map (into {} (map-indexed #(vector %2 %1) priority-list))]
+(defn- make-weightened-comparator [calc-result]
+  (let [priority-map (->> calc-result
+                          (map (juxt :mgp_code :mgp_weight))
+                          (into {}))]
     (comparator
       (fn [key1 key2]
-        (let [first-val (get priority-map key1)
-              second-val (get priority-map key2)]
-          (cond
-            (and first-val second-val) (< first-val second-val)
-            first-val true
-            second-val false
-            :else (neg? (compare key1 key2))))))))
+        (< (get priority-map key1)
+           (get priority-map key2))))))
+
+
 
 (defn format-calc-result [calc-result]
-  (let [calc-result (into {} calc-result)
-        calc-result (update-in calc-result [:data] #(map (fn [a] (assoc a :r_code (some-> a
-                                                                                          :m_code
-                                                                                          (string/split #"_")
-                                                                                          first))) %))]
+  (let [calc-result (into {} calc-result)] ;; from protobuf map-like
     (update-in calc-result [:data]
-               (fn [d]
-                 (->> d
-                      (group-by :r_code)
-                      (map (fn [[r_code outcomes]]
-                             (vector r_code (->> outcomes
-                                                 (group-by (juxt :m_code :param))
+               (fn [data]
+                 (->> data
+                      (group-by :mgp_code)
+                      (map (fn [[mgp_code outcomes]]
+                             (vector mgp_code (->> outcomes
+                                                 (group-by (juxt :mn_code :param))
                                                  (split (fn [[_market outcomes]]
-                                                               (<= (count outcomes) 3)))
+                                                          (<= (count outcomes) 3)))
                                                  (mapcat (fn [part]
                                                            (into (sorted-map-by #(compare (apply str %1)
                                                                                           (apply str %2)))
                                                                  part)))
                                                  (map (fn [[market outcomes]]
                                                         [market (partition-all 6 outcomes)]))))))
-                      (into (sorted-map-by (make-prioritized-comparator ["MATCH" "FULL_TIME"]))))))))
+                      (into (sorted-map-by (make-weightened-comparator data))))))))
 
 (defn render-profile-page [req model-id & {:keys [problems flash in-params out-params log-session-id]}]
   (let [model-id (Integer/valueOf model-id)
