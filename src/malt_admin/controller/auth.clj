@@ -25,6 +25,7 @@
 
 (defn sign-out [{{storage :storage} :web
                  session-id :session-id}]
-  (storage/sign-out storage session-id)
+  (when session-id
+    (storage/sign-out storage session-id))
   (-> (redirect-with-flash "/auth" {:success "You successfully signed out"})
       (assoc-in [:session :sid] nil)))
