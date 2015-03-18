@@ -9,17 +9,19 @@ message ErrorProto
 
 message OutcomeProto
 {
-  required uint32 id = 1;
-  optional string market = 2;
-  optional string outcome = 3;
-  required float coef = 4;
-  required float param = 5;
-  required string m_code = 6;
-  required string o_code = 7;
-  optional float param2 = 8;
-  repeated ErrorProto errors = 9;
-  optional int32 timer = 10;
-  
+    required uint32 id = 1;
+    optional string market = 2;
+    optional string outcome = 3;
+    required float coef = 4;
+    required float param = 5;
+    required string m_code = 6;
+    required string o_code = 7;
+    optional float param2 = 8;
+    repeated ErrorProto errors = 9;
+    optional int32 timer = 10;
+    optional string mgp_code = 11;
+    optional string mn_code = 12;
+    optional uint32 mgp_weight = 13;
 }
 
 message Param {
@@ -46,6 +48,6 @@ message Packet
     repeated Param param = 3;
     optional string error = 4;
     optional ErrorType error_type = 5;
-    optional uint32 timer = 6;
+    optional int32 timer = 6;
 }
 
