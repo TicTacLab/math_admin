@@ -9,19 +9,17 @@
     (let [b (t/start-browser! s)]
       (signin b)
       (go b "/configuration")
-      (is (= 4 (count (elements b [:.form-shell :.fieldset-session-ttl :input]))) "Should have specified number input fields")
+      (is (= 3 (count (elements b [:.form-shell :.fieldset-session-ttl :input]))) "Should have specified number input fields")
 
       (testing "Successul update"
         (fill-in b "Session TTL (min)" "60")
         (select b "Cache on")
         (fill-in b "Rest port" "6666")
-        (fill-in b "Cassandra hosts" "127.0.0.1")
         (click b "Update")
         (accept b)
 
         (is (= "60" (value b "Session TTL (min)")))
         (is (= "6666" (value b "Rest port")))
-        (is (= "127.0.0.1" (value b "Cassandra hosts")))
         (is (= "true" (value b "Cache on"))))
 
       (testing "Failing TTL validation"
