@@ -2,7 +2,7 @@
   (:require [ring.util.response :as res]
             [clojure.tools.logging :as log]
             [ring.middleware.stacktrace :as stacktrace]
-            [malt-admin.view :refer (render)]
+            [malt-admin.view :refer (render render-error)]
             [environ.core :as environ]))
 
 (defmacro defmiddleware [nm params handler-params & body]
@@ -12,7 +12,7 @@
 
 (defn non-authorizible? [uri]
   (some #(re-find % uri)
-        [#"^/$" #"^/auth.*" #"^/static/.*"]))
+        [#"^/$" #"^/auth$" #"^/static/*"]))
 
 (defmiddleware wrap-check-session
   [h] [{uri :uri :as req}]
@@ -30,12 +30,10 @@
         (h req)
         (catch SecurityException e
           (log/error e "Exception raised")
-          {:status 403
-           :body (render "errors/403" req {})})
+          (render-error req 403))
         (catch IllegalStateException e
           (log/error e "Exception raised")
-          {:status 500
-           :body (render "errors/500" req {})})))))
+          (render-error req 500))))))
 
 (defmiddleware wrap-with-web
   [h web] [req]

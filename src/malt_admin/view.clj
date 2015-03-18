@@ -3,7 +3,8 @@
             [selmer.filters :as filters]
             [environ.core :as environ]
             [formative.core :as f]
-            [hiccup.core :as h])
+            [hiccup.core :as h]
+            [ring.util.response :as res])
   (:import [java.text SimpleDateFormat]
            [java.util TimeZone]))
 
@@ -42,3 +43,9 @@
                          :tag-close \]
                          :filter-open \[
                          :filter-close \]})))
+
+(defn render-error [req code]
+  (-> (format "errors/%d" code)
+      (render req {})
+      res/response
+      (res/status code)))

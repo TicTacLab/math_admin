@@ -1,5 +1,5 @@
 (ns malt-admin.web
-  (:require [compojure.core :refer (defroutes GET POST PUT DELETE wrap-routes)]
+  (:require [compojure.core :refer (defroutes GET POST PUT DELETE ANY wrap-routes)]
             [schema.core :as s]
             [compojure.route :as route]
             [org.httpkit.server :as http-kit]
@@ -12,7 +12,7 @@
              [models :as models]
              [users :as users]
              [auth :as auth]]
-            [malt-admin.view :refer (render)]
+            [malt-admin.view :refer (render render-error)]
             [environ.core :as environ]
             [malt-admin.middleware :refer (wrap-check-session wrap-with-web wrap-with-stacktrace)]
             [ring.util.response :as res]
@@ -31,9 +31,7 @@
            (and (= ~role :admin)
                 (get-in ~req [:session :is-admin])))
      ~body
-     (-> "<h1>Forbidden</h1>"
-         (res/response)
-         (res/status 403))))
+     (render-error ~req 403)))
 
 
 (defroutes routes
@@ -69,7 +67,12 @@
   (PUT    "/users/:login/update-password" req (allow req :admin (users/update-password req)))
   (PUT    "/users/:login/change-status"   req (allow req :admin (users/change-status req)))
 
-  (route/not-found "<h1>Page not found!</h1>"))
+  (GET "/static/401" req (render-error req 401))
+  (GET "/static/403" req (render-error req 403))
+  (GET "/static/404" req (render-error req 404))
+  (GET "/static/500" req (render-error req 500))
+
+  (ANY "/*" req (render-error req 404)))
 
 (defn app [web]
   (-> routes

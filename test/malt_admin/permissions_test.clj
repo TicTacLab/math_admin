@@ -68,19 +68,19 @@
 
 
         (go b "/users")
-        (is (seq (find-elements b {:xpath "//h1[text()='Forbidden']"}))
+        (is (seq (find-elements b {:xpath "//span[text()='Access denied']"}))
             "Should not have access to users")
 
         (go b "/settings")
-        (is (seq (find-elements b {:xpath "//h1[text()='Forbidden']"}))
+        (is (seq (find-elements b {:xpath "//span[text()='Access denied']"}))
             "Should not have access to settings")
 
         (go b "/configuration")
-        (is (seq (find-elements b {:xpath "//h1[text()='Forbidden']"}))
+        (is (seq (find-elements b {:xpath "//span[text()='Access denied']"}))
             "Should not have access to configuration")
 
         (go b "/models/1/download")
-        (is (seq (find-elements b {:xpath "//h1[text()='Forbidden']"}))
+        (is (seq (find-elements b {:xpath "//span[text()='Access denied']"}))
             "Downloading should be strictly forbidden!")
 
         (go b "/models") ;; for signout button
