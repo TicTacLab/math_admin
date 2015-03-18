@@ -14,6 +14,7 @@
   component/Lifecycle
   (start [component]
     (EmbeddedCassandraServerHelper/startEmbeddedCassandra)
+    (EmbeddedCassandraServerHelper/cleanEmbeddedCassandra)
     (let [conn (cc/connect ["localhost"] {:port 9142})]
       (doto (CQLDataLoader. conn)
         (.load (FileCQLDataSet. "scripts/init-schema.cql" true false storage-keyspace))
@@ -25,5 +26,4 @@
   (stop [component]
     (when conn
       (cc/disconnect conn))
-    (EmbeddedCassandraServerHelper/cleanEmbeddedCassandra)
     (assoc component :conn nil)))
