@@ -153,10 +153,10 @@
           malt-params {:id id
                        :ssid (make-model-sid id ssid)
                        :params (map (fn [[id value]] {:id id :value value}) params)}
-          {:keys [body error status]} @(http/post url {:body (json/generate-string malt-params)
+          {:keys [body error status]} @(http/post url {:body    (json/generate-string malt-params)
                                                        :headers {"Content-type" "text/plain"}
                                                        :timeout 60000
-                                                       :as :byte-array})]
+                                                       :as      :byte-array})]
       (when error (throw error))
       (when-not (= status 200)
         (throw (RuntimeException. (format "Bad Status Code: %d" status))))
