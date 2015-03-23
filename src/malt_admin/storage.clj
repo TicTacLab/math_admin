@@ -2,6 +2,7 @@
   (:require [com.stuartsierra.component :as component]
             [schema.core :as s]
             [clojurewerkz.cassaforte.client :as cc]
+            [clojurewerkz.cassaforte.policies :as cp]
             [clojure.tools.logging :as log]))
 
 
@@ -19,7 +20,7 @@
                            storage-keyspace
                            {:credentials {:username storage-user
                                           :password storage-password}})]
-
+      (cp/constant-reconnection-policy 100)
       (log/info "Storage started")
       (assoc component :conn conn)))
 
