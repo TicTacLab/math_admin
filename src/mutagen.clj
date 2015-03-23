@@ -1,13 +1,14 @@
-(ns leiningen.mutagen
+(ns mutagen
   (:require [environ.core :as environ])
   (:import [com.toddfast.mutagen.cassandra.impl CassandraMutagenImpl]
            [com.netflix.astyanax AstyanaxContext$Builder]
            [com.netflix.astyanax.impl AstyanaxConfigurationImpl]
            [com.netflix.astyanax.model ConsistencyLevel]
            [com.netflix.astyanax.connectionpool.impl ConnectionPoolConfigurationImpl]
-           [com.netflix.astyanax.thrift ThriftFamilyFactory]))
+           [com.netflix.astyanax.thrift ThriftFamilyFactory])
+  (:gen-class))
 
-(defn mutagen [_project & _args]
+(defn -main [& _args]
   (let [{:keys [storage-keyspace storage-nodes]} environ/env
         m (doto (CassandraMutagenImpl.)
             (.initialize "mutations"))

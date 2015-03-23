@@ -36,7 +36,6 @@
                  [com.toddfast.mutagen/mutagen-cassandra "0.4.0"]]
   :repl-options {:timeout 120000
                  :init-ns user}
-  :eval-in-leiningen true
   :main malt-admin.main
   :plugins [[org.apache.maven.wagon/wagon-ssh-external "2.6"]
             [lein-environ "1.0.0"]
