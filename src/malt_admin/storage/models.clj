@@ -1,6 +1,6 @@
 (ns malt-admin.storage.models
   (:require [clojurewerkz.cassaforte.cql :as cql]
-            [clojurewerkz.cassaforte.query :refer [where columns]]))
+            [clojurewerkz.cassaforte.query :refer [where columns order-by]]))
 
 (defn write-model! [storage model]
   (let [{:keys [conn]} storage]
@@ -19,7 +19,8 @@
 
 (defn get-models [storage]
   (let [{:keys [conn]} storage]
-    (cql/select conn "models" (columns :id :name :file :file_name :in_sheet_name :out_sheet_name))))
+    (sort-by :id (cql/select conn "models"
+                             (columns :id :name :file :file_name :in_sheet_name :out_sheet_name)))))
 
 (defn get-model [storage id]
   (let [{:keys [conn]} storage]
