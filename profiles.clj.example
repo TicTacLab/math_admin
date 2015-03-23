@@ -3,6 +3,8 @@
 
                  :storage-nodes "localhost,"
                  :storage-keyspace "malt"
+                 :storage-user "cassandra"
+                 :storage-password "cassandra"
                  :configuration-table "configuration"
                  :settings-table "settings"
 
@@ -12,6 +14,8 @@
 
                   :storage-nodes "localhost,"
                   :storage-keyspace "malt_test"
+                  :storage-user "cassandra"
+                  :storage-password "cassandra"
                   :configuration-table "configuration"
                   :settings-table "settings"
 

@@ -9,6 +9,8 @@
            web-host
            storage-nodes
            storage-keyspace
+           storage-user
+           storage-password
            settings-table
            configuration-table] :as config}]
 
@@ -20,4 +22,6 @@
    :storage (storage/new-storage {:storage-nodes (csv-to-list storage-nodes)
                                   :storage-keyspace storage-keyspace
                                   :settings-table settings-table
+                                  :storage-user storage-user
+                                  :storage-password storage-password
                                   :configuration-table configuration-table})))

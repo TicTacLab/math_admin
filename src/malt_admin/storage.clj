@@ -9,12 +9,16 @@
                     storage-nodes
                     storage-keyspace
                     settings-table
+                    storage-user
+                    storage-password
                     configuration-table]
   component/Lifecycle
 
   (start [component]
     (let [conn (cc/connect storage-nodes
-                           storage-keyspace)]
+                           storage-keyspace
+                           {:credentials {:username storage-user
+                                          :password storage-password}})]
 
       (log/info "Storage started")
       (assoc component :conn conn)))
@@ -29,6 +33,8 @@
 (def StorageSchema
   {:storage-nodes [s/Str]
    :storage-keyspace s/Str
+   :storage-user s/Str
+   :storage-password s/Str
    :settings-table s/Str
    :configuration-table s/Str})
 
