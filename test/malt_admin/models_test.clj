@@ -32,7 +32,8 @@
         (is (= "hosts" (text b :.model-file-name))))
 
       (testing "Download"
-        (click b "Download"))
+        (click b "Download")
+        (accept b))
 
       (testing "Delete"
         (click b "Delete")
