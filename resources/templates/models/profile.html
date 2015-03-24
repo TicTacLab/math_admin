@@ -88,14 +88,14 @@
             <div class="metro">
                 <h3>[[ mgp-code ]]</h3>
                 [% for market, outcomes-groups in markets %]
-                <div class="tile">
-                    <h6 class="center">
+                <div class="tile" style="margin: 2px">
+                    <h6 class="center" style="margin: 2px">
                         [[ market.0 ]]
                         [% if market.1 < 999999 %]
                         ([[ market.1 ]])
                         [% endif %]
                     </h6>
-                    <table class="table">
+                    <table class="table" style="margin: 0px">
                         [% for outcomes in outcomes-groups %]
                         <tr>
                             [% for outcome in outcomes %]
