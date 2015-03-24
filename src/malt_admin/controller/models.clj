@@ -183,22 +183,22 @@
 
 (defn format-calc-result [calc-result]
   (let [calc-result (into {} calc-result)] ;; from protobuf map-like
-    (trace (update-in calc-result [:data]
-                      (fn [data]
-                        (->> data
-                             (group-by :mgp_code)
-                             (map (fn [[mgp_code outcomes]]
-                                    (vector mgp_code (->> outcomes
-                                                          (group-by (juxt :mn_code :param))
-                                                          (split (fn [[_market outcomes]]
-                                                                   (<= (count outcomes) 3)))
-                                                          (mapcat (fn [part]
-                                                                    (into (sorted-map-by #(compare (apply str %1)
-                                                                                                   (apply str %2)))
-                                                                          part)))
-                                                          (map (fn [[market outcomes]]
-                                                                 [market (partition-all 6 outcomes)]))))))
-                             (into (sorted-map-by (make-weightened-comparator data)))))))))
+    (update-in calc-result [:data]
+               (fn [data]
+                 (->> data
+                      (group-by :mgp_code)
+                      (map (fn [[mgp_code outcomes]]
+                             (vector mgp_code (->> outcomes
+                                                   (group-by (juxt :mn_code :param))
+                                                   (split (fn [[_market outcomes]]
+                                                            (<= (count outcomes) 3)))
+                                                   (mapcat (fn [part]
+                                                             (into (sorted-map-by #(compare (apply str %1)
+                                                                                            (apply str %2)))
+                                                                   part)))
+                                                   (map (fn [[market outcomes]]
+                                                          [market (partition-all 6 outcomes)]))))))
+                      (into (sorted-map-by (make-weightened-comparator data))))))))
 
 (defn render-profile-page [req model-id & {:keys [problems flash in-params out-params log-session-id]}]
   (let [model-id (Integer/valueOf model-id)
