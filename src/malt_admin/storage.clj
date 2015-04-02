@@ -19,8 +19,8 @@
     (let [conn (cc/connect storage-nodes
                            storage-keyspace
                            {:credentials {:username storage-user
-                                          :password storage-password}})]
-      (cp/constant-reconnection-policy 100)
+                                          :password storage-password}
+                            :reconnection-policy (cp/constant-reconnection-policy 100)})]
       (log/info "Storage started")
       (assoc component :conn conn)))
 
