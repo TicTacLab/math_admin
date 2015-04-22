@@ -42,14 +42,13 @@
             [lein-protobuf "0.4.1"]
             [com.aphyr/prism "0.1.1"]]
   :aliases {"autotest" ["with-profile" "test" "prism"]}
-  :repositories [["snapshots" {:url "scp://bagira.favoritbet.com/home/erlybet/git-mvn/snapshots"
-                               :username [:gpg :env/bagira_username]
-                               :password [:gpg :env/bagira_password]
-                               :private-key-file [:gpg :env/private_key_file]}]
-                 ["releases" {:url "scp://bagira.favoritbet.com/home/erlybet/git-mvn/releases"
-                              :username [:gpg :env/bagira_username]
-                              :password [:gpg :env/bagira_password]
-                              :private-key-file [:gpg :env/private_key_file]}]]
+  :repositories ^:replace [
+["snapshots" {:url "http://10.1.4.197:8080/repository/snapshots"
+                               :username :env
+                               :password :env}]
+["releases" {:url "http://10.1.4.197:8080/repository/internal"
+                               :username :env
+                               :password :env}]]
   :jvm-opts ["-Dlogback.configurationFile=logback.xml" "-Dwebdriver.chrome.driver=/usr/lib/chromium-browser/chromedriver"]
   :uberjar-name "malt-admin-standalone.jar"
   :profiles {:production {:jvm-opts ["-Dlogback.configurationFile=logback.production.xml"]}
