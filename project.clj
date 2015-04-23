@@ -43,10 +43,10 @@
             [com.aphyr/prism "0.1.1"]]
   :aliases {"autotest" ["with-profile" "test" "prism"]}
   :repositories ^:replace [
-["snapshots" {:url "http://10.1.4.197:8080/repository/snapshots"
+["snapshots" {:url "http://10.1.4.197/repository/snapshots"
                                :username :env
                                :password :env}]
-["releases" {:url "http://10.1.4.197:8080/repository/internal"
+["releases" {:url "http://10.1.4.197/repository/internal"
                                :username :env
                                :password :env}]]
   :jvm-opts ["-Dlogback.configurationFile=logback.xml" "-Dwebdriver.chrome.driver=/usr/lib/chromium-browser/chromedriver"]
