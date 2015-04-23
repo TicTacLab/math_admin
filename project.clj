@@ -51,6 +51,15 @@
                                :password :env}]]
   :jvm-opts ["-Dlogback.configurationFile=logback.xml" "-Dwebdriver.chrome.driver=/usr/lib/chromium-browser/chromedriver"]
   :uberjar-name "malt-admin-standalone.jar"
+  :release-tasks [["vcs" "assert-committed"]
+                  ["change" "version"
+                   "leiningen.release/bump-version" "release"]
+                  ["vcs" "commit"]
+                  ["vcs" "tag"]
+                  ["uberjar-deploy"]
+                  ["change" "version" "leiningen.release/bump-version"]
+                  ["vcs" "commit"]
+                  ["vcs" "push"]]
   :profiles {:production {:jvm-opts ["-Dlogback.configurationFile=logback.production.xml"]}
              :staging {:jvm-opts ["-Dlogback.configurationFile=logback.production.xml"]}
              :dev [:dev-env
