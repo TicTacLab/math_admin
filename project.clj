@@ -40,14 +40,14 @@
   :plugins [[org.apache.maven.wagon/wagon-ssh-external "2.6"]
             [lein-environ "1.0.0"]
             [lein-protobuf "0.4.1"]
-            [com.aphyr/prism "0.1.1"]]
+            [com.aphyr/prism "0.1.1"]
+            [theladders/lein-uberjar-deploy "1.0.0"]]
   :aliases {"autotest" ["with-profile" "test" "prism"]}
-  :repositories ^:replace [
-["snapshots" {:url "http://10.1.4.197/repository/snapshots"
-                               :username :env
-                               :password :env}]
-["releases" {:url "http://10.1.4.197/repository/internal"
-                               :username :env
+  :repositories ^:replace [["snapshots" {:url      "http://10.1.4.197/repository/snapshots"
+                                         :username :env
+                                         :password :env}]
+                           ["releases" {:url "http://10.1.4.197/repository/internal"
+                                        :username :env
                                :password :env}]]
   :jvm-opts ["-Dlogback.configurationFile=logback.xml" "-Dwebdriver.chrome.driver=/usr/lib/chromium-browser/chromedriver"]
   :uberjar-name "malt-admin-standalone.jar"
