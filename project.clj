@@ -37,18 +37,17 @@
   :repl-options {:timeout 120000
                  :init-ns user}
   :main malt-admin.main
-  :plugins [[org.apache.maven.wagon/wagon-ssh-external "2.6"]
-            [lein-environ "1.0.0"]
+  :plugins [[lein-environ "1.0.0"]
             [lein-protobuf "0.4.1"]
             [com.aphyr/prism "0.1.1"]
             [theladders/lein-uberjar-deploy "1.0.0"]]
   :aliases {"autotest" ["with-profile" "test" "prism"]}
-  :repositories ^:replace [["snapshots" {:url      "http://10.1.4.197/repository/snapshots"
+  :repositories ^:replace [["snapshots" {:url "http://10.1.4.197/repository/snapshots"
                                          :username :env
                                          :password :env}]
                            ["releases" {:url "http://10.1.4.197/repository/internal"
                                         :username :env
-                               :password :env}]]
+                                        :password :env}]]
   :jvm-opts ["-Dlogback.configurationFile=logback.xml" "-Dwebdriver.chrome.driver=/usr/lib/chromium-browser/chromedriver"]
   :uberjar-name "malt-admin-standalone.jar"
   :release-tasks [["vcs" "assert-committed"]
@@ -69,6 +68,3 @@
                                    [http-kit.fake "0.2.1"]]}]
              :test [:test-env
                     {:dependencies [[http-kit.fake "0.2.1"]]}]})
-(cemerick.pomegranate.aether/register-wagon-factory!
- "scp" #(let [c (resolve 'org.apache.maven.wagon.providers.ssh.external.ScpExternalWagon)]
-          (clojure.lang.Reflector/invokeConstructor c (into-array []))))
