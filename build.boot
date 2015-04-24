@@ -53,7 +53,7 @@
 (deftask
   protoc
   []
-  (let [tmp (tmp-dir!)]
+  (let [tmp (temp-dir!)]
     (fn [next-handler]
       (fn [fileset]
         (empty-dir! tmp)
