@@ -1,7 +1,7 @@
 (set-env!
   :source-paths #{"src"}
   :resource-paths #{"resources"}
-  :directories #{"target"}
+  :directories #{#_"target"}
   :dependencies '[[org.clojure/clojure "1.6.0"]
                   [javax.servlet/javax.servlet-api "3.1.0"]
                   [com.stuartsierra/component "0.2.2"]
@@ -37,50 +37,50 @@
                            :username "ci"
                            :password "ci1"}})
 
-(extend-protocol boot.tmpdir/ITmpFile
+#_(extend-protocol boot.tmpdir/ITmpFile
   java.io.File
   (file [this] (.getAbsoluteFile this))
-  (path [this] (.getPath this)))
-
-(def version "0.1.3-2")
+  (path [this] (.getAbsolutePath this)))
 
 (task-options!
-  pom  {:project 'malt_admin
-        :version "0.1.3-2"}
+  pom  {:project 'malt_admin}
   aot  {:all true}
   jar  {:main 'malt_admin.main}
-  push {:file           (format "target/malt_admin-%s.jar" version)
-        :tag            true
+  push {:tag            true
         :ensure-release true
         :repo           "nassau"})
 
-(deftask protoc []
-         (let [tmp (temp-dir!)]
-           (fn [next-handler]
-            (fn [fileset]
-              (empty-dir! tmp)
-              (doseq [f (->> fileset
-                             (input-files)
-                             (by-ext [".proto"])
-                             (map boot.tmpdir/file))]
-                (boot.util/info "Compiling protobuf file: %s\n" (.getName f))
-                (let [res (clojure.java.shell/sh "/usr/bin/protoc"
-                                                 (str "--proto_path=" (.getParent f))
-                                                 (str "--java_out=" (.getPath tmp))
-                                                 (.getPath f))]
-                  (when-not (zero? (:exit res))
-                    (boot.util/fail "stdout: %s\n" (:out res))
-                    (boot.util/fail "stderr: %s\n" (:err res)))))
-              (-> fileset
-                  (add-source (clojure.java.io/file tmp))
-                  (commit!)
-                  next-handler)))))
+(deftask
+  protoc
+  []
+  (let [tmp (tmp-dir!)]
+    (fn [next-handler]
+      (fn [fileset]
+        (empty-dir! tmp)
+        (doseq [f (->> fileset
+                       (input-files)
+                       (by-ext [".proto"])
+                       (map boot.tmpdir/file))]
+          (boot.util/info "Compiling protobuf file: %s\n" (.getName f))
+          (let [res (clojure.java.shell/sh "/usr/bin/protoc"
+                                           (str "--proto_path=" (.getParent f))
+                                           (str "--java_out=" (.getPath tmp))
+                                           (.getPath f))]
+            (when-not (zero? (:exit res))
+              (boot.util/fail "stdout: %s\n" (:out res))
+              (boot.util/fail "stderr: %s\n" (:err res)))))
+        (-> fileset
+            (add-source (clojure.java.io/file tmp))
+            (commit!)
+            next-handler)))))
 
-(deftask release []
-         (comp (pom)
-               (protoc)
-               (javac)
-               (aot)
-               (uber)
-               (jar)
-               (push)))
+(deftask
+  release
+  [v version VER    str    "The new project version"]
+  (comp (pom :version version)
+        (protoc)
+        (javac)
+        (aot)
+        (uber)
+        (jar)
+        (push :file-regex #{(re-pattern (format "malt_admin-%s.jar" version))})))
