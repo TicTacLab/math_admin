@@ -60,17 +60,11 @@
                   ["vcs" "commit"]
                   ["vcs" "push"]]
   :profiles {:production {:jvm-opts ["-Dlogback.configurationFile=logback.production.xml"]}
-             :staging {:jvm-opts ["-Dlogback.configurationFile=logback.production.xml"]}
-             :dev [:dev-env
-                   {:source-paths ["dev"]
-                    :dependencies [[ns-tracker "0.2.2"]
-                                   [aprint "0.1.0"]
-                                   [http-kit.fake "0.2.1"]
-                                   [boot/core "2.0.0-rc14-p1"]
-                                   [boot/base "2.0.0-rc14-p1"]
-                                   [boot/pod "2.0.0-rc14-p1"]
-                                   [boot/boot "2.0.0-rc14-p1"]
-                                   [boot/worker "2.0.0-rc14-p1"]
-                                   [boot/aether "2.0.0-rc14-p1"]]}]
-             :test [:test-env
-                    {:dependencies [[http-kit.fake "0.2.1"]]}]})
+             :staging    {:jvm-opts ["-Dlogback.configurationFile=logback.production.xml"]}
+             :dev        [:dev-env
+                          {:source-paths ["dev"]
+                           :dependencies [[ns-tracker "0.2.2"]
+                                          [aprint "0.1.0"]
+                                          [http-kit.fake "0.2.1"]]}]
+             :test       [:test-env
+                          {:dependencies [[http-kit.fake "0.2.1"]]}]})
