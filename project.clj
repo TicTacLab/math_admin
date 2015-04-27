@@ -42,10 +42,10 @@
             [com.aphyr/prism "0.1.1"]
             [theladders/lein-uberjar-deploy "1.0.0"]]
   :aliases {"autotest" ["with-profile" "test" "prism"]}
-  :repositories ^:replace [["snapshots" {:url "http://10.1.4.197/repository/snapshots"
+  :repositories ^:replace [["snapshots" {:url "http://nassau.favorit/repository/snapshots"
                                          :username :env
                                          :password :env}]
-                           ["releases" {:url "http://10.1.4.197/repository/internal"
+                           ["releases" {:url "http://nassau.favorit/repository/internal"
                                         :username :env
                                         :password :env}]]
   :jvm-opts ["-Dlogback.configurationFile=logback.xml" "-Dwebdriver.chrome.driver=/usr/lib/chromium-browser/chromedriver"]
@@ -65,6 +65,12 @@
                    {:source-paths ["dev"]
                     :dependencies [[ns-tracker "0.2.2"]
                                    [aprint "0.1.0"]
-                                   [http-kit.fake "0.2.1"]]}]
+                                   [http-kit.fake "0.2.1"]
+                                   [boot/core "2.0.0-rc14-p1"]
+                                   [boot/base "2.0.0-rc14-p1"]
+                                   [boot/pod "2.0.0-rc14-p1"]
+                                   [boot/boot "2.0.0-rc14-p1"]
+                                   [boot/worker "2.0.0-rc14-p1"]
+                                   [boot/aether "2.0.0-rc14-p1"]]}]
              :test [:test-env
                     {:dependencies [[http-kit.fake "0.2.1"]]}]})
