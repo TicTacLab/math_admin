@@ -83,4 +83,4 @@
         (aot)
         (uber)
         (jar)
-        (push :file-regex #{(re-pattern (format "malt_admin-%s.jar" version))})))
+        (push :file-regex #{(re-pattern (format "malt_admin-%s\.jar$" version))})))
