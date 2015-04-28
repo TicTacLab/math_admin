@@ -81,6 +81,7 @@
   (comp (pom :version version)
         (protoc)
         (javac)
+
         (aot)
         (uber)
         (jar)
