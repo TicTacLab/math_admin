@@ -45,6 +45,7 @@
 (task-options!
   pom  {:project 'malt_admin}
   aot  {:all true}
+  uber {:as-jars true}
   jar  {:main 'malt_admin.main}
   push {:tag            true
         :ensure-release true
