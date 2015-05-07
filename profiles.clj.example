@@ -8,7 +8,8 @@
                  :configuration-table "configuration"
                  :settings-table "settings"
 
-                 :app-env "dev"}}
+                 :app-env "dev"
+                 :session-ttl 3600}}
  :test-env {:env {:web-host "0.0.0.0"
                   :web-port 8082
 
@@ -19,4 +20,5 @@
                   :configuration-table "configuration"
                   :settings-table "settings"
 
-                  :app-env "test"}}}
+                  :app-env "test"
+                  :session-ttl 3600}}}

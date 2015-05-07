@@ -169,9 +169,9 @@
   [(filter pred coll) (remove pred coll)])
 
 
-(defn- make-weightened-comparator [calc-result]
+(defn make-weightened-comparator [calc-result & [pairs-fn]]
   (let [priority-map (->> calc-result
-                          (map (juxt :mgp_code :mgp_weight))
+                          (map pairs-fn)
                           (into {}))
         priority-map (assoc priority-map "" Long/MAX_VALUE)]
     (comparator
@@ -193,12 +193,12 @@
                                                    (split (fn [[_market outcomes]]
                                                             (<= (count outcomes) 3)))
                                                    (mapcat (fn [part]
-                                                             (into (sorted-map-by #(compare (apply str %1)
-                                                                                            (apply str %2)))
+                                                             (into (sorted-map-by (make-weightened-comparator outcomes (fn [m]
+                                                                                                                         [[(:mn_code m) (:param m)] (:mn_weight m)])))
                                                                    part)))
                                                    (map (fn [[market outcomes]]
                                                           [market (partition-all 6 outcomes)]))))))
-                      (into (sorted-map-by (make-weightened-comparator data))))))))
+                      (into (sorted-map-by (make-weightened-comparator data (juxt :mgp_code :mgp_weight)))))))))
 
 (defn render-profile-page [req model-id & {:keys [problems flash in-params out-params log-session-id]}]
   (let [model-id (Integer/valueOf model-id)

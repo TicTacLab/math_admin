@@ -12,16 +12,18 @@
            storage-user
            storage-password
            settings-table
-           configuration-table] :as config}]
+           configuration-table
+           session-ttl] :as config}]
 
   (component/system-map
    :web (component/using
          (web/new-web {:host web-host
-                       :port (Integer. web-port)})
+                       :port (Integer/valueOf web-port)})
          {:storage :storage})
    :storage (storage/new-storage {:storage-nodes (csv-to-list storage-nodes)
                                   :storage-keyspace storage-keyspace
                                   :settings-table settings-table
                                   :storage-user storage-user
                                   :storage-password storage-password
-                                  :configuration-table configuration-table})))
+                                  :configuration-table configuration-table
+                                  :session-ttl (Integer/valueOf session-ttl)})))

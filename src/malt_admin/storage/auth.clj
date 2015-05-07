@@ -5,13 +5,11 @@
             [clojure.set :refer [rename-keys]])
   (:import (java.util UUID)))
 
-(def user-ttl 30)
-
-(defn create-or-update-session! [{conn :conn} login & [session-id]]
+(defn create-or-update-session! [{conn :conn session-ttl :session-ttl} login & [session-id]]
   (let [session-id (or session-id (UUID/randomUUID))]
     (cql/insert conn "sessions" {:login      login
                                  :session_id session-id}
-                (using :ttl user-ttl))
+                (using :ttl session-ttl))
     session-id))
 
 (defn sign-in [{conn :conn :as storage} login password]
