@@ -6,14 +6,10 @@
         <encoder>
             <pattern>%5p | %d | [%t] ||| %m%n</pattern>
         </encoder>
-        <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
-            <maxIndex>1</maxIndex>
-            <FileNamePattern>/var/log/malt_admin/malt_admin.log.%i</FileNamePattern>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <maxHistory>3</maxHistory>
+            <FileNamePattern>/var/log/malt_admin/malt_admin.%d{yyyy-MM-dd}.log</FileNamePattern>
         </rollingPolicy>
-
-        <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
-            <MaxFileSize>100KB</MaxFileSize>
-        </triggeringPolicy>
     </appender>
 
 
@@ -24,6 +20,7 @@
         </encoder>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <fileNamePattern>/var/log/malt_admin/audit.log.%d{yyyy-MM-dd}</fileNamePattern>
+            <maxHistory>7</maxHistory>
         </rollingPolicy>
     </appender>
 
