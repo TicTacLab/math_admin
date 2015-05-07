@@ -11,6 +11,7 @@
         <th>File Name</th>
         <th>In Sheet Name</th>
         <th>Out Sheet Name</th>
+        <th>Last Modified</th>
         <th>Actions</th>
     </tr>
     [% for model in models %]
@@ -20,6 +21,7 @@
         <td class="model-file-name">[[model.file_name]]</td>
         <td class="model-in-sheet-name">[[model.in_sheet_name]]</td>
         <td class="model-out-sheet-name">[[model.out_sheet_name]]</td>
+        <td class="model-last-modified">[[model.last_modified]]</td>
         <td>
           <form action="/models/[[model.id]]" method="POST" class="form-inline">
             <div class="btn-group">

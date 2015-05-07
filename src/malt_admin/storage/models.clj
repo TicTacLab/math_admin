@@ -1,15 +1,23 @@
 (ns malt-admin.storage.models
   (:require [clojurewerkz.cassaforte.cql :as cql]
-            [clojurewerkz.cassaforte.query :refer [where columns order-by]]))
+            [clojurewerkz.cassaforte.query :refer [where columns order-by]])
+  (:import (java.util Date)))
+
+(defn add-last-modified [model]
+  (if (:file model)
+    (assoc model :last_modified (Date.))
+    model))
 
 (defn write-model! [storage model]
   (let [{:keys [conn]} storage]
-    (cql/insert conn "models" model)))
+    (cql/insert conn "models" (add-last-modified model))))
 
 (defn replace-model! [storage model]
   (let [{:keys [conn]} storage]
     (cql/update conn "models"
-                (set (dissoc model :id))
+                (set (-> model
+                         (dissoc :id)
+                         add-last-modified))
                 (where [[= :id (:id model)]]))))
 
 (defn delete-model! [storage model-id]
@@ -20,7 +28,7 @@
 (defn get-models [storage]
   (let [{:keys [conn]} storage]
     (sort-by :id (cql/select conn "models"
-                             (columns :id :name :file :file_name :in_sheet_name :out_sheet_name)))))
+                             (columns :id :name :file :file_name :in_sheet_name :out_sheet_name :last_modified)))))
 
 (defn get-model [storage id]
   (let [{:keys [conn]} storage]
