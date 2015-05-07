@@ -16,6 +16,5 @@
                      (where [[= :login login]]))))
 
 (defn update-user! [{conn :conn} login user]
-  (let [defaults {:is_admin false}]
-    (cql/update conn "users" (merge defaults user)
-                (where [[= :login login]]))))
+  (cql/update conn "users" user
+              (where [[= :login login]])))
