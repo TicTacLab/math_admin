@@ -3,24 +3,27 @@
             [clojure.tools.logging :as log]
             [ring.middleware.stacktrace :as stacktrace]
             [malt-admin.view :refer (render render-error)]
-            [environ.core :as environ]))
+            [environ.core :as environ]
+            [malt-admin.storage.auth :as storage]))
 
 (defmacro defmiddleware [nm params handler-params & body]
   `(defn ~nm ~params
      (fn ~handler-params
        ~@body)))
 
-(defn non-authorizible? [uri]
+(defn allowed-for-all? [uri]
   (some #(re-find % uri)
         [#"^/$" #"^/auth$" #"^/static/*"]))
 
 (defmiddleware wrap-check-session
-  [h] [{uri :uri :as req}]
-  (let [session-id  (get-in req [:session :sid])]
-    (if (or (non-authorizible? uri)
-            session-id)
-      (h (assoc req :session-id session-id))
-      (res/redirect "/auth"))))
+  [h] [{uri :uri web :web :as req}]
+  (let [session-id  (get-in req [:session :sid])
+        login (storage/get-login (:storage web) session-id)]
+    (cond
+      (allowed-for-all? uri) (h req )
+      login (do (storage/create-or-update-session! (:storage web) login session-id)
+                (h (assoc req :session-id session-id)))
+      :else (res/redirect "/auth"))))
 
 (defn wrap-with-stacktrace [h]
   (if (not= (:app-env environ/env) "production")
