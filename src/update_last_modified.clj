@@ -19,11 +19,10 @@
                                                         :session-ttl         (Integer/valueOf (:session-ttl environ/env))}))
 
          conn (:conn storage-system)]
-     (->>
-       (cql/select conn "models"(columns :id))
-       (map #(assoc % :last_modified (Date.)))
-       (map #(cql/update conn "models"
-                        (set (dissoc % :id))
-                        (where [[= :id (:id %)]])))
-       doall)
+     (->> (cql/select conn "models"(columns :id))
+          (map #(assoc % :last_modified (Date.)))
+          (map #(cql/update conn "models"
+                            (set (dissoc % :id))
+                            (where [[= :id (:id %)]])))
+          doall)
      (component/stop storage-system)))

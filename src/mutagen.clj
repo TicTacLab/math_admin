@@ -1,5 +1,6 @@
 (ns mutagen
-  (:require [environ.core :as environ])
+  (:require [environ.core :as environ]
+            [clojure.string :as string])
   (:import [com.toddfast.mutagen.cassandra.impl CassandraMutagenImpl]
            [com.netflix.astyanax AstyanaxContext$Builder]
            [com.netflix.astyanax.impl AstyanaxConfigurationImpl]
@@ -17,11 +18,13 @@
                     (.forKeyspace storage-keyspace)
                     (.withAstyanaxConfiguration (-> (AstyanaxConfigurationImpl.)
                                                     (.setDefaultReadConsistencyLevel ConsistencyLevel/CL_ALL)
-                                                    (.setDefaultWriteConsistencyLevel ConsistencyLevel/CL_ALL)))
+                                                    (.setDefaultWriteConsistencyLevel ConsistencyLevel/CL_ALL)
+                                                    (.setCqlVersion "3.1.1")
+                                                    (.setTargetCassandraVersion "1.2")))
                     (.withConnectionPoolConfiguration (-> (ConnectionPoolConfigurationImpl. "Your connection pool")
                                                           (.setPort 9160)
                                                           (.setMaxConnsPerHost 1)
-                                                          (.setSeeds storage-nodes)
+                                                          (.setSeeds (first (string/split storage-nodes #",")))
                                                           (.setAuthenticationCredentials (SimpleAuthenticationCredentials. storage-user
                                                                                                                            storage-password))))
                     (.buildKeyspace (ThriftFamilyFactory/getInstance)))
