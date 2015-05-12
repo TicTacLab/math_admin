@@ -128,14 +128,15 @@
   (str ssid \- id))
 
 (defn- get-malt-params [node port model-id ssid]
-  (let [url (format "http://%s:%s/model/in-params"
-                    node
-                    port)]
-    (some-> url
-            (http/get {:query-params {:ssid (make-model-sid model-id ssid) :id model-id} :as :text})
-            deref
-            :body
-            (json/parse-string true))))
+  (let [res @(http/get (format "http://%s:%s/model/in-params" node port)
+                       {:query-params {:ssid (make-model-sid model-id ssid)
+                                       :id model-id}
+                        :as :text})]
+    (if (= (:status res) 200)
+      (json/parse-string (:body res) true)
+      (do
+        (log/errorf "Error during parsing malt-params: %s" res)
+        {}))))
 
 (defn parse-calc-result! [body]
   (let [packet (pb/protobuf-load Packet body)]
@@ -147,9 +148,8 @@
 
 (defn- calculate [node port ssid id params]
   (try
-    (let [url (format "http://%s:%s/model/calc"
-                      node
-                      port)
+    (let [url (format "http://%s:%s/model/calc/%s"
+                      node port (make-model-sid id ssid))
           malt-params {:id id
                        :ssid (make-model-sid id ssid)
                        :params (map (fn [[id value]] {:id id :value value}) params)}
