@@ -176,8 +176,8 @@
         priority-map (assoc priority-map "" Long/MAX_VALUE)]
     (comparator
       (fn [key1 key2]
-        (< (get priority-map key1 0)
-           (get priority-map key2 0))))))
+        (< (or (get priority-map key1) 0)
+           (or (get priority-map key2) 0))))))
 
 
 
