@@ -25,6 +25,7 @@
                  [formative "0.8.8" :exclusions [org.clojure/clojurescript
                                                  clj-time]]
                  [hiccup "1.0.5"]
+                 [criterium "0.4.3"]
                  [ring-webjars "0.1.0" :exclusions [org.slf4j/slf4j-nop]]
                  [org.webjars/bootstrap "3.3.2"]
                  [org.webjars/jquery "2.1.3"]
