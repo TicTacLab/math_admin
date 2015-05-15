@@ -85,7 +85,8 @@
       (when (:in_params_changed parsed-params)
         (in-params/delete! storage id))
       (models/replace-model! storage values)
-      (cache/clear storage id)
+      (when (:file values)
+        (cache/clear storage id))
       (audit req :replace-model (dissoc values :file))
       (redirect-with-flash "/models" {:success (format "Model with id %d was replaced" id)}))))
 
@@ -235,13 +236,8 @@
                                    :submit-label "Calculate"
                                    :problems problems})})))
 
-(defn profile [{params :params
-                problems :problems
-                calc-result :calc-result
-                session-id :session-id
-                {storage :storage} :web :as req}]
-  (let [id (:id params)]
-    (render-profile-page req (:id params))))
+(defn profile [{params :params :as req}]
+  (render-profile-page req (:id params)))
 
 (defn profile-execute [{session-id :session-id
                         params :params :as req}]
