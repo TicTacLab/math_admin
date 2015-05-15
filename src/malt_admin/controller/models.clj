@@ -1,18 +1,19 @@
 (ns malt-admin.controller.models
   (:require [malt-admin.view :refer (render)]
-            [malt-admin.storage.configuration :as cfg]
             [malt-admin.form.model :as form]
             [malt-admin.audit :refer [audit]]
-            [malt-admin.storage.log :as slog]
+            [malt-admin.storage
+             [log :as slog]
+             [models :as models]
+             [cache :as cache]
+             [configuration :as cfg]
+             [in-params :as in-params]]
             [cheshire.core :as json]
             [malt-admin.helpers :refer [csv-to-list redirect-with-flash error! Packet]]
             [formative.parse :as fp]
             [org.httpkit.client :as http]
             [clojure.tools.trace :refer [trace]]
             [clojure.pprint :refer [pprint]]
-            [malt-admin.storage.models :as storage]
-            [malt-admin.storage.cache :as cache]
-            [clojure.string :as string]
             [clojure.walk :refer [keywordize-keys]]
             [clojure.tools.logging :as log]
             [flatland.protobuf.core :as pb])
@@ -21,7 +22,7 @@
            (flatland.protobuf PersistentProtocolBufferMap$Def)))
 
 (defn index [{{storage :storage} :web :as req}]
-  (render "models/index" req {:models (storage/get-models storage)}))
+  (render "models/index" req {:models (models/get-models storage)}))
 
 (defn upload [{:keys [problems params] :as req}]
   (render "models/upload" req {:upload-form (assoc form/upload-form
@@ -49,7 +50,7 @@
                       (prepare-file-attrs))]
 
       (cond
-        (storage/model-exists? storage (:id values))
+        (models/model-exists? storage (:id values))
         (error! [:id] (str "Model with this ID already exists: " (:id values)))
 
         (not (contains? values :file))
@@ -57,7 +58,7 @@
 
         :else
         (do
-          (storage/write-model! storage values)
+          (models/write-model! storage values)
           (audit req :upload-model (dissoc values :file))
           (redirect-with-flash "/models" {:success "DONE"}))))))
 
@@ -65,7 +66,7 @@
              {id :id :as params} :params
              problems :problems
              :as req}]
-  (let [model (storage/get-model storage (Integer. id))]
+  (let [model (models/get-model storage (Integer. id))]
     (render "models/edit" req {:edit-form (assoc form/edit-form
                                             :values (if problems params model)
                                             :action (str "/models/" id)
@@ -76,27 +77,34 @@
                 params             :params
                 :as                req}]
   (fp/with-fallback #(malt-admin.controller.models/edit (assoc req :problems %))
-    (let [values (-> params
-                     (#(fp/parse-params form/edit-form %))
+    (let [parsed-params (fp/parse-params form/edit-form params)
+          values (-> parsed-params
                      (prepare-file-attrs)
-                     (select-keys [:id :file :name :file_name :content_type :in_sheet_name :out_sheet_name]))]
-      (storage/replace-model! storage values)
-      (cache/clear storage (:id values))
+                     (select-keys [:id :file :name :file_name :content_type :in_sheet_name :out_sheet_name]))
+          id (:id values)]
+      (when (:in_params_changed parsed-params)
+        (in-params/delete! storage id))
+      (models/replace-model! storage values)
+      (cache/clear storage id)
       (audit req :replace-model (dissoc values :file))
-      (redirect-with-flash "/models" {:success "DONE"}))))
+      (redirect-with-flash "/models" {:success (format "Model with id %d was replaced" id)}))))
 
-(defn delete [{{id :id} :params
+(defn delete [{{id :id}           :params
                {storage :storage} :web
-               :as req}]
-  (storage/delete-model! storage (Integer. id))
-  (cache/clear storage (Integer. id))
-  (audit req :delete-model {:id id})
-  (redirect-with-flash "/models" {:success "DONE"}))
+               :as                req}]
+  (let [model-id (Integer/valueOf id)]
+    (models/delete-model! storage model-id)
+    (cache/clear storage model-id)
+    (in-params/delete! storage model-id)
+    (audit req :delete-model {:id model-id})
+    (redirect-with-flash "/models"
+                         {:success (format "Model with id %d was deleted"
+                                           model-id)})))
 
 (defn download [{{id :id} :params
                  {storage :storage} :web
                  :as req}]
-  (let [file (storage/get-model-file storage (Integer. id))]
+  (let [file (models/get-model-file storage (Integer. id))]
     (audit req :download-model {:id id})
     {:body    (:file file)
      :headers {"Content-Type"        (:content_type file)
@@ -210,7 +218,7 @@
         {model-file :file_name model-name :name} (-> req
                                                      :web
                                                      :storage
-                                                     (storage/get-model model-id))]
+                                                     (models/get-model model-id))]
     (render "models/profile"
             (assoc req :flash flash)
             {:model-id model-id
