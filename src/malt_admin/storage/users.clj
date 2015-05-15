@@ -11,9 +11,9 @@
               (columns :name :login :status :is_admin)))
 
 (defn get-user [{conn :conn} login]
-  (first (cql/select conn "users"
-                     (columns :login :name :is_admin)
-                     (where [[= :login login]]))))
+  (cql/get-one conn "users"
+              (columns :login :name :is_admin)
+              (where [[= :login login]])))
 
 (defn update-user! [{conn :conn} login user]
   (cql/update conn "users" user

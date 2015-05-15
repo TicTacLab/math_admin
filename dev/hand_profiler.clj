@@ -1,4 +1,4 @@
-(ns malt-admin.hand-profiler
+(ns hand-profiler
   (:require [cheshire.core :as json]
             [criterium.core :as cri]
             [org.httpkit.client :as http]))
