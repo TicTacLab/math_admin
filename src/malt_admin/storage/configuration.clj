@@ -7,17 +7,16 @@
 
 (defn- write-configuration! [conn table column value]
   (cql/truncate conn table)
-  (some->> value
-           json/generate-string
-           (hash-map column)
-           (cql/insert conn table)))
+  (->> value
+       json/generate-string
+       (hash-map column)
+       (cql/insert conn table)))
 
-(defn- read-configuration [conn table column]
+(defn read-configuration [conn table column]
   (try
-    (json/parse-string (some-> (cql/select conn table)
-                               first
-                               (get column))
-                       true)
+    (-> (cql/get-one conn table)
+        (get column)
+        (json/parse-string true))
     (catch Exception e
       (log/error e "occured while reading configuration"))))
 

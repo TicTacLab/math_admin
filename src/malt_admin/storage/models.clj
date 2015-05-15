@@ -32,20 +32,18 @@
 
 (defn get-model [storage id]
   (let [{:keys [conn]} storage]
-    (first (cql/select conn "models"
-                       (columns :id :name :file_name :in_sheet_name :out_sheet_name)
-                       (where [[= :id id]])))))
+    (cql/get-one conn "models"
+                 (columns :id :name :file_name :in_sheet_name :out_sheet_name)
+                 (where [[= :id id]]))))
 
 (defn get-model-file [storage id]
   (let [{:keys [conn]} storage]
-    (first (cql/select conn "models"
-                       (columns :id :file_name :file :content_type)
-                       (where [[= :id id]])))))
+    (cql/get-one conn "models"
+                (columns :id :file_name :file :content_type)
+                (where [[= :id id]]))))
 
 (defn model-exists? [storage id]
   (let [{:keys [conn]} storage]
-    (-> (cql/select conn "models"
-                    (columns :id)
-                    (where [[= :id id]]))
-        (first)
-        (boolean))))
+    (boolean (cql/get-one conn "models"
+                          (columns :id)
+                          (where [[= :id id]])))))
