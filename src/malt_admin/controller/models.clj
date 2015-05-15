@@ -173,32 +173,51 @@
   (let [priority-map (->> calc-result
                           (map pairs-fn)
                           (into {}))
-        priority-map (assoc priority-map "" Long/MAX_VALUE)]
+        priority-map (assoc priority-map "" Long/MAX_VALUE) ;; special case for mgp_code, when thres is no value for it
+        ]
     (comparator
       (fn [key1 key2]
         (< (get priority-map key1 0)
            (get priority-map key2 0))))))
 
-
+(defn make-market-comparator [outcomes]
+  (let [priority-map (->> outcomes
+                          (map (juxt :mn_code :mn_weight))
+                          (into {}))]
+    (fn [key1 key2]
+      (let [priority1 (get priority-map (first key1) (Integer/MAX_VALUE))
+            priority2 (get priority-map (first key2) (Integer/MAX_VALUE))
+            pkey1 (into [priority1] key1)
+            pkey2 (into [priority2] key2)]
+        (compare pkey1 pkey2)))))
 
 (defn format-calc-result [calc-result]
-  (let [calc-result (into {} calc-result)] ;; from protobuf map-like
+  (let [calc-result (into {} calc-result)
+        mgp-comparator (-> calc-result
+                           :data
+                           (make-weightened-comparator
+                             (juxt :mgp_code :mgp_weight)))
+        mn-comparator (-> calc-result
+                          :data
+                          (make-market-comparator))]
     (update-in calc-result [:data]
                (fn [data]
                  (->> data
                       (group-by :mgp_code)
                       (map (fn [[mgp_code outcomes]]
                              (vector mgp_code (->> outcomes
-                                                   (group-by (juxt :mn_code :param))
+                                                   (group-by (juxt :mn_code :param :param2))
+                                                   ;; sort by mn-weight
+                                                   (sort-by first mn-comparator)
+                                                   ;; split buses
                                                    (split (fn [[_market outcomes]]
                                                             (<= (count outcomes) 3)))
-                                                   (mapcat (fn [part]
-                                                             (into (sorted-map-by (make-weightened-comparator outcomes (fn [m]
-                                                                                                                         [[(:mn_code m) (:param m)] (:mn_weight m)])))
-                                                                   part)))
+                                                   (apply concat)
+                                                   ;; partition bus for 6 columns
                                                    (map (fn [[market outcomes]]
                                                           [market (partition-all 6 outcomes)]))))))
-                      (into (sorted-map-by (make-weightened-comparator data (juxt :mgp_code :mgp_weight)))))))))
+
+                      (into (sorted-map-by mgp-comparator)))))))
 
 (defn render-profile-page [req model-id & {:keys [problems flash in-params out-params log-session-id]}]
   (let [model-id (Integer/valueOf model-id)

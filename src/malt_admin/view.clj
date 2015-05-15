@@ -4,6 +4,7 @@
             [environ.core :as environ]
             [formative.core :as f]
             [hiccup.core :as h]
+            [clojure.pprint :refer [pprint]]
             [ring.util.response :as res])
   (:import [java.text SimpleDateFormat]
            [java.util TimeZone]))
@@ -16,7 +17,7 @@
            timestamp)))
 
 (defn- pprint-str [value]
-  (with-out-str (clojure.pprint/pprint value)))
+  (with-out-str (pprint value)))
 
 (filters/add-filter! :pprint pprint-str)
 

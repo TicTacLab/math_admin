@@ -92,14 +92,14 @@
                     <h6 class="center" style="margin: 2px">
                         [[ market.0 ]]
                         [% if market.1 < 999999 %]
-                        ([[ market.1 ]])
+                          ([[ market.1 ]][% if not market.2 = 0.0 %] [[ market.2 ]][% endif %])
                         [% endif %]
                     </h6>
                     <table class="table" style="margin: 0px">
                         [% for outcomes in outcomes-groups %]
                         <tr>
                             [% for outcome in outcomes %]
-                            <td class="center">
+                            <td class="center" data-id="[[outcome.id]]">
                                 [[outcome.o_code]]
                                 <br/>
                                 [[outcome.coef|double-format:2]]
