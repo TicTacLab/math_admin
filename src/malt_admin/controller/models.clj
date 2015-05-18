@@ -186,8 +186,8 @@
         ]
     (comparator
       (fn [key1 key2]
-        (< (get priority-map key1 0)
-           (get priority-map key2 0))))))
+        (< (or (get priority-map key1) 0)
+           (or (get priority-map key2) 0))))))
 
 (defn make-market-comparator [outcomes]
   (let [priority-map (->> outcomes
