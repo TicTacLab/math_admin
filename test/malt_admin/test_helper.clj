@@ -9,8 +9,8 @@
             [malt-admin.helpers :refer [csv-to-list]]
             [malt-admin.system :as sys]))
 
-(def browser (atom nil))
-(def base-url (atom nil))
+(defonce browser (atom nil))
+(defonce base-url (atom nil))
 
 (defn start-browser! [system]
   (swap! base-url (constantly (format "http://localhost:%d"
@@ -23,30 +23,41 @@
   (swap! base-url (constantly nil))
   (w/quit))
 
+(defn not-nil-elements [s]
+  (->> s
+       (remove #(not (:webelement %)))
+       (not-empty)))
+
 (.. Runtime
     (getRuntime)
     (addShutdownHook (Thread. stop-browser!)))
 
 (w/set-finder! (fn finder
                ([q]
-                 (finder w/*driver* q))
+                (finder w/*driver* q))
                ([driver q]
-                  (cond
+                (cond
                   (element-like? q) q
                   (keyword? q) (w/css-finder driver (name q))
                   (sequential? q) (w/css-finder driver (str/join " " (map name q)))
-                  (string? q) (or (not-empty (w/xpath-finder driver (format "//a[text()='%s']" q)))
-                                  (not-empty (w/xpath-finder driver (format "//button[text()='%s']|//input[@type='submit' and @value='%s']" q q)))
+                  (string? q) (or (not-nil-elements (w/xpath-finder driver (format ".//a[text()='%s']" q)))
+                                  (not-nil-elements (w/xpath-finder driver (format ".//input[@type='submit' and @value='%s']" q)))
+                                  (not-nil-elements (w/xpath-finder driver (format ".//button[text()='%s']" q)))
                                   (let [labels (w/xpath-finder driver
-                                                            (format "//label[text()='%s']|//label[./*[text()='%s']]" q q))
+                                                            (format ".//label[text()='%s']|.//label[./*[text()='%s']]" q q))
                                         id (webdriver/attribute (first labels) :for)]
-                                    (not-empty (w/xpath-finder driver (format "//*[@id='%s']" id)))))))))
+                                    (not-nil-elements (w/xpath-finder driver (format ".//*[@id='%s']" id)))))))))
 
 (defn go
   ([url]
     (go w/*driver* url))
   ([browser & [url]]
    (w/to browser (str @base-url url))))
+
+(defmacro within [b q & body]
+  `(let [p# (w/element ~b ~q)]
+     (binding [w/*driver* p#]
+       ~@body)))
 
 (defn fill-in
   ([q text]
@@ -73,6 +84,9 @@
     (signout w/*driver*))
   ([browser]
    (w/click browser "Sign out")))
+
+(defn wait [ms]
+  (Thread/sleep ms))
 
 (defn test-system [{:keys [storage-nodes
                            storage-keyspace

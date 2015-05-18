@@ -1,6 +1,6 @@
 (ns malt-admin.permissions-test
   (:use clojure.test)
-  (:require [malt-admin.test-helper :as t :refer [test-system signin signout go fill-in]]
+  (:require [malt-admin.test-helper :as t :refer [test-system signin signout go fill-in within]]
             [clj-webdriver.taxi :as w :refer [click send-keys text find-elements elements]]
             [environ.core :as environ]))
 
@@ -9,16 +9,17 @@
     (let [b (t/start-browser! s)]
 
       (testing "Model preloading"
-        (signin b)
-        (go b "/models")
-        (is (empty? (elements b :.model)))
-        (click b "Upload New")
-        (fill-in b "ID" "1")
-        (fill-in b "Name" "SuperName")
-        (send-keys b "File" *file*)
-        (click b "Submit")
-        (is (= "SuperName" (text b :.model-name)))
-        (signout b))
+        (let [id (rand-int 1000)]
+          (signin)
+          (go "/models")
+          (click "Upload New")
+          (fill-in "ID" (str id))
+          (fill-in "Name" "SuperName")
+          (send-keys "File" *file*)
+          (click "Submit")
+          (within b (keyword (format ".model[data-id='%d']" id))
+            (is (= "SuperName" (text :.model-name))))
+          (signout)))
 
       (testing "Admin permissions"
         (signin b)

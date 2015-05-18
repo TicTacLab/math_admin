@@ -4,18 +4,9 @@
             [clj-webdriver.taxi :as w :refer [elements click send-keys text]]
             [environ.core :as environ]))
 
-(deftest models-test
+(deftest users-test
   (t/with-system [s (test-system environ/env)]
     (let [b (t/start-browser! s)]
-
-      (testing "Default users"
-        (signin b)
-        (go b "/users")
-        (is (= 2 (count (elements b :.user))) "Should be only two users")
-        (signout b))
-
-      (w/implicit-wait b 1)
-
       (testing "Create"
         (signin b)
         (go b "/users")
