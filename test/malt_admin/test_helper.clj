@@ -67,12 +67,7 @@
                            storage-keyspace
                            configuration-table
                            settings-table] :as conf}]
-  (-> (sys/new-system conf)
-      (assoc :storage (map->EmbeddedStorage {:storage-nodes       (csv-to-list storage-nodes)
-                                             :storage-keyspace    storage-keyspace
-                                             :configuration-table configuration-table
-                                             :settings-table      settings-table
-                                             }))))
+  (sys/new-system conf))
 
 (defmacro with-system [[nm system] & body]
   `(let [~nm (component/start ~system)]

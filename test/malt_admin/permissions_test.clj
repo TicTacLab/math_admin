@@ -4,7 +4,7 @@
             [clj-webdriver.taxi :as w :refer [click send-keys text find-elements elements]]
             [environ.core :as environ]))
 
-(deftest models-test
+(deftest permissions-test
   (t/with-system [s (test-system environ/env)]
     (let [b (t/start-browser! s)]
 
