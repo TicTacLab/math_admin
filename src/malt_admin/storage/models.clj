@@ -23,7 +23,7 @@
 (defn get-models [storage]
   (let [{:keys [conn]} storage]
     (sort-by :id (cql/select conn "models"
-                             (columns :id :name :file :file_name :in_sheet_name :out_sheet_name :last_modified)))))
+                             (columns :id :name :file :file_name :in_sheet_name :out_sheet_name :last_modified :rev)))))
 
 (defn get-model [storage id]
   (let [{:keys [conn]} storage]
