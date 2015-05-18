@@ -4,39 +4,52 @@
             [clj-webdriver.taxi :as w :refer [elements click send-keys text accept implicit-wait]]
             [environ.core :as environ]))
 
+(defmacro within [b q & body]
+  `(let [p# (w/element ~b ~q)]
+     (prn p#)
+     (prn ~q)
+     (binding [w/*driver* p#]
+       ~@body)))
+
 (deftest models-test
   (t/with-system [s (test-system environ/env)]
     (let [b (t/start-browser! s)]
-      (signin b)
-      (go b "/models")
-      (is (empty? (elements b :.model)))
+      (signin)
+      (go "/models")
 
-      (testing "Model uploading"
-        (click b "Upload New")
-        (fill-in b "ID" "1")
-        (fill-in b "Name" "SuperName")
-        (send-keys b "File" *file*)
-        (click b "Submit")
-        (is (= "SuperName" (text b :.model-name))))
+      (let [id (+ 100000 (rand-int 1000000))
+            model-selector (keyword (format ".model[data-id='%d']" id))]
+        (testing "Model uploading"
+          (is (empty? (elements model-selector)))
 
-      (testing "Replace"
-        (click b "Replace")
-        (fill-in b "In sheet name" "MEGASHIT")
-        (fill-in b "Out sheet name" "MEGASHUT")
-        (send-keys b "File" "/etc/hosts")
-        (click b "Submit")
-        (accept b)
-        (implicit-wait b 100)
-        (is (= "MEGASHIT" (text b :.model-in-sheet-name)))
-        (is (= "MEGASHUT" (text b :.model-out-sheet-name)))
-        (is (= "hosts" (text b :.model-file-name))))
+          (click  "Upload New")
+          (fill-in  "ID" (str id))
+          (fill-in  "Name" "SuperName")
+          (send-keys  "File" *file*)
+          (click  "Submit")
+          (is (seq (elements  model-selector))))
 
-      (testing "Download"
-        (click b "Download")
-        (accept b))
+        (testing "Replace"
+          (implicit-wait  500)
+          (within b model-selector
+            (click "Replace"))
+          (fill-in  "In sheet name" "MEGASHIT")
+          (fill-in  "Out sheet name" "MEGASHUT")
+          (send-keys  "File" "/etc/hosts")
+          (click  "Submit")
+          (accept )
+          (prn "$#@&*^@#$&*^@$#&*" model-selector)
+          (within b model-selector
+            (is (= "MEGASHIT" (text :.model-in-sheet-name)))
+            (is (= "MEGASHUT" (text :.model-out-sheet-name)))
+            (is (= "hosts" (text :.model-file-name)))))
 
-      (testing "Delete"
-        (click b "Delete")
-        (accept b)
-        (implicit-wait b 100)
-        (is (empty? (elements b :.model)))))))
+       #_ (testing "Download"
+          (click "Download")
+          (accept b))
+
+        #_(testing "Delete"
+          (click b "Delete")
+          (accept b)
+          (implicit-wait b 100)
+          (is (empty? (elements b :.model))))))))

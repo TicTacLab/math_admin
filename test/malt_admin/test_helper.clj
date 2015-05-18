@@ -42,14 +42,22 @@
                                         id (webdriver/attribute (first labels) :for)]
                                     (not-empty (w/xpath-finder driver (format "//*[@id='%s']" id)))))))))
 
-(defn go [browser & [url]]
-  (w/to browser (str @base-url url)))
+(defn go
+  ([url]
+    (go w/*driver* url))
+  ([browser & [url]]
+   (w/to browser (str @base-url url))))
 
-(defn fill-in [browser q text]
-  (w/clear browser q)
-  (w/input-text browser q text))
+(defn fill-in
+  ([q text]
+    (fill-in w/*driver* q text))
+  ([browser q text]
+   (w/clear browser q)
+   (w/input-text browser q text)))
 
 (defn signin
+  ([]
+    (signin w/*driver*))
   ([browser]
     (signin browser "admin" "admin1488"))
   ([browser login password]
@@ -60,8 +68,11 @@
 
      (w/submit :#field-submit))))
 
-(defn signout [browser]
-  (w/click browser "Sign out"))
+(defn signout
+  ([]
+    (signout w/*driver*))
+  ([browser]
+   (w/click browser "Sign out")))
 
 (defn test-system [{:keys [storage-nodes
                            storage-keyspace
