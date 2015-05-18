@@ -3,21 +3,16 @@
             [clojurewerkz.cassaforte.query :refer [where columns order-by]])
   (:import (java.util Date)))
 
-(defn add-last-modified [model]
-  (if (:file model)
-    (assoc model :last_modified (Date.))
-    model))
+
 
 (defn write-model! [storage model]
   (let [{:keys [conn]} storage]
-    (cql/insert conn "models" (add-last-modified model))))
+    (cql/insert conn "models" model)))
 
 (defn replace-model! [storage model]
   (let [{:keys [conn]} storage]
     (cql/update conn "models"
-                (set (-> model
-                         (dissoc :id)
-                         add-last-modified))
+                (set (dissoc model :id))
                 (where [[= :id (:id model)]]))))
 
 (defn delete-model! [storage model-id]

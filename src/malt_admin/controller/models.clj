@@ -19,7 +19,8 @@
             [flatland.protobuf.core :as pb])
   (:refer-clojure :exclude [replace])
   (:import (java.nio.file Files Paths)
-           (flatland.protobuf PersistentProtocolBufferMap$Def)))
+           (flatland.protobuf PersistentProtocolBufferMap$Def)
+           [java.util UUID Date]))
 
 (defn index [{{storage :storage} :web :as req}]
   (render "models/index" req {:models (models/get-models storage)}))
@@ -33,7 +34,7 @@
                                                              params)
                                               :problems problems)}))
 
-(defn ^:private prepare-file-attrs [{{tempfile "tempfile" filename "filename" size "size" content-type "content-type"} :file :as params}]
+(defn prepare-file-attrs [{{tempfile "tempfile" filename "filename" size "size" content-type "content-type"} :file :as params}]
   (if (zero? size)
     (dissoc params :file)
     (assoc params
@@ -41,13 +42,25 @@
       :file_name filename
       :content_type content-type)))
 
+(defn generate-revision [params]
+  (if (:file params)
+    (assoc params :rev (str (UUID/randomUUID)))
+    params))
+
+(defn add-last-modified [model]
+  (if (:file model)
+    (assoc model :last_modified (Date.))
+    model))
+
 (defn do-upload [{params :params
                   {storage :storage} :web
                   :as req}]
   (fp/with-fallback #(malt-admin.controller.models/upload (assoc req :problems %))
     (let [values (->> params
                       (fp/parse-params form/upload-form)
-                      (prepare-file-attrs))]
+                      (prepare-file-attrs)
+                      (add-last-modified)
+                      (generate-revision))]
 
       (cond
         (models/model-exists? storage (:id values))
@@ -80,7 +93,9 @@
     (let [parsed-params (fp/parse-params form/edit-form params)
           values (-> parsed-params
                      (prepare-file-attrs)
-                     (select-keys [:id :file :name :file_name :content_type :in_sheet_name :out_sheet_name]))
+                     (add-last-modified)
+                     (generate-revision)
+                     (select-keys [:id :file :name :file_name :content_type :in_sheet_name :out_sheet_name :rev :last_modified]))
           id (:id values)]
       (when (:in_params_changed parsed-params)
         (in-params/delete! storage id))
