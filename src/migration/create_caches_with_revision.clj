@@ -21,13 +21,4 @@
                          :rev         :varchar
                          :params      :blob
                          :result      :blob
-                         :primary-key [[:model_id :rev] :params]}))
-
-    (->> (cql/select c "models" (q/columns :id :rev))
-         (map (fn [{mid :id rev :rev}]
-                (->> (cql/select c "cache" (q/where [[= :model_id mid]]))
-                     (map #(assoc % :rev rev)))))
-         (map #(cql/insert-batch c "caches" %))
-         (doall))
-
-    (cql/drop-table c "cache")))
+                         :primary-key [[:model_id :rev] :params]}))))
