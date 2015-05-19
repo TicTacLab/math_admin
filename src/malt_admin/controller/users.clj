@@ -22,12 +22,16 @@
                {storage :storage} :web
                :as req}]
   (fp/with-fallback #(malt-admin.controller.users/new* (assoc req :problems %))
-    (let [values (fp/parse-params form/new-form params)]
-      (storage/write-user! storage (-> values
-                                       (encrypt-password)
-                                       (dissoc :password_confirmation)))
-      (audit req :create-user (dissoc values :password_confirmation :password))
-      (redirect-with-flash "/users" {:success (format "User \"%s\" successfully created" (:name values))}))))
+    (let [values (fp/parse-params form/new-form params)
+          user-login (:login values)
+          user (storage/get-user storage user-login)]
+      (if user
+        (redirect-with-flash "/users" {:error (format "Login already exists \"%s\"" user-login)})
+        (do (storage/write-user! storage (-> values
+                                             (encrypt-password)
+                                             (dissoc :password_confirmation)))
+            (audit req :create-user (dissoc values :password_confirmation :password))
+            (redirect-with-flash "/users" {:success (format "User \"%s\" successfully created" (:name values))}))))))
 
 (defn index [{{storage :storage} :web
               :as req}]

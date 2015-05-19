@@ -21,6 +21,20 @@
         (is (= 3 (count (elements b :.user))) "Should be only three users")
         (signout b))
 
+      (testing "Rewrite existed user"
+        (signin b)
+        (go b "/users")
+        (click b "Create")
+        (fill-in b "Name" "Superman")
+        (fill-in b "Login" "super-duper")
+        (click b :#field-is_admin)
+        (fill-in b "Password" "super-password-fail-password")
+        (fill-in b "Password confirmation" "super-password-fail-password")
+        (click b "Submit")
+
+        (is (= "Login already exists \"super-duper\"" (text b :#flash-msg)) "can't create user with login that already exists")
+        (signout b))
+
       (testing "Signin newly created user"
         (signin b "super-duper" "super-password")
         (is (= "You successfully signed in" (text b :#flash-msg)) "User should be allowed to singin")
@@ -45,6 +59,11 @@
         (signout b)
         (signin b "super-duper" "simple-password")
         (is (= "You successfully signed in" (text b :#flash-msg)) "User should be allowed to singin")
+        (go b "/users")
+        (click (second (elements b "Password")))
+        (fill-in b "Password" "super-password")
+        (fill-in b "Password confirmation" "super-password")
+        (click b "Submit")
         (signout b))
 
       (testing "Activation/Deactivation"
@@ -64,5 +83,5 @@
         (click b "Activate")
         (signout b)
 
-        (signin b "super-duper" "simple-password")
+        (signin b "super-duper" "super-password")
         (is (= "You successfully signed in" (text b :#flash-msg)) "Active user should be allowed to singin")))))
