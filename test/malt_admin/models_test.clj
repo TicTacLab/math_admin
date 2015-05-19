@@ -10,25 +10,25 @@
       (signin)
       (go "/models")
 
-      (let [id (+ 100000 (rand-int 1000000))
+      (let [id (rand-int 1000000)
             model-selector (keyword (format ".model[data-id='%d']" id))]
         (testing "Model uploading"
           (is (empty? (elements model-selector)))
 
-          (click  "Upload New")
-          (fill-in  "ID" (str id))
-          (fill-in  "Name" "SuperName")
-          (send-keys  "File" *file*)
+          (click "Upload New")
+          (fill-in "ID" (str id))
+          (fill-in "Name" "SuperName")
+          (send-keys "File" *file*)
           (click "Submit")
           (is (seq (elements  model-selector))))
 
         (testing "Replace"
           (within b model-selector
-                  (click "Replace"))
+            (click "Replace"))
           (fill-in "In sheet name" "MEGASHIT")
           (fill-in "Out sheet name" "MEGASHUT")
           (send-keys "File" "/etc/hosts")
-          (click  "Submit")
+          (click "Submit")
           (accept)
           (wait 100)
           (within b model-selector
@@ -36,11 +36,11 @@
             (is (= "MEGASHUT" (text :.model-out-sheet-name)))
             (is (= "hosts" (text :.model-file-name)))))
 
-       (testing "Download"
-         (within b model-selector
-           (click "Download")
-           (accept b)
-           (wait 100)))
+        (testing "Download"
+          (within b model-selector
+            (click "Download")
+            (accept b)
+            (wait 100)))
 
         (testing "Delete"
           (within b model-selector
