@@ -2,6 +2,7 @@
   (:require [clojurewerkz.cassaforte.cql :as cql]
             [clojurewerkz.cassaforte.query :refer [where columns]]))
 
-(defn clear [{conn :conn} model-id]
-  (cql/delete conn "cache"
-              (where [[= :model_id model-id]])))
+(defn clear [{conn :conn} model-id rev]
+  (cql/delete conn "caches"
+              (where [[= :model_id model-id]
+                      [= :rev rev]])))

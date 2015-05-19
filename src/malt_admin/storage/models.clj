@@ -1,9 +1,6 @@
 (ns malt-admin.storage.models
   (:require [clojurewerkz.cassaforte.cql :as cql]
-            [clojurewerkz.cassaforte.query :refer [where columns order-by]])
-  (:import (java.util Date)))
-
-
+            [clojurewerkz.cassaforte.query :refer [where columns order-by]]))
 
 (defn write-model! [storage model]
   (let [{:keys [conn]} storage]
@@ -30,6 +27,12 @@
     (cql/get-one conn "models"
                  (columns :id :name :file_name :in_sheet_name :out_sheet_name)
                  (where [[= :id id]]))))
+
+(defn get-rev [storage id]
+  (let [{:keys [conn]} storage]
+    (:rev (cql/get-one conn "models"
+                  (columns :rev)
+                  (where [[= :id id]])))))
 
 (defn get-model-file [storage id]
   (let [{:keys [conn]} storage]

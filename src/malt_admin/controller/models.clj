@@ -96,21 +96,23 @@
                      (add-last-modified)
                      (generate-revision)
                      (select-keys [:id :file :name :file_name :content_type :in_sheet_name :out_sheet_name :rev :last_modified]))
-          id (:id values)]
+          id (:id values)
+          rev (models/get-rev storage id)]
       (when (:in_params_changed parsed-params)
         (in-params/delete! storage id))
       (models/replace-model! storage values)
       (when (:file values)
-        (cache/clear storage id))
+        (cache/clear storage id rev))
       (audit req :replace-model (dissoc values :file))
       (redirect-with-flash "/models" {:success (format "Model with id %d was replaced" id)}))))
 
 (defn delete [{{id :id}           :params
                {storage :storage} :web
                :as                req}]
-  (let [model-id (Integer/valueOf id)]
+  (let [model-id (Integer/valueOf id)
+        rev (models/get-rev storage model-id)]
     (models/delete-model! storage model-id)
-    (cache/clear storage model-id)
+    (cache/clear storage model-id rev)
     (in-params/delete! storage model-id)
     (audit req :delete-model {:id model-id})
     (redirect-with-flash "/models"
@@ -197,7 +199,7 @@
   (let [priority-map (->> calc-result
                           (map pairs-fn)
                           (into {}))
-        priority-map (assoc priority-map "" Long/MAX_VALUE) ;; special case for mgp_code, when thres is no value for it
+        priority-map (assoc priority-map "" Long/MAX_VALUE) ;; special case for mgp_code, when there is no value for it
         ]
     (comparator
       (fn [key1 key2]
