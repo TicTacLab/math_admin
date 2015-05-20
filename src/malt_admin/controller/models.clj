@@ -101,7 +101,11 @@
           rev (models/get-rev storage id)]
       (when (:in_params_changed parsed-params)
         (in-params/delete! storage id))
+      ;; clean and copy in-params to CACHE_Q table
       (cache-q/delete! storage id rev)
+      (->> (in-params/get-in-params storage id)
+           (cache-q/insert-in-params! storage rev))
+      ;;
       (models/replace-model! storage values)
       (when (:file values)
         (cache/clear storage id rev))
