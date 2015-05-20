@@ -11,6 +11,7 @@
              [settings :as settings]
              [models :as models]
              [users :as users]
+             [filler :as filler]
              [auth :as auth]]
             [malt-admin.view :refer (render render-error)]
             [environ.core :as environ]
@@ -57,6 +58,8 @@
   (PUT    "/models/:id"          req (allow req :admin (models/replace req)))
   (DELETE "/models/:id"          req (allow req :admin (models/delete req)))
   (POST   "/models"              req (allow req :admin (models/do-upload req)))
+
+  (GET    "/filler"                       req (allow req :admin (filler/index req)))
 
   (GET    "/users"                        req (allow req :admin (users/index req)))
   (GET    "/users/new"                    req (allow req :admin (users/new* req)))
