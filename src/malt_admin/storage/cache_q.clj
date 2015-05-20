@@ -15,3 +15,17 @@
 
 (defn get-queue-count [{conn :conn}]
   (cql/perform-count conn "cache_q"))
+
+(defn get-task [{conn :conn}]
+  (let [task (cql/get-one conn "cache_q"
+                          (columns :model_id
+                                   :rev
+                                   :params)
+                          )]
+    (when task
+      (cql/delete conn "cache_q"
+                  (where [[= :model_id (:model_id task)]
+                          [= :rev (:rev task)]
+                          [= :params (:params task)]])))
+    task))
+

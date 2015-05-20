@@ -20,6 +20,10 @@
          (web/new-web {:host web-host
                        :port (Integer/valueOf web-port)})
          {:storage :storage})
+   :filler (component/using
+             (filler/new-filler
+               {:configuration-table configuration-table})
+             [:storage])
    :storage (storage/new-storage {:storage-nodes (csv-to-list storage-nodes)
                                   :storage-keyspace storage-keyspace
                                   :settings-table settings-table
