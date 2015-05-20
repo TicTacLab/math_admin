@@ -7,7 +7,8 @@
              [models :as models]
              [cache :as cache]
              [configuration :as cfg]
-             [in-params :as in-params]]
+             [in-params :as in-params]
+             [cache-q :as cache-q]]
             [cheshire.core :as json]
             [malt-admin.helpers :refer [csv-to-list redirect-with-flash error! Packet]]
             [formative.parse :as fp]
@@ -100,6 +101,7 @@
           rev (models/get-rev storage id)]
       (when (:in_params_changed parsed-params)
         (in-params/delete! storage id))
+      (cache-q/delete! storage id rev)
       (models/replace-model! storage values)
       (when (:file values)
         (cache/clear storage id rev))
@@ -167,7 +169,7 @@
 (defn parse-calc-result! [body]
   (let [packet (pb/protobuf-load Packet body)]
     (if (= (:type packet) :error)
-      (throw (RuntimeException. (if (= (:error_type packet) :inprogress)
+      (throw (RuntimeException. (if (= (:err7or_type packet) :inprogress)
                                   "Calculation already in progress"
                                   (:error packet)))))
     {:result packet}))
