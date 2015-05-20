@@ -1,6 +1,8 @@
 (ns malt-admin.storage.cache-q
   (:require [clojurewerkz.cassaforte.cql :as cql]
-            [clojurewerkz.cassaforte.query :refer [where columns count1]]))
+            [clojurewerkz.cassaforte.query :refer [where columns count1]]
+            [taoensso.nippy :as nippy])
+  (:import (com.datastax.driver.core.utils Bytes)))
 
 (defn insert-in-params! [storage rev-id in-params]
   (let [{:keys [conn]} storage]
@@ -26,6 +28,9 @@
       (cql/delete conn "cache_q"
                   (where [[= :model_id (:model_id task)]
                           [= :rev (:rev task)]
-                          [= :params (:params task)]])))
-    task))
+                          [= :params (:params task)]]))
+
+      (update-in task [:params] #(->> %
+                                      Bytes/getArray
+                                      nippy/thaw)))))
 
