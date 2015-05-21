@@ -12,7 +12,6 @@
            storage-user
            storage-password
            settings-table
-           configuration-table
            session-ttl] :as config}]
 
   (component/system-map
@@ -25,5 +24,4 @@
                                   :settings-table settings-table
                                   :storage-user storage-user
                                   :storage-password storage-password
-                                  :configuration-table configuration-table
                                   :session-ttl (Integer/valueOf session-ttl)})))

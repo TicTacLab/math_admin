@@ -20,15 +20,6 @@
     (catch Exception e
       (log/error e "occured while reading configuration"))))
 
-(defn write-config! [storage config]
-  (let [{:keys [conn configuration-table]} storage]
-    (write-configuration! conn configuration-table :config config)))
-
-(defn read-config [storage]
-  (let [{:keys [conn configuration-table]} storage]
-    (read-configuration conn configuration-table :config)))
-
-
 (defn write-settings! [storage settings]
   (let [{:keys [conn settings-table]} storage]
     (write-configuration! conn settings-table :settings settings)))

@@ -1,13 +1,11 @@
 (ns malt-admin.web
   (:require [compojure.core :refer (defroutes GET POST PUT DELETE ANY wrap-routes)]
             [schema.core :as s]
-            [compojure.route :as route]
             [org.httpkit.server :as http-kit]
             [com.stuartsierra.component :as component]
             [clojure.tools.logging :as log]
             [clojure.tools.trace :refer (trace)]
             [malt-admin.controller
-             [configuration :as configuration]
              [settings :as settings]
              [models :as models]
              [users :as users]
@@ -40,9 +38,6 @@
   (GET    "/auth" req (allow req :any (auth/index req)))
   (POST   "/auth" req (allow req :any (auth/sign-in req)))
   (DELETE "/auth" req (allow req :any (auth/sign-out req)))
-
-  (GET    "/configuration" req (allow req :admin (configuration/index req)))
-  (POST   "/configuration" req (allow req :admin (configuration/update req)))
 
   (GET    "/settings" req (allow req :admin (settings/index req)))
   (POST   "/settings" req (allow req :admin (settings/update req)))

@@ -5,7 +5,6 @@
                  :storage-keyspace "malt"
                  :storage-user "cassandra"
                  :storage-password "cassandra"
-                 :configuration-table "configuration"
                  :settings-table "settings"
 
                  :app-env "dev"

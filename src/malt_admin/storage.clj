@@ -12,7 +12,6 @@
                     settings-table
                     storage-user
                     storage-password
-                    configuration-table
                     session-ttl]
   component/Lifecycle
 
@@ -38,7 +37,6 @@
    :storage-user s/Str
    :storage-password s/Str
    :settings-table s/Str
-   :configuration-table s/Str
    :session-ttl s/Int})
 
 (defn new-storage [m]
