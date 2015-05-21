@@ -5,6 +5,7 @@
             [malt-admin.storage.configuration :as cfg]
             [malt-admin.storage.cache-q :as cache-q]
             [org.httpkit.client :as http]
+            [aprint.core :refer [aprint]]
             [cheshire.core :as json]))
 
 (def filler-sleep 10000)
@@ -14,7 +15,7 @@
     (let [url (format "http://%s/model/calc/%s" addr ssid)
           malt-params {:id     id
                        :ssid   ssid
-                       :params (:params params)}
+                       :params params}
 
           json-malt-params (json/generate-string malt-params)
           {:keys [body error status]} @(http/post url {:body json-malt-params
@@ -36,12 +37,8 @@
   (while true
     (let [task (cache-q/get-task storage)]
                 (if task
-                  (do
-                    (log/info "calc next task")
-                    (calculate addr (gen-session-id task) (:model_id task) (:params task)))
-                  (do
-                    #_(log/info "calc sleep")
-                    (Thread/sleep filler-sleep))))))
+                  (calculate addr (gen-session-id task) (:model_id task) (:params task))
+                  (Thread/sleep filler-sleep)))))
 
 (defrecord Filler [storage addr filler-thread]
   component/Lifecycle
