@@ -40,7 +40,7 @@
                     (log/info "calc next task")
                     (calculate addr (gen-session-id task) (:model_id task) (:params task)))
                   (do
-                    (log/info "calc sleep")
+                    #_(log/info "calc sleep")
                     (Thread/sleep filler-sleep))))))
 
 (defrecord Filler [storage addr filler-thread]

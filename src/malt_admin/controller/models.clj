@@ -98,17 +98,17 @@
                      (generate-revision)
                      (select-keys [:id :file :name :file_name :content_type :in_sheet_name :out_sheet_name :rev :last_modified]))
           id (:id values)
-          rev (models/get-rev storage id)]
+          old-rev (trace (models/get-rev storage id))
+          new-rev (trace (:rev values))]
       (when (:in_params_changed parsed-params)
         (in-params/delete! storage id))
-      ;; clean and copy in-params to CACHE_Q table
-      (cache-q/delete! storage id rev)
-      (->> (in-params/get-in-params storage id)
-           (cache-q/insert-in-params! storage rev))
-      ;;
       (models/replace-model! storage values)
       (when (:file values)
-        (cache/clear storage id rev))
+        ;; clean and copy in-params to CACHE_Q table
+        (cache-q/delete! storage id old-rev)
+        (->> (in-params/get-in-params storage id)
+             (cache-q/insert-in-params! storage new-rev))
+        (cache/clear storage id old-rev))
       (audit req :replace-model (dissoc values :file))
       (redirect-with-flash "/models" {:success (format "Model with id %d was replaced" id)}))))
 
