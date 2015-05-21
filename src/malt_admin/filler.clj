@@ -18,10 +18,10 @@
                        :params params}
 
           json-malt-params (json/generate-string malt-params)
-          {:keys [body error status]} @(http/post url {:body json-malt-params
-                                                       :headers {"Content-type" "text/plain"}
-                                                       :timeout 60000
-                                                       :as      :byte-array})]
+          {:keys [error status]} @(http/post url {:body json-malt-params
+                                                  :headers {"Content-type" "text/plain"}
+                                                  :timeout 60000
+                                                  :as      :byte-array})]
       (when error (throw error))
       (when-not (= status 200)
         (throw (RuntimeException. (format "Bad Status Code: %d" status))))

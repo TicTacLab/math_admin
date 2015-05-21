@@ -15,12 +15,12 @@
             [org.httpkit.client :as http]
             [clojure.tools.trace :refer [trace]]
             [clojure.pprint :refer [pprint]]
+            [aprint.core :refer [aprint]]
             [clojure.walk :refer [keywordize-keys]]
             [clojure.tools.logging :as log]
             [flatland.protobuf.core :as pb])
   (:refer-clojure :exclude [replace])
   (:import (java.nio.file Files Paths)
-           (flatland.protobuf PersistentProtocolBufferMap$Def)
            [java.util UUID Date]))
 
 (defn index [{{storage :storage} :web :as req}]
@@ -98,8 +98,8 @@
                      (generate-revision)
                      (select-keys [:id :file :name :file_name :content_type :in_sheet_name :out_sheet_name :rev :last_modified]))
           id (:id values)
-          old-rev (trace (models/get-rev storage id))
-          new-rev (trace (:rev values))]
+          old-rev (models/get-rev storage id)
+          new-rev (:rev values)]
       (when (:in_params_changed parsed-params)
         (in-params/delete! storage id))
       (models/replace-model! storage values)
@@ -156,12 +156,12 @@
                               (vector :required)
                               vector)))
 
-(defn make-model-sid [id ssid]
-  (str ssid \- id))
+(defn make-model-sid [id rev ssid]
+  (str ssid \- id \- rev))
 
-(defn- get-malt-params [node port model-id ssid]
+(defn- get-malt-params [node port model-id rev ssid]
   (let [res @(http/get (format "http://%s:%s/model/in-params" node port)
-                       {:query-params {:ssid (make-model-sid model-id ssid)
+                       {:query-params {:ssid (make-model-sid model-id rev ssid)
                                        :id model-id}
                         :as :text})]
     (if (= (:status res) 200)
@@ -178,12 +178,13 @@
                                   (:error packet)))))
     {:result packet}))
 
-(defn- calculate [node port ssid id params]
+(defn- calculate [node port ssid id rev params]
   (try
-    (let [url (format "http://%s:%s/model/calc/%s"
-                      node port (make-model-sid id ssid))
+    (let [malt-session-id (make-model-sid id rev ssid)
+          url (format "http://%s:%s/model/calc/%s"
+                      node port malt-session-id)
           malt-params {:id id
-                       :ssid (make-model-sid id ssid)
+                       :ssid malt-session-id
                        :params (map (fn [[id value]] {:id id :value value}) params)}
           {:keys [body error status]} @(http/post url {:body    (json/generate-string malt-params)
                                                        :headers {"Content-type" "text/plain"}
@@ -251,11 +252,11 @@
 
                       (into (sorted-map-by mgp-comparator)))))))
 
-(defn render-profile-page [req model-id & {:keys [problems flash in-params out-params log-session-id]}]
+(defn render-profile-page [req model-id rev & {:keys [problems flash in-params out-params log-session-id]}]
   (let [model-id (Integer/valueOf model-id)
         {malt-host :profiling-malt-host
          malt-port :profiling-malt-port} (-> req :web :storage cfg/read-settings)
-         malt-params (get-malt-params malt-host malt-port model-id (:session-id req))
+         malt-params (get-malt-params malt-host malt-port model-id rev (:session-id req))
          values (or in-params
                     (malt-params->form-values malt-params))
         {model-file :file_name model-name :name} (-> req
@@ -272,23 +273,24 @@
              :log-session-id log-session-id
              :calc-result (-> out-params format-calc-result)
              :profile-form (merge (malt-params->form malt-params)
-                                  {:action (str "/models/" model-id "/profile")
+                                  {:action (str "/models/" model-id "/" rev "/profile")
                                    :method "POST"
                                    :values values
                                    :submit-label "Calculate"
                                    :problems problems})})))
 
 (defn profile [{params :params :as req}]
-  (render-profile-page req (:id params)))
+  (render-profile-page req (:id params) (:rev params)))
 
 (defn profile-execute [{session-id :session-id
                         params :params :as req}]
   (let [id (:id params)
+        rev (:rev params)
         {malt-host :profiling-malt-host
          malt-port :profiling-malt-port} (-> req :web :storage cfg/read-settings)
-        form (some->> (get-malt-params malt-host malt-port id session-id)
+        form (some->> (get-malt-params malt-host malt-port id rev session-id)
                       malt-params->form)
-        in-params (dissoc params :id :submit)]
+        in-params (dissoc params :id :submit :rev)]
 
     (fp/with-fallback #(render-profile-page req id
                                             :problems %
@@ -298,13 +300,14 @@
                               malt-port
                               session-id
                               id
+                              rev
                               in-params)]
 
         (if (contains? result :result)
-          (render-profile-page req id
+          (render-profile-page req id rev
                                :in-params in-params
                                :out-params (:result result))
-          (render-profile-page req id
+          (render-profile-page req id rev
                                :in-params in-params
                                :flash result))))))
 
