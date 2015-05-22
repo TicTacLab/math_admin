@@ -9,6 +9,9 @@
       "192.168.167.145",
       "192.168.167.146"
     ],
+    "zabbix-host": null,
+    "zabbix-port": 10051,
+    "monitoring-hostname": null,
     "storage-password": "CacNeck5",
     "storage-user": "malt",
     "host": "0.0.0.0",
