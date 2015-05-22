@@ -10,7 +10,7 @@
 (defonce system nil)
 
 (defn init []
-  (alter-var-root #'system (constantly (s/new-system environ/env))))
+  (alter-var-root #'system (constantly (s/new-system @s/config))))
 
 (defn start []
   (alter-var-root #'system component/start))

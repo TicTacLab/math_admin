@@ -2,7 +2,20 @@
   (:require [com.stuartsierra.component :as component]
             [malt-admin.web :as web]
             [malt-admin.storage :as storage]
-            [malt-admin.helpers :refer [csv-to-list]]))
+            [malt-admin.helpers :refer [csv-to-list]]
+            [environ.core :as environ]))
+
+(def config (atom (select-keys environ/env
+                          [:web-host
+                           :web-port
+                           :storage-nodes
+                           :storage-keyspace
+                           :storage-user
+                           :storage-password
+                           :settings-table
+                           :session-ttl
+                           :app-env
+                           :noilly-port])))
 
 (defn new-system
   [{:keys [web-port
