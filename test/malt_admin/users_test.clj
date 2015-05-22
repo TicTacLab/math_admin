@@ -2,10 +2,10 @@
   (:use clojure.test)
   (:require [malt-admin.test-helper :as t :refer [test-system signin signout go fill-in]]
             [clj-webdriver.taxi :as w :refer [elements click send-keys text]]
-            [malt-admin.system :as s]))
+            [malt-admin.config :as c]))
 
 (deftest users-test
-  (t/with-system [s (test-system @s/config)]
+  (t/with-system [s (test-system @c/config)]
     (let [b (t/start-browser! s)]
       (testing "Create"
         (signin b)

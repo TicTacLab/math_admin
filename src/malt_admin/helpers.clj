@@ -4,11 +4,6 @@
             [flatland.protobuf.core :as pb])
   (:import (flatland.protobuf PersistentProtocolBufferMap$Def)))
 
-(defn csv-to-list [csv]
-  (->> (split csv #",")
-       (map trim)
-       (remove empty?)))
-
 (defn redirect-with-flash [url flash]
   (assoc (res/redirect-after-post url) :flash flash))
 

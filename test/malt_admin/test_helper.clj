@@ -6,7 +6,6 @@
             [clojure.string :as str]
             [com.stuartsierra.component :as component]
             [malt-admin.embedded-storage :refer (map->EmbeddedStorage)]
-            [malt-admin.helpers :refer [csv-to-list]]
             [malt-admin.system :as sys]))
 
 (defonce browser (atom nil))

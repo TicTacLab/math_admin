@@ -1,11 +1,11 @@
 (ns malt-admin.view
   (:require [selmer.parser :as selmer]
             [selmer.filters :as filters]
-            [environ.core :as environ]
             [formative.core :as f]
             [hiccup.core :as h]
             [clojure.pprint :refer [pprint]]
-            [ring.util.response :as res])
+            [ring.util.response :as res]
+            [malt-admin.config :as c])
   (:import [java.text SimpleDateFormat]
            [java.util TimeZone]))
 
@@ -34,10 +34,10 @@
   (let [{session-id :session-id
          flash      :flash} req
          default-context {:signed-in? (boolean session-id)
-                          :admin? (get-in req [:session :is-admin])
-                          :uri (:uri req)
-                          :env environ/env
-                          :flash flash}
+                          :admin?     (get-in req [:session :is-admin])
+                          :uri        (:uri req)
+                          :env        @c/config
+                          :flash      flash}
          context (merge context default-context)]
     (selmer/render-file (str template-name ".html") context
                         {:tag-open \[

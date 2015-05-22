@@ -2,10 +2,10 @@
   (:use clojure.test)
   (:require [malt-admin.test-helper :as t :refer [test-system signin signout go fill-in wait within]]
             [clj-webdriver.taxi :as w :refer [elements click send-keys text accept implicit-wait]]
-            [malt-admin.system :as s]))
+            [malt-admin.config :as c]))
 
 (deftest models-test
-  (t/with-system [s (test-system @s/config)]
+  (t/with-system [s (test-system @c/config)]
     (let [b (t/start-browser! s)]
       (signin)
       (go "/models")

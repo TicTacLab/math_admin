@@ -40,5 +40,7 @@
    :session-ttl s/Int})
 
 (defn new-storage [m]
-  (s/validate StorageSchema m)
-  (map->Storage m))
+  (as-> m $
+        (select-keys $ (keys StorageSchema))
+        (s/validate StorageSchema $)
+        (map->Storage $)))

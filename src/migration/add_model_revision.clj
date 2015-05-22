@@ -1,16 +1,15 @@
 (ns migration.add-model-revision
-  (:require [environ.core :as environ]
-            [com.stuartsierra.component :as component]
-            [malt-admin.helpers :refer [csv-to-list]]
+  (:require [com.stuartsierra.component :as component]
             [malt-admin.system :as sys]
             [clojurewerkz.cassaforte.cql :as cql]
-            [clojurewerkz.cassaforte.query :as q])
+            [clojurewerkz.cassaforte.query :as q]
+            [malt-admin.config :as c])
   (:import (java.util UUID Date))
   (:gen-class))
 
 
 (defn -main [& args]
-  (let [storage (-> environ/env
+  (let [storage (-> @c/config
                     sys/new-system
                     :storage
                     component/start)

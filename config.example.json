@@ -1,0 +1,16 @@
+{
+    "app-env": "dev",
+    "noilly-port": 1301,
+    "session-ttl": 3600,
+    "settings-table": "settings",
+    "storage-keyspace": "malt",
+    "storage-nodes": [
+      "192.168.167.144",
+      "192.168.167.145",
+      "192.168.167.146"
+    ],
+    "storage-password": "CacNeck5",
+    "storage-user": "malt",
+    "host": "0.0.0.0",
+    "port": 8080
+}

@@ -11,7 +11,6 @@
              [users :as users]
              [auth :as auth]]
             [malt-admin.view :refer (render render-error)]
-            [environ.core :as environ]
             [malt-admin.middleware :refer (wrap-check-session wrap-with-web wrap-with-stacktrace)]
             [ring.util.response :as res]
             [ring.middleware
@@ -21,7 +20,8 @@
              [params :refer (wrap-params)]
              [webjars :refer (wrap-webjars)]
              [keyword-params :refer (wrap-keyword-params)]
-             [multipart-params :refer (wrap-multipart-params)]]))
+             [multipart-params :refer (wrap-multipart-params)]]
+            [malt-admin.config :as c]))
 
 
 (defmacro allow [req role body]
@@ -92,7 +92,7 @@
                                                     :max-body 52428800 ;; 50Mb
                                                     :join? false})]
       (selmer.parser/set-resource-path! (clojure.java.io/resource "templates"))
-      (if (= (:app-env environ/env) "production")
+      (if (= (:app-env @c/config) "production")
         (selmer.parser/cache-on!)
         (selmer.parser/cache-off!))
 
@@ -114,5 +114,7 @@
    :host s/Str})
 
 (defn new-web [m]
-  (s/validate WebSchema m)
-  (map->Web m))
+  (as-> m $
+        (select-keys $ (keys WebSchema))
+        (s/validate WebSchema $)
+        (map->Web $)))

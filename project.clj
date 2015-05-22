@@ -4,10 +4,9 @@
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.6.0"]
-                 [com.betinvest/noilly "0.1.2"]
+                 [com.betinvest/noilly "0.1.4"]
                  [javax.servlet/javax.servlet-api "3.1.0"]
                  [com.stuartsierra/component "0.2.2"]
-                 [environ "1.0.0"]
                  [org.slf4j/slf4j-api "1.7.7"]
                  [ch.qos.logback/logback-core "1.1.2"]
                  [ch.qos.logback/logback-classic "1.1.2"]
@@ -38,8 +37,7 @@
   :repl-options {:timeout 120000
                  :init-ns user}
   :main malt-admin.main
-  :plugins [[lein-environ "1.0.0"]
-            [lein-protobuf "0.4.1"]
+  :plugins [[lein-protobuf "0.4.1"]
             [com.aphyr/prism "0.1.1"]
             [theladders/lein-uberjar-deploy "1.0.0"]]
   :aliases {"autotest" ["with-profile" "test" "prism"]}
@@ -62,10 +60,8 @@
                   ["vcs" "push"]]
   :profiles {:production {:jvm-opts ["-Dlogback.configurationFile=logback.production.xml"]}
              :staging    {:jvm-opts ["-Dlogback.configurationFile=logback.production.xml"]}
-             :dev        [:dev-env
-                          {:source-paths ["dev"]
-                           :dependencies [[ns-tracker "0.2.2"]
-                                          [aprint "0.1.0"]
-                                          [http-kit.fake "0.2.1"]]}]
-             :test       [:test-env
-                          {:dependencies [[http-kit.fake "0.2.1"]]}]})
+             :dev        {:source-paths ["dev"]
+                          :dependencies [[ns-tracker "0.2.2"]
+                                         [aprint "0.1.0"]
+                                         [http-kit.fake "0.2.1"]]}
+             :test       {:dependencies [[http-kit.fake "0.2.1"]]}})

@@ -2,10 +2,10 @@
   (:use clojure.test)
   (:require [malt-admin.test-helper :as t :refer [test-system signin signout go fill-in within]]
             [clj-webdriver.taxi :as w :refer [click send-keys text find-elements elements]]
-            [malt-admin.system :as s]))
+            [malt-admin.config :as c]))
 
 (deftest permissions-test
-  (t/with-system [s (test-system @s/config)]
+  (t/with-system [s (test-system @c/config)]
     (let [b (t/start-browser! s)]
 
       (testing "Model preloading"

@@ -3,8 +3,8 @@
             [clojure.tools.logging :as log]
             [ring.middleware.stacktrace :as stacktrace]
             [malt-admin.view :refer (render render-error)]
-            [environ.core :as environ]
-            [malt-admin.storage.auth :as storage]))
+            [malt-admin.storage.auth :as storage]
+            [malt-admin.config :as c]))
 
 (defmacro defmiddleware [nm params handler-params & body]
   `(defn ~nm ~params
@@ -26,7 +26,7 @@
       :else (res/redirect "/auth"))))
 
 (defn wrap-with-stacktrace [h]
-  (if (not= (:app-env environ/env) "production")
+  (if (not= (:app-env @c/config "production"))
     (stacktrace/wrap-stacktrace h)
     (fn [req]
       (try

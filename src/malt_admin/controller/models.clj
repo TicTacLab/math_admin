@@ -9,7 +9,7 @@
              [configuration :as cfg]
              [in-params :as in-params]]
             [cheshire.core :as json]
-            [malt-admin.helpers :refer [csv-to-list redirect-with-flash error! Packet]]
+            [malt-admin.helpers :refer [redirect-with-flash error! Packet]]
             [formative.parse :as fp]
             [org.httpkit.client :as http]
             [clojure.tools.trace :refer [trace]]

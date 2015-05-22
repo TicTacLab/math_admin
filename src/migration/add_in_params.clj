@@ -1,14 +1,13 @@
 (ns migration.add-in-params
-  (:require [environ.core :as environ]
-            [com.stuartsierra.component :as component]
-            [malt-admin.helpers :refer [csv-to-list]]
+  (:require [com.stuartsierra.component :as component]
             [clojurewerkz.cassaforte.query :refer :all]
             [malt-admin.system :as sys]
-            [clojurewerkz.cassaforte.cql :as cql])
+            [clojurewerkz.cassaforte.cql :as cql]
+            [malt-admin.config :as c])
   (:gen-class))
 
  (defn -main [& args]
-   (let [storage (-> environ/env
+   (let [storage (-> @c/config
                      sys/new-system
                      :storage
                      component/start)
