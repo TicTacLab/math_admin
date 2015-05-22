@@ -3,7 +3,7 @@
 /checkouts
 pom.xml
 pom.xml.asc
-profiles.clj
+config.json
 *.jar
 *.class
 /.lein-*
