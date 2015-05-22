@@ -3,6 +3,7 @@
             [malt-admin.web :as web]
             [malt-admin.storage :as storage]
             [malt-admin.filler :as filler]
+            [zabbix-clojure-agent.core :as zabbix]
             [malt-admin.helpers :refer [csv-to-list]]))
 
 (defn new-system
@@ -14,6 +15,9 @@
            storage-password
            settings-table
            configuration-table
+           monitoring-hostname
+           zabbix-host
+           zabbix-port
            session-ttl] :as config}]
 
   (component/system-map
@@ -31,7 +35,12 @@
                                    :storage-user        storage-user
                                    :storage-password    storage-password
                                    :configuration-table configuration-table
-                                   :session-ttl         (Integer/valueOf session-ttl)})))
+                                   :session-ttl         (Integer/valueOf session-ttl)})
+    :zabbix-reporter (zabbix/new-zabbix-reporter
+                       {:hostname         monitoring-hostname
+                        :zabbix-host      zabbix-host
+                        :zabbix-port      (Integer/valueOf zabbix-port)
+                        :interval-minutes 10})))
 
 
 

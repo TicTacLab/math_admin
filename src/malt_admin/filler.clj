@@ -5,6 +5,7 @@
             [malt-admin.storage.configuration :as cfg]
             [malt-admin.storage.cache-q :as cache-q]
             [org.httpkit.client :as http]
+            [metrics.gauges :as gauge]
             [aprint.core :refer [aprint]]
             [cheshire.core :as json]))
 
@@ -49,7 +50,7 @@
         (recur))))
   (log/info "Filler handler exited."))
 
-(defrecord Filler [storage addr filler-thread]
+(defrecord Filler [storage addr filler-thread cache-q-counter]
   component/Lifecycle
   (start [component]
     (let [component (assoc component :addr (->> storage
@@ -59,7 +60,9 @@
       (.start filler-thread)
 
       (log/info "Filler started")
-      (assoc component :filler-thread filler-thread)))
+      (assoc component :filler-thread filler-thread
+                       :cache-q-counter (gauge/gauge-fn ["malt_admin" "cache_queue_count"]
+                                                        #(double (cache-q/get-queue-count (:storage component)))))))
 
   (stop [component]
     (when filler-thread
@@ -67,7 +70,8 @@
         (.interrupt filler-thread)
         (catch Exception _)))
     (log/info "Filler stopped")
-    (assoc component :filler-thread nil)))
+    (assoc component :filler-thread nil
+                     :cache-q-counter nil)))
 
 
 (defn new-filler [m]
