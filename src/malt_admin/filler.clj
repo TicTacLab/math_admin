@@ -8,37 +8,46 @@
             [aprint.core :refer [aprint]]
             [cheshire.core :as json]))
 
-(def filler-sleep 10000)
+(def cache-queue-empty-retry 10000)
+(def malt-failed-calculation-timeout 10000)
 
-(defn calculate [addr ssid id params]
-  (try
-    (let [url (format "http://%s/model/calc/%s" addr ssid)
-          malt-params {:id     id
-                       :ssid   ssid
-                       :params params}
-
-          json-malt-params (json/generate-string malt-params)
-          {:keys [error status]} @(http/post url {:body json-malt-params
-                                                  :headers {"Content-type" "text/plain"}
-                                                  :timeout 60000
-                                                  :as      :byte-array})]
-      (when error (throw error))
-      (when-not (= status 200)
-        (throw (RuntimeException. (format "Bad Status Code: %d" status))))
-      true)
-    (catch Exception e
-      (log/error e "While malt calculation")
-      false)))
+(defn calculate
+  "calculation is
+  successful on ANY http status 200/404/500 etc
+  and failed on ANY error"
+  [addr ssid id params]
+  (let [url (format "http://%s/model/calc/%s" addr ssid)
+        malt-params {:id     id
+                     :ssid   ssid
+                     :params params}
+        {error :error} @(http/post url {:body    (json/generate-string malt-params)
+                                         :headers {"Content-type" "text/plain"}
+                                         :timeout 60000
+                                         :as      :byte-array})]
+    (if error
+      (do
+        (log/error error "While malt calculation")
+        false)
+      true)))
 
 (defn gen-session-id [{model-id :model_id rev :rev}]
   (format "worker-%s-%s" model-id rev))
 
 (defn filler-handler [{storage :storage addr :addr}]
-  (while true
-    (let [task (cache-q/get-task storage)]
-                (if task
-                  (calculate addr (gen-session-id task) (:model_id task) (:params task))
-                  (Thread/sleep filler-sleep)))))
+  (loop []
+    (let [result (try
+                   (if-let [task (cache-q/get-task storage)]
+                     (loop []
+                       (when-not (calculate addr (gen-session-id task) (:model_id task) (:params task))
+                         (Thread/sleep malt-failed-calculation-timeout)
+                         (recur)))
+                     (Thread/sleep cache-queue-empty-retry))
+                   (catch Exception e
+                     (log/error e)
+                     e))]
+      (when-not (instance? InterruptedException result)
+        (recur))))
+  (log/info "Filler handler exited."))
 
 (defrecord Filler [storage addr filler-thread]
   component/Lifecycle
