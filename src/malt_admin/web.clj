@@ -9,6 +9,7 @@
              [settings :as settings]
              [models :as models]
              [users :as users]
+             [filler :as filler]
              [auth :as auth]]
             [malt-admin.view :refer (render render-error)]
             [malt-admin.middleware :refer (wrap-check-session wrap-with-web wrap-with-stacktrace)]
@@ -42,16 +43,18 @@
   (GET    "/settings" req (allow req :admin (settings/index req)))
   (POST   "/settings" req (allow req :admin (settings/update req)))
 
-  (GET    "/models"              req (allow req :any   (models/index req)))
-  (GET    "/models/upload"       req (allow req :admin (models/upload req)))
-  (GET    "/models/:id/edit"     req (allow req :admin (models/edit req)))
-  (GET    "/models/:id/download" req (allow req :admin (models/download req)))
-  (GET    "/models/:id/profile"  req (allow req :any   (models/profile req)))
-  (POST   "/models/:id/profile"  req (allow req :any   (models/profile-execute req)))
-  (POST   "/models/:id/log"      req (allow req :any   (models/read-log req)))
-  (PUT    "/models/:id"          req (allow req :admin (models/replace req)))
-  (DELETE "/models/:id"          req (allow req :admin (models/delete req)))
-  (POST   "/models"              req (allow req :admin (models/do-upload req)))
+  (GET    "/models"                   req (allow req :any   (models/index req)))
+  (GET    "/models/upload"            req (allow req :admin (models/upload req)))
+  (GET    "/models/:id/edit"          req (allow req :admin (models/edit req)))
+  (GET    "/models/:id/download"      req (allow req :admin (models/download req)))
+  (GET    "/models/:id/:rev/profile"  req (allow req :any   (models/profile req)))
+  (POST   "/models/:id/:rev/profile"  req (allow req :any   (models/profile-execute req)))
+  (POST   "/models/:id/log"           req (allow req :any   (models/read-log req)))
+  (PUT    "/models/:id"               req (allow req :admin (models/replace req)))
+  (DELETE "/models/:id"               req (allow req :admin (models/delete req)))
+  (POST   "/models"                   req (allow req :admin (models/do-upload req)))
+
+  (GET    "/filler"                       req (allow req :admin (filler/index req)))
 
   (GET    "/users"                        req (allow req :admin (users/index req)))
   (GET    "/users/new"                    req (allow req :admin (users/new* req)))

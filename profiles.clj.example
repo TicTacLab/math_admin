@@ -1,0 +1,32 @@
+{:dev-env {:env {:web-host "0.0.0.0"
+                 :web-port 8080
+
+                 :storage-nodes "192.168.167.144,"
+                 :storage-keyspace "malt"
+                 :storage-user "malt"
+                 :storage-password "CacNeck5"
+                 :configuration-table "configuration"
+                 :settings-table "settings"
+
+                 :zabbix-host "192.168.167.141"
+                 :zabbix-port 10051
+                 :monitoring-hostname "192.168.167.141"
+
+                 :app-env "dev"
+                 :session-ttl 3600}}
+ :test-env {:env {:web-host "0.0.0.0"
+                  :web-port 8082
+
+                  :storage-nodes "192.168.167.144,"
+                  :storage-keyspace "malt"
+                  :storage-user "malt"
+                  :storage-password "CacNeck5"
+                  :configuration-table "configuration"
+                  :settings-table "settings"
+
+                  :zabbix-host "192.168.167.141"
+                  :zabbix-port 10051
+                  :monitoring-hostname "192.168.167.144"
+
+                  :app-env "test"
+                  :session-ttl 3600}}}
