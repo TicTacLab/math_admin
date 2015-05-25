@@ -31,6 +31,7 @@
                  [org.webjars/bootstrap "3.3.2"]
                  [org.webjars/jquery "2.1.3"]
                  [org.webjars/metroui "2.0.23"]
+                 [org.clojure/test.check "0.7.0"]
                  [com.betinvest/zabbix-clojure-agent "0.1.8"]
                  [clj-webdriver "0.6.1" :exclusions [com.google.guava/guava org.seleniumhq.selenium/selenium-server]]
                  [org.seleniumhq.selenium/selenium-server "2.44.0" :exclusions [com.google.guava/guava org.yaml/snakeyaml]]

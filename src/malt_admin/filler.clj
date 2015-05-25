@@ -45,6 +45,7 @@
                      (Thread/sleep cache-queue-empty-retry))
                    (catch Exception e
                      (log/error e)
+                     (Thread/sleep malt-failed-calculation-timeout)
                      e))]
       (when-not (instance? InterruptedException result)
         (recur))))
