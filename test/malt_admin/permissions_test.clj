@@ -45,10 +45,6 @@
         (is (seq (find-elements b {:xpath "//h1[text()='Admin settings']"}))
             "Should have access to settings")
 
-        (go b "/configuration")
-        (is (seq (find-elements b {:xpath "//h1[text()='Configuration']"}))
-            "Should have access to configuration")
-
         (signout b))
 
 
@@ -75,10 +71,6 @@
         (go b "/settings")
         (is (seq (find-elements b {:xpath "//span[text()='Access denied']"}))
             "Should not have access to settings")
-
-        (go b "/configuration")
-        (is (seq (find-elements b {:xpath "//span[text()='Access denied']"}))
-            "Should not have access to configuration")
 
         (go b "/models/1/download")
         (is (seq (find-elements b {:xpath "//span[text()='Access denied']"}))

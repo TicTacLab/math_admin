@@ -31,7 +31,7 @@
                                              (encrypt-password)
                                              (dissoc :password_confirmation)))
             (audit req :create-user (dissoc values :password_confirmation :password))
-            (redirect-with-flash "/users" {:success (format "User \"%s\" successfully created" (:name values))}))))))
+            (redirect-with-flash "/users" {:success (format "User \"%s\" successfully created" (:login values))}))))))
 
 (defn index [{{storage :storage} :web
               :as req}]
@@ -67,7 +67,7 @@
     (let [values (fp/parse-params form/edit-form params)]
       (storage/update-user! storage (:login params) values)
       (audit req :update-user (select-keys params [:login :name :is_admin]))
-      (redirect-with-flash "/users" {:success (format "User \"%s\" successfully updated" (:name values))}))))
+      (redirect-with-flash "/users" {:success (format "User \"%s\" successfully updated" (:login values))}))))
 
 (defn update-password [{params :params
                         {storage :storage} :web
@@ -78,7 +78,7 @@
                                                         (encrypt-password)
                                                         (dissoc :password_confirmation)))
       (audit req :update-user-password (select-keys params [:login]))
-      (redirect-with-flash "/users" {:success (format "Password for \"%s\" successfully updated" (:name values))}))))
+      (redirect-with-flash "/users" {:success (format "Password for \"%s\" successfully updated" (:login values))}))))
 
 (defn change-status [{{:keys [action login]} :params
                       {storage :storage}     :web :as req}]

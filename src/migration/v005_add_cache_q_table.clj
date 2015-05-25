@@ -16,5 +16,4 @@
                                         {:model_id    :int
                                          :rev         :varchar
                                          :params      :blob
-                                         :primary-key [[:model_id :rev] :params]}))
-                    )))
+                                         :primary-key [[:model_id :rev] :params]})))))

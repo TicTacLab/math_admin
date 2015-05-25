@@ -11,7 +11,7 @@
         <th>Actions</th>
     </tr>
     [% for user in users %]
-    <tr class="user">
+    <tr class="user" data-login="[[user.login]]">
         <td class="user-login">[[user.login]]</td>
         <td class="user-name">[[user.name]]</td>
         <td class="user-status">
