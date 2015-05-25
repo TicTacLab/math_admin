@@ -1,6 +1,5 @@
 (ns migration.v005-add-cache-q-table
   (:require [migration.util :refer [with-component]]
-            [environ.core :as environ]
             [malt-admin.system :as sys]
             [clojurewerkz.cassaforte.cql :as cql]
             [clojurewerkz.cassaforte.query :as q])
