@@ -57,7 +57,7 @@
     (let [component (assoc component :addr (->> storage
                                                 cfg/read-settings
                                                 :cache-filler-addr))
-          filler-thread (Thread. (partial filler-handler component))]
+          filler-thread (Thread. ^Runnable (partial filler-handler component))]
       (.start filler-thread)
 
       (log/info "Filler started")
@@ -68,7 +68,7 @@
   (stop [component]
     (when filler-thread
       (try
-        (.interrupt filler-thread)
+        (.interrupt ^Thread filler-thread)
         (catch Exception _)))
     (log/info "Filler stopped")
     (assoc component :filler-thread nil

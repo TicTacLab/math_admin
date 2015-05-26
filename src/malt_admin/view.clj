@@ -11,7 +11,7 @@
 
 
 (defn- format-timestamp [pattern timestamp-sec]
-  (let [ timestamp (* (Long. timestamp-sec) 1000)]
+  (let [ timestamp (* (Long/valueOf ^String timestamp-sec) 1000)]
        (.format (doto (SimpleDateFormat. pattern)
              (.setTimeZone (TimeZone/getTimeZone "GMT")))
            timestamp)))
