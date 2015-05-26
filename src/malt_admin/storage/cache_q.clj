@@ -1,6 +1,6 @@
 (ns malt-admin.storage.cache-q
   (:require [clojurewerkz.cassaforte.cql :as cql]
-            [clojurewerkz.cassaforte.query :refer [where columns count1]]
+            [clojurewerkz.cassaforte.query :refer [where columns count1 limit]]
             [taoensso.nippy :as nippy])
   (:import (com.datastax.driver.core.utils Bytes)))
 
@@ -23,7 +23,7 @@
                           (columns :model_id
                                    :rev
                                    :params)
-                          )]
+                          (limit 1))]
     (when task
       (cql/delete conn "cache_q"
                   (where [[= :model_id (:model_id task)]
