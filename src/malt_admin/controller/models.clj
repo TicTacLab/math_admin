@@ -174,7 +174,7 @@
 (defn parse-calc-result! [body]
   (let [packet (pb/protobuf-load Packet body)]
     (if (= (:type packet) :error)
-      (throw (RuntimeException. (if (= (:err7or_type packet) :inprogress)
+      (throw (RuntimeException. (if (= (:error_type packet) :inprogress)
                                   "Calculation already in progress"
                                   (:error packet)))))
     {:result packet}))
