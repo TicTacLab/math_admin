@@ -47,6 +47,12 @@
     }
 </style>
 
+[% if json-out-params %]
+<script>
+window.OUT_PARAMS = [[ json-out-params|safe ]];
+</script>
+[% endif %]
+
 <div class="row">
     <div class="col-md-4">
         <h3>Model profiling</h3>

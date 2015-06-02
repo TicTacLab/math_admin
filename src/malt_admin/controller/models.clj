@@ -271,6 +271,7 @@
                               second)
              :model-name model-name
              :log-session-id log-session-id
+             :json-out-params (json/generate-string out-params)
              :calc-result (-> out-params format-calc-result)
              :profile-form (merge (malt-params->form malt-params)
                                   {:action (str "/models/" model-id "/" rev "/profile")
