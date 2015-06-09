@@ -103,7 +103,9 @@
       (when (:in_params_changed parsed-params)
         (in-params/delete! storage id))
       (models/replace-model! storage values)
-      (when (:file values)
+
+      ;; TODO: make filler better
+      #_(when (:file values)
         ;; clean and copy in-params to CACHE_Q table
         (cache-q/delete! storage id old-rev)
         (->> (in-params/get-in-params storage id)

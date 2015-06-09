@@ -10,7 +10,9 @@
    :web (component/using
          (web/new-web config)
          [:storage])
-   :filler (component/using
+
+   ;; TODO: make filler better
+   #_:filler #_(component/using
              (filler/new-filler {})
              [:storage])
    :storage (storage/new-storage config)
