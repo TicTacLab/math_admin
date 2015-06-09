@@ -21,7 +21,8 @@
             [flatland.protobuf.core :as pb])
   (:refer-clojure :exclude [replace])
   (:import (java.nio.file Files Paths)
-           [java.util UUID Date]))
+           [java.util UUID Date]
+           [java.io File]))
 
 (defn index [{{storage :storage} :web :as req}]
   (render "models/index" req {:models (models/get-models storage)}))
@@ -39,7 +40,7 @@
   (if (zero? size)
     (dissoc params :file)
     (assoc params
-      :file (Files/readAllBytes (Paths/get (.toURI tempfile)))
+      :file (Files/readAllBytes (Paths/get (.toURI ^File tempfile)))
       :file_name filename
       :content_type content-type)))
 
@@ -80,7 +81,7 @@
              {id :id :as params} :params
              problems :problems
              :as req}]
-  (let [model (models/get-model storage (Integer. id))]
+  (let [model (models/get-model storage (Integer/valueOf ^String id))]
     (render "models/edit" req {:edit-form (assoc form/edit-form
                                             :values (if problems params model)
                                             :action (str "/models/" id)
@@ -117,7 +118,7 @@
 (defn delete [{{id :id}           :params
                {storage :storage} :web
                :as                req}]
-  (let [model-id (Integer/valueOf id)
+  (let [model-id (Integer/valueOf ^String id)
         rev (models/get-rev storage model-id)]
     (models/delete-model! storage model-id)
     (cache/clear storage model-id rev)
@@ -130,7 +131,7 @@
 (defn download [{{id :id} :params
                  {storage :storage} :web
                  :as req}]
-  (let [file (models/get-model-file storage (Integer. id))]
+  (let [file (models/get-model-file storage (Integer/valueOf ^String id))]
     (audit req :download-model {:id id})
     {:body    (:file file)
      :headers {"Content-Type"        (:content_type file)
@@ -175,7 +176,7 @@
 (defn parse-calc-result! [body]
   (let [packet (pb/protobuf-load Packet body)]
     (if (= (:type packet) :error)
-      (throw (RuntimeException. (if (= (:err7or_type packet) :inprogress)
+      (throw (RuntimeException. (if (= (:error_type packet) :inprogress)
                                   "Calculation already in progress"
                                   (:error packet)))))
     {:result packet}))
@@ -255,8 +256,7 @@
                       (into (sorted-map-by mgp-comparator)))))))
 
 (defn render-profile-page [req model-id rev & {:keys [problems flash in-params out-params log-session-id]}]
-  (let [model-id (Integer/valueOf model-id)
-        {malt-host :profiling-malt-host
+  (let [{malt-host :profiling-malt-host
          malt-port :profiling-malt-port} (-> req :web :storage cfg/read-settings)
          malt-params (get-malt-params malt-host malt-port model-id rev (:session-id req))
          values (or in-params
@@ -273,6 +273,7 @@
                               second)
              :model-name model-name
              :log-session-id log-session-id
+             :json-out-params (json/generate-string out-params)
              :calc-result (-> out-params format-calc-result)
              :profile-form (merge (malt-params->form malt-params)
                                   {:action (str "/models/" model-id "/" rev "/profile")
@@ -282,11 +283,11 @@
                                    :problems problems})})))
 
 (defn profile [{params :params :as req}]
-  (render-profile-page req (:id params) (:rev params)))
+  (render-profile-page req (Integer/valueOf ^String (:id params)) (:rev params)))
 
 (defn profile-execute [{session-id :session-id
                         params :params :as req}]
-  (let [id (:id params)
+  (let [id (Integer/valueOf ^String (:id params))
         rev (:rev params)
         {malt-host :profiling-malt-host
          malt-port :profiling-malt-port} (-> req :web :storage cfg/read-settings)
@@ -315,15 +316,16 @@
 
 (defn read-log [{{storage :storage} :web
                  {:keys [id ssid]} :params :as req}]
-  (if-let [result (slog/read-log storage (Integer/valueOf id) ssid)]
-    (render-profile-page req id
-                         :in-params (-> result
-                                        :in_params
-                                        (json/parse-string true)
-                                        malt-params->form-values)
-                         :out-params (:out_params result)
-                         :log-session-id ssid
-                         :flash {:success "Loaded from log."})
-    (render-profile-page req id
-                         :log-session-id ssid
-                         :flash {:error "No such log entry."})))
+  (let [model-id (Integer/valueOf ^String id)]
+    (if-let [result (slog/read-log storage model-id ssid)]
+      (render-profile-page req model-id
+                           :in-params (-> result
+                                          :in_params
+                                          (json/parse-string true)
+                                          malt-params->form-values)
+                           :out-params (:out_params result)
+                           :log-session-id ssid
+                           :flash {:success "Loaded from log."})
+      (render-profile-page req model-id
+                           :log-session-id ssid
+                           :flash {:error "No such log entry."}))))

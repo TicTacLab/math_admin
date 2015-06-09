@@ -54,7 +54,7 @@
         (fill-in b "Name" "God")
         (click "Submit")
         (within b user-selector
-          (is (= "God" (text b :.user-name))
+          (is (= "God" (text :.user-name))
               "Should change user name"))
         (signout b))
 
