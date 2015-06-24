@@ -56,19 +56,7 @@ window.OUT_PARAMS = [[ json-out-params|safe ]];
 <div class="row">
     <div class="col-md-4">
         <h3>Model profiling</h3>
-        <button class="btn btn-default" type="button" data-toggle="collapse" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
-            Options
-        </button>
-        <div class="collapse" id="collapseExample">
-            <div class="panel panel-default">
-                <div class="panel-heading">Export</div>
-                <div class="panel-body">
-                    <a href="#" class="btn btn-default" id="export-in-params-btn">Export in params</a>
-                    <a href="#" class="btn btn-default" id="export-out-params-btn">Export out params</a>
-                    <a href="#" id="download-anchor" style="display:none"></a>
-                </div>
-            </div>
-        </div>
+
     </div>
     <div class="col-md-4">
         <h4>
@@ -78,18 +66,9 @@ window.OUT_PARAMS = [[ json-out-params|safe ]];
     </div>
     <div class="col-md-4">
         <div class="text-right">
-            <form class="form-inline" action="/models/[[model-id]]/log" method="POST">
-                <div class="form-group">
-                    <div class="input-group">
-                        <div class="input-group-addon">SID</div>
-                        <input type="text" class="form-control input-small" placeholder="Session token..." name="ssid"
-                               value="[[log-session-id]]">
-                        <span class="input-group-btn">
-                            <button type="submit" class="btn btn-default" id="export-params-btn">Load from log</button>
-                        </span>
-                    </div>
-                </div>
-            </form>
+            <button type="button" class="btn btn-default" data-toggle="modal" data-target="#modal-options">
+                Options
+            </button>
         </div>
     </div>
 </div>
@@ -146,6 +125,46 @@ window.OUT_PARAMS = [[ json-out-params|safe ]];
     </div>
 </div>
 
+
+
+<!-- Modal -->
+<div id="modal-options" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Options</h4>
+      </div>
+      <div class="modal-body">
+          <form class="form-inline" action="/models/[[model-id]]/log" method="POST">
+              <div class="form-group">
+                  <div class="input-group">
+                      <div class="input-group-addon">SID</div>
+                      <input type="text" class="form-control input-small" placeholder="Session token..." name="ssid"
+                             value="[[log-session-id]]">
+                      <span class="input-group-btn">
+                          <button type="submit" class="btn btn-default" id="export-params-btn">Load from log</button>
+                      </span>
+                  </div>
+              </div>
+          </form>
+          <a href="#" class="btn btn-default" id="export-in-params-btn">Export IN params</a>
+          <br/>
+          <a href="#" class="btn btn-default" id="import-in-params-btn">Import IN params</a>
+          <br/>
+          <a href="#" class="btn btn-default" id="export-out-params-btn">Export OUT params</a>
+          <br/>
+          <input type="file" id="in-params-file" name="file" style="display:none"/>
+          <a href="#" id="download-anchor" style="display:none"></a>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
 <script src="/assets/metroui/min/metro.min.js"></script>
 <script>
 (function() {
@@ -153,7 +172,11 @@ window.OUT_PARAMS = [[ json-out-params|safe ]];
 var downloadAnchor = $("#download-anchor");
 var exportInParamsBtn = $("#export-in-params-btn");
 var exportOutParamsBtn = $("#export-out-params-btn");
-var inputParams = $(".model-input-params input[type='text']");
+var importInParamsBtn = $("#import-in-params-btn");
+// var inputParams = $(".model-input-params input[type='text']");
+var inParamsContainer = $(".model-input-params");
+var inputParams = inParamsContainer.find("input[type='text']");
+var inParamsFile = $("#in-params-file");
 
 var getInParams = function() {
     var res = {};
@@ -178,8 +201,37 @@ var downloadJson = function(data, fileName) {
   downloadAnchor[0].click();
 };
 
-exportInParamsBtn.click(downloadJson.bind(null, getInParams(), "in-params.json"));
-exportOutParamsBtn.click(downloadJson.bind(null, getOutParams(), "out-params.json"));
+var fillInParams = function(inParams) {
+  for(name in inParams) {
+    var el = inParamsContainer.find("input[type='text'][name='" + name + "']");
+    var value = inParams[name];
+    el.val(value);
+  }
+};
+
+exportInParamsBtn.click(function() {
+  downloadJson(getInParams(), "in-params.json");
+});
+
+exportOutParamsBtn.click(function() {
+  downloadJson(getOutParams(), "out-params.json");
+});
+
+importInParamsBtn.click(function() {
+  inParamsFile[0].click();
+});
+
+
+inParamsFile.change(function(event) {
+  var file = event.target.files[0];
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var inParams = JSON.parse(e.target.result);
+    fillInParams(inParams);
+    alert("DONE");
+  };
+  reader.readAsText(file);
+});
 
 if(!window.OUT_PARAMS) exportOutParamsBtn.hide();
 
