@@ -56,6 +56,19 @@ window.OUT_PARAMS = [[ json-out-params|safe ]];
 <div class="row">
     <div class="col-md-4">
         <h3>Model profiling</h3>
+        <button class="btn btn-default" type="button" data-toggle="collapse" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+            Options
+        </button>
+        <div class="collapse" id="collapseExample">
+            <div class="panel panel-default">
+                <div class="panel-heading">Export</div>
+                <div class="panel-body">
+                    <a href="#" class="btn btn-default" id="export-in-params-btn">Export in params</a>
+                    <a href="#" class="btn btn-default" id="export-out-params-btn">Export out params</a>
+                    <a href="#" id="download-anchor" style="display:none"></a>
+                </div>
+            </div>
+        </div>
     </div>
     <div class="col-md-4">
         <h4>
@@ -71,9 +84,9 @@ window.OUT_PARAMS = [[ json-out-params|safe ]];
                         <div class="input-group-addon">SID</div>
                         <input type="text" class="form-control input-small" placeholder="Session token..." name="ssid"
                                value="[[log-session-id]]">
-            <span class="input-group-btn">
-              <button type="submit" class="btn btn-default">Load from log</button>
-            </span>
+                        <span class="input-group-btn">
+                            <button type="submit" class="btn btn-default" id="export-params-btn">Load from log</button>
+                        </span>
                     </div>
                 </div>
             </form>
@@ -83,9 +96,10 @@ window.OUT_PARAMS = [[ json-out-params|safe ]];
 
 <div class="row">
     <div class="col-md-3">
-        <div class=" model-input-params">
+        <div class="model-input-params">
             [[ profile-form|form|safe ]]
         </div>
+
     </div>
     <div class="col-md-9">
         <span class="label label-default pull-right">Total time: [[ calc-result.timer ]] ms</span>
@@ -133,4 +147,42 @@ window.OUT_PARAMS = [[ json-out-params|safe ]];
 </div>
 
 <script src="/assets/metroui/min/metro.min.js"></script>
+<script>
+(function() {
+
+var downloadAnchor = $("#download-anchor");
+var exportInParamsBtn = $("#export-in-params-btn");
+var exportOutParamsBtn = $("#export-out-params-btn");
+var inputParams = $(".model-input-params input[type='text']");
+
+var getInParams = function() {
+    var res = {};
+    inputParams.each(function(i, domEl) {
+      var jqEl = $(domEl);
+      var value = jqEl.val();
+      var name = jqEl.attr('name');
+      res[name] = value;
+    });
+    return res;
+};
+
+var getOutParams = function() {
+    return window.OUT_PARAMS;
+};
+
+var downloadJson = function(data, fileName) {
+  var dataUrl = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data, null, 2));
+
+  downloadAnchor.attr("href", dataUrl);
+  downloadAnchor.attr("download", fileName);
+  downloadAnchor[0].click();
+};
+
+exportInParamsBtn.click(downloadJson.bind(null, getInParams(), "in-params.json"));
+exportOutParamsBtn.click(downloadJson.bind(null, getOutParams(), "out-params.json"));
+
+if(!window.OUT_PARAMS) exportOutParamsBtn.hide();
+
+})();
+</script>
 [% endblock %]
