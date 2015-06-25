@@ -64,7 +64,7 @@
   :profiles {:production {:jvm-opts ["-Dlogback.configurationFile=logback.production.xml"]}
              :staging    {:jvm-opts ["-Dlogback.configurationFile=logback.production.xml"]}
              :dev        {:source-paths ["dev"]
-                          :global-vars {*warn-on-reflection* true}
+                          :global-vars {*warn-on-reflection* false}
                           :dependencies [[ns-tracker "0.2.2"]
                                          [aprint "0.1.0"]
                                          [http-kit.fake "0.2.1"]]}

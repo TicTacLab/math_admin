@@ -148,12 +148,11 @@ window.OUT_PARAMS = [[ json-out-params|safe ]];
                   </div>
               </div>
           </form>
-          <a href="#" class="btn btn-default" id="export-in-params-btn">Export IN params</a>
-          <br/>
-          <a href="#" class="btn btn-default" id="import-in-params-btn">Import IN params</a>
-          <br/>
-          <a href="#" class="btn btn-default" id="export-out-params-btn">Export OUT params</a>
-          <br/>
+          <div class="btn-group">
+            <a href="#" class="btn btn-default" id="export-in-params-btn">Export IN params</a>
+            <a href="#" class="btn btn-default" id="import-in-params-btn">Import IN params</a>
+            <a href="#" class="btn btn-default" id="export-out-params-btn">Export OUT params</a>
+          </div>
           <input type="file" id="in-params-file" name="file" style="display:none"/>
           <a href="#" id="download-anchor" style="display:none"></a>
       </div>
@@ -233,7 +232,7 @@ inParamsFile.change(function(event) {
   reader.readAsText(file);
 });
 
-if(!window.OUT_PARAMS) exportOutParamsBtn.hide();
+if(!window.OUT_PARAMS) exportOutParamsBtn.remove();
 
 })();
 </script>
