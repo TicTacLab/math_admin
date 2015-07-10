@@ -259,12 +259,16 @@
   (let [{malt-host :profiling-malt-host
          malt-port :profiling-malt-port} (-> req :web :storage cfg/read-settings)
          malt-params (get-malt-params malt-host malt-port model-id rev (:session-id req))
-         values (or in-params
+        values (or in-params
                     (malt-params->form-values malt-params))
         {model-file :file_name model-name :name} (-> req
                                                      :web
                                                      :storage
-                                                     (models/get-model model-id))]
+                                                     (models/get-model model-id))
+        total-timer (->> out-params
+                         :data
+                         (map :timer)
+                         (reduce + 0))]
     (render "models/profile"
             (assoc req :flash flash)
             {:model-id model-id
@@ -275,6 +279,7 @@
              :log-session-id log-session-id
              :json-out-params (json/generate-string out-params)
              :calc-result (-> out-params format-calc-result)
+             :calc-result-total-timer total-timer
              :profile-form (merge (malt-params->form malt-params)
                                   {:action (str "/models/" model-id "/" rev "/profile")
                                    :method "POST"
