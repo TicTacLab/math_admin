@@ -18,14 +18,12 @@
                  [ring "1.3.2"]
                  [cheshire "5.3.1"]
                  [http-kit "2.1.16"]
-                 [org.clojure/tools.trace "0.7.8"]
                  [prismatic/schema "0.3.6"]
                  [org.flatland/protobuf "0.8.1"]
                  [com.google.protobuf/protobuf-java "2.5.0"]
                  [formative "0.8.8" :exclusions [org.clojure/clojurescript
                                                  clj-time]]
                  [hiccup "1.0.5"]
-                 [criterium "0.4.3"]
                  [com.taoensso/nippy "2.5.2"]
                  [ring-webjars "0.1.0" :exclusions [org.slf4j/slf4j-nop]]
                  [org.webjars/bootstrap "3.3.2"]
@@ -67,5 +65,18 @@
                           :global-vars {*warn-on-reflection* false}
                           :dependencies [[ns-tracker "0.2.2"]
                                          [aprint "0.1.0"]
-                                         [http-kit.fake "0.2.1"]]}
+                                         [http-kit.fake "0.2.1"]
+                                         [criterium "0.4.3"]
+                                         [im.chit/vinyasa "0.3.4"]
+                                         [org.clojure/tools.trace "0.7.8"]]
+                          :injections [(require '[vinyasa.inject :as inject])
+                                       (require 'aprint.core)
+                                       (require 'clojure.pprint)
+                                       (require 'clojure.tools.trace)
+                                       (require 'criterium.core)
+                                       (inject/in clojure.core >
+                                                  [aprint.core aprint]
+                                                  [clojure.pprint pprint]
+                                                  [clojure.tools.trace trace]
+                                                  [criterium.core bench])]}
              :test       {:dependencies [[http-kit.fake "0.2.1"]]}})
