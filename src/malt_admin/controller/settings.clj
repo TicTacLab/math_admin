@@ -16,7 +16,8 @@
 
     (render "settings/index"
             req
-            {:form (assoc forms/settings
+            {:app-version (-> "project.clj" slurp read-string (nth 2))
+             :form (assoc forms/settings
                      :values settings
                      :problems problems
                      :action "/settings"
