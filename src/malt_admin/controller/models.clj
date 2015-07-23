@@ -173,13 +173,17 @@
         (log/errorf "Error during parsing malt-params: %s" res)
         {}))))
 
+(defn remove-invalid-outcomes [outcomes]
+  (let [has-valid-coef? (comp number? :coef)]
+    (filter has-valid-coef? outcomes)))
+
 (defn parse-calc-result! [body]
-  (let [packet (pb/protobuf-load Packet body)]
+  (let [packet (json/parse-string body true)]
     (if (= (:type packet) :error)
       (throw (RuntimeException. (if (= (:error_type packet) :inprogress)
                                   "Calculation already in progress"
                                   (:error packet)))))
-    {:result packet}))
+    {:result (update-in packet [:data] remove-invalid-outcomes)}))
 
 (defn- calculate [node port ssid id rev params]
   (try
@@ -192,7 +196,7 @@
           {:keys [body error status]} @(http/post url {:body    (json/generate-string malt-params)
                                                        :headers {"Content-type" "text/plain"}
                                                        :timeout 60000
-                                                       :as      :byte-array})]
+                                                       :as      :text})]
       (when error (throw error))
       (when-not (= status 200)
         (throw (RuntimeException. (format "Bad Status Code: %d" status))))
