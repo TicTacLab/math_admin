@@ -81,7 +81,7 @@ window.OUT_PARAMS = [[ json-out-params|safe ]];
 
     </div>
     <div class="col-md-9">
-        <span class="label label-default pull-right">Total time: [[ calc-result-total-timer ]] ms</span>
+        <span class="label label-default pull-right">Total time: [[ calc-result-total-timer|double-format:0 ]] ms</span>
         [% for mgp-code, markets in calc-result.data %]
         <div class="row">
             <div class="metro">
@@ -105,10 +105,10 @@ window.OUT_PARAMS = [[ json-out-params|safe ]];
                                 <br/>
                                 [% if outcome.timer %]
                                   <span class="[% if outcome.timer > 1 %]text-warning[% endif %]">
-                                      [% if outcome.timer = 0 %]
+                                      [% if outcome.timer <= 1 %]
                                       &lt; 1 ms
                                       [% else %]
-                                      [[ outcome.timer ]] ms
+                                      [[ outcome.timer|double-format:0 ]] ms
                                       [% endif %]
                                   </span>
                                 [% endif %]

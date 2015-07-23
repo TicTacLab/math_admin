@@ -188,7 +188,7 @@
 (defn- calculate [node port ssid id rev params]
   (try
     (let [malt-session-id (make-model-sid id rev ssid)
-          url (format "http://%s:%s/model/calc/%s"
+          url (format "http://%s:%s/model/calc/%s/profile"
                       node port malt-session-id)
           malt-params {:id id
                        :ssid malt-session-id
