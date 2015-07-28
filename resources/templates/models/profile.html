@@ -89,10 +89,7 @@ window.OUT_PARAMS = [[ json-out-params|safe ]];
                 [% for market, outcomes-groups in markets %]
                 <div class="tile" style="margin: 2px">
                     <h6 class="center" style="margin: 2px">
-                        [[ market.0 ]]
-                        [% if market.1 < 999999 %]
-                          ([[ market.1 ]][% if not market.2 = 0.0 %] [[ market.2 ]][% endif %])
-                        [% endif %]
+                        [[market|format-market]]
                     </h6>
                     <table class="table" style="margin: 0px">
                         [% for outcomes in outcomes-groups %]

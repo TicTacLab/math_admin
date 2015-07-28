@@ -15,7 +15,6 @@
             [org.httpkit.client :as http]
             [clojure.tools.trace :refer [trace]]
             [clojure.pprint :refer [pprint]]
-            [aprint.core :refer [aprint]]
             [clojure.walk :refer [keywordize-keys]]
             [clojure.tools.logging :as log]
             [flatland.protobuf.core :as pb])
@@ -231,6 +230,12 @@
             pkey2 (into [priority2] key2)]
         (compare pkey1 pkey2)))))
 
+
+(defn stringify-params [calc-result]
+  (->> calc-result
+       (map #(update-in % [:param] str))
+       (map #(update-in % [:param2] str))))
+
 (defn format-calc-result [calc-result]
   (let [calc-result (into {} calc-result)
         mgp-comparator (-> calc-result
@@ -243,6 +248,7 @@
     (update-in calc-result [:data]
                (fn [data]
                  (->> data
+                      (stringify-params)
                       (group-by :mgp_code)
                       (map (fn [[mgp_code outcomes]]
                              (vector mgp_code (->> outcomes
@@ -256,7 +262,6 @@
                                                    ;; partition bus for 6 columns
                                                    (map (fn [[market outcomes]]
                                                           [market (partition-all 6 outcomes)]))))))
-
                       (into (sorted-map-by mgp-comparator)))))))
 
 (defn render-profile-page [req model-id rev & {:keys [problems flash in-params out-params log-session-id]}]
