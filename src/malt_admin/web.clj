@@ -85,15 +85,15 @@
       (wrap-with-web web)
       (wrap-with-stacktrace)))
 
-(defrecord Web [host port server storage handler]
+(defrecord Web [host port server storage handler offloader]
   component/Lifecycle
 
   (start [component]
     (let [handler (app component)
           srv (http-kit/run-server handler {:port port
-                                                    :host host
-                                                    :max-body 52428800 ;; 50Mb
-                                                    :join? false})]
+                                            :host host
+                                            :max-body 52428800 ;; 50Mb
+                                            :join? false})]
       (selmer.parser/set-resource-path! (clojure.java.io/resource "templates"))
       (if (= (:app-env @c/config) "production")
         (selmer.parser/cache-on!)

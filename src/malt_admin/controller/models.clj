@@ -2,6 +2,7 @@
   (:require [malt-admin.view :refer (render)]
             [malt-admin.form.model :as form]
             [malt-admin.audit :refer [audit]]
+            [malt-admin.offloader :as off]
             [malt-admin.storage
              [log :as slog]
              [models :as models]
@@ -54,7 +55,7 @@
     model))
 
 (defn do-upload [{params :params
-                  {storage :storage} :web
+                  {:keys [storage offloader]} :web
                   :as req}]
   (fp/with-fallback #(malt-admin.controller.models/upload (assoc req :problems %))
     (let [values (->> params
@@ -74,6 +75,7 @@
         (do
           (models/write-model! storage values)
           (audit req :upload-model (dissoc values :file))
+          (off/offload-model! offloader (:id values))
           (redirect-with-flash "/models" {:success "DONE"}))))))
 
 (defn edit [{{storage :storage} :web
@@ -87,7 +89,7 @@
                                             :method "PUT"
                                             :problems problems)})))
 
-(defn replace [{{storage :storage} :web
+(defn replace [{{:keys [storage offloader]} :web
                 params             :params
                 :as                req}]
   (fp/with-fallback #(malt-admin.controller.models/edit (assoc req :problems %))
@@ -112,6 +114,7 @@
              (cache-q/insert-in-params! storage new-rev))
         (cache/clear storage id old-rev))
       (audit req :replace-model (dissoc values :file))
+      (off/offload-model! offloader id)
       (redirect-with-flash "/models" {:success (format "Model with id %d was replaced" id)}))))
 
 (defn delete [{{id :id}           :params
