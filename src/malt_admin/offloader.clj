@@ -66,7 +66,7 @@
       (git-push! repo-path)
       (log/infof "model %s commited" (:id model)))
     (catch Exception e
-      (log/error e "white commit-model")))
+      (log/error e "while commit-model")))
   repo-path)
 
 ;; PUBLIC API
