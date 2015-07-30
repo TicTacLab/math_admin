@@ -26,7 +26,7 @@
   (mapv (partial write-model-to-file! folder-path) models))
 
 (defn git-clone! [remote-repo-path repo-path]
-  (sh "git" "clone" remote-repo-path repo-path))
+  (prn (sh "git" "clone" remote-repo-path repo-path)))
 
 (defn git-pull! [repo-path]
   (sh "git" "pull" :dir repo-path))
