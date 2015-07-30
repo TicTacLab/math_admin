@@ -9,6 +9,7 @@
       "192.168.167.145",
       "192.168.167.146"
     ],
+    "offload-repo": null,
     "zabbix-host": null,
     "zabbix-port": 10051,
     "monitoring-hostname": null,
