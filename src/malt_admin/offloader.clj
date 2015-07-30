@@ -58,13 +58,13 @@
 (defn add-and-commit-model! [repo-path storage model-id]
   (try
     (let [model (models/get-model-file storage model-id)
-          id (:id model)
-          message (str "update model " id)]
+          file-name (:file_name model)
+          message (str "update model " file-name)]
       (write-model-to-file! repo-path model)
       (git-add-all! repo-path)
       (git-commit! repo-path message)
       (git-push! repo-path)
-      (log/infof "model %s commited" id))
+      (log/infof "model %s commited" (:id model)))
     (catch Exception e
       (log/error e "white commit-model")))
   repo-path)
