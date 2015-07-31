@@ -26,6 +26,7 @@
   (mapv (partial write-model-to-file! folder-path) models))
 
 (defn git-init! [repo-path]
+  (sh "git" "config" "push.default" "current" :dir repo-path)
   (sh "git" "config" "user.email" "malt@deploy" :dir repo-path)
   (sh "git" "config" "user.name" "malt_deploy" :dir repo-path))
 
@@ -115,6 +116,6 @@
 
 
 (comment
-  (write-models-to-folder! "models" (models/get-models (:storage dev/system)))
+  (write-models-to-folder! "all-models" (models/get-models (:storage dev/system)))
   )
 
