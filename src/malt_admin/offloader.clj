@@ -30,7 +30,7 @@
   (sh "git" "config" "user.name" "malt_deploy" :dir repo-path))
 
 (defn git-clone! [remote-repo-path repo-path]
-  (log/debug (prn-str (sh "git" "clone" remote-repo-path repo-path))))
+  (sh "git" "clone" remote-repo-path repo-path))
 
 (defn git-pull! [repo-path]
   (sh "git" "pull" :dir repo-path))
@@ -50,15 +50,11 @@
   (git-push! repo-path))
 
 (defn init-repo! [repo-path remote-repo-path]
-  (log/debugf "in init repo %s %s" repo-path (.getAbsoluteFile (io/file repo-path)) remote-repo-path)
   (try
     (when-not (.exists (io/file repo-path))
-      (log/debug "clonning repo"
-                 (git-clone! remote-repo-path repo-path))
+      (git-clone! remote-repo-path repo-path)
       (git-init! repo-path))
-    (log/debug "clonning pulling")
     (git-pull! repo-path)
-    (log/debug "clonning commiting all")
     (commit-all! repo-path)
     (catch Exception e
       (log/error e "while init-repo")))
