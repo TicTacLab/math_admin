@@ -53,8 +53,8 @@
   (log/debugf "in init repo %s %s" repo-path (.getAbsoluteFile (io/file repo-path)) remote-repo-path)
   (try
     (when-not (.exists (io/file repo-path))
-      (log/debug "clonning repo")
-      (git-clone! remote-repo-path repo-path)
+      (log/debug "clonning repo"
+                 (git-clone! remote-repo-path repo-path))
       (git-init! repo-path))
     (log/debug "clonning pulling")
     (git-pull! repo-path)
