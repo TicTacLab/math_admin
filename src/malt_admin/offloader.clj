@@ -25,6 +25,10 @@
 (defn write-models-to-folder! [folder-path models]
   (mapv (partial write-model-to-file! folder-path) models))
 
+(defn git-init! [repo-path]
+  (sh "git" "config" "user.email" "malt@deploy" :dir repo-path)
+  (sh "git" "config" "user.name" "malt_deploy" :dir repo-path))
+
 (defn git-clone! [remote-repo-path repo-path]
   (log/debug (prn-str (sh "git" "clone" remote-repo-path repo-path))))
 
@@ -50,7 +54,8 @@
   (try
     (when-not (.exists (io/file repo-path))
       (log/debug "clonning repo")
-      (git-clone! remote-repo-path repo-path))
+      (git-clone! remote-repo-path repo-path)
+      (git-init! repo-path))
     (log/debug "clonning pulling")
     (git-pull! repo-path)
     (log/debug "clonning commiting all")
