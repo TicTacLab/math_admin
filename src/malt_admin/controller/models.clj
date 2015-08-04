@@ -165,15 +165,17 @@
   (str ssid \- id \- rev))
 
 (defn- get-malt-params [node port model-id rev ssid]
-  (let [res @(http/get (format "http://%s:%s/model/in-params" node port)
-                       {:query-params {:ssid (make-model-sid model-id rev ssid)
-                                       :id model-id}
-                        :as :text})]
-    (if (= (:status res) 200)
-      (json/parse-string (:body res) true)
-      (do
-        (log/errorf "Error during parsing malt-params: %s" res)
-        {}))))
+  (let [url (format "http://%s:%s/model/%s/%s/in-params"
+                    node
+                    port
+                    model-id
+                    (make-model-sid model-id rev ssid))
+        {:keys [status error body]} @(http/get url {:as :text})
+        response (json/parse-string body true)]
+    (cond
+      error (log/error error "Error when get-malt-params")
+      (not= 200 status) (log/error "Server error response in get-malt-params: " response)
+      :else response)))
 
 (defn remove-invalid-outcomes [outcomes]
   (let [has-valid-coef? (comp number? :coef)]
