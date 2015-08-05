@@ -165,7 +165,7 @@
   (str ssid \- id \- rev))
 
 (defn- get-malt-params [node port model-id rev ssid]
-  (let [url (format "http://%s:%s/model/%s/%s/in-params"
+  (let [url (format "http://%s:%s/models/%s/%s/in-params"
                     node
                     port
                     model-id
