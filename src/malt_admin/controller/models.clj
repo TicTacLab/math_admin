@@ -175,7 +175,7 @@
     (cond
       error (log/error error "Error when get-malt-params")
       (not= 200 status) (log/error "Server error response in get-malt-params: " response)
-      :else response)))
+      :else (:data response))))
 
 (defn remove-invalid-outcomes [outcomes]
   (let [has-valid-coef? (comp number? :coef)]
