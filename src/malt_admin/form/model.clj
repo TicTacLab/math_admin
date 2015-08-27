@@ -18,4 +18,4 @@
   (-> form
       (f/merge-fields [{:name :id :readonly true}
                        {:name :file_name :type :text :disabled true}
-                       {:name :in_params_changed :type :checkbox :label "IN params changed" :datatype :boolean :value true}])))
+                       {:name :in_params_changed :type :checkbox :label "IN params changed" :datatype :boolean :value true :unchecked-value false}])))

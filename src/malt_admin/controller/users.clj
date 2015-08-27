@@ -64,10 +64,10 @@
                {storage :storage} :web
                :as req}]
   (fp/with-fallback #(malt-admin.controller.users/edit (assoc req :problems %))
-    (let [values (fp/parse-params form/edit-form params)]
+    (let [values (merge {:is_admin false} (fp/parse-params form/edit-form params))]
       (storage/update-user! storage (:login params) values)
       (audit/info req :update-user (select-keys params [:login :name :is_admin]))
-      (redirect-with-flash "/users" {:success (format "User \"%s\" successfully updated" (:login values))}))))
+      (redirect-with-flash "/users" {:success (format "User \"%s\" successfully updated" (:login params))}))))
 
 (defn update-password [{params :params
                         {storage :storage} :web
@@ -78,7 +78,7 @@
                                                         (encrypt-password)
                                                         (dissoc :password_confirmation)))
       (audit/info req :update-user-password (select-keys params [:login]))
-      (redirect-with-flash "/users" {:success (format "Password for \"%s\" successfully updated" (:login values))}))))
+      (redirect-with-flash "/users" {:success (format "Password for \"%s\" successfully updated" (:login params))}))))
 
 (defn change-status [{{:keys [action login]} :params
                       {storage :storage}     :web :as req}]
