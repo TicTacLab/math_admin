@@ -2,7 +2,7 @@
   (:require [malt-admin.view :refer (render)]
             [malt-admin.storage.configuration :as cfg]
             [malt-admin.form.settings :as forms]
-            [malt-admin.audit :refer [audit]]
+            [malt-admin.audit :as audit]
             [formative.parse :as fp]
             [ring.util.response :as res]))
 
@@ -29,5 +29,5 @@
   (fp/with-fallback #(index (assoc req :problems %))
     (let [settings (fp/parse-params forms/settings params)]
       (cfg/write-settings! storage settings)
-      (audit req :udpate-settings settings)
+      (audit/info req :udpate-settings settings)
       (res/redirect-after-post "/settings"))))

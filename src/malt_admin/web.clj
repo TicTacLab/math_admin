@@ -12,7 +12,7 @@
              [filler :as filler]
              [auth :as auth]]
             [malt-admin.view :refer (render render-error)]
-            [malt-admin.middleware :refer (wrap-check-session wrap-with-web wrap-with-stacktrace)]
+            [malt-admin.middleware :refer :all]
             [ring.util.response :as res]
             [ring.middleware
              [cookies :refer (wrap-cookies)]
@@ -75,12 +75,14 @@
 (defn app [web]
   (-> routes
       (wrap-check-session)
+      (wrap-csrf-cookie)
+      (wrap-check-csrf)
       (wrap-webjars)
       (wrap-keyword-params)
       (wrap-multipart-params)
       (wrap-params)
       (wrap-flash)
-      (wrap-session)
+      (wrap-session {:cookie-name "id"})
       (wrap-cookies)
       (wrap-with-web web)
       (wrap-with-stacktrace)))

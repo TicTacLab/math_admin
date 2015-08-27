@@ -1,7 +1,7 @@
 (ns malt-admin.controller.models
   (:require [malt-admin.view :refer (render)]
             [malt-admin.form.model :as form]
-            [malt-admin.audit :refer [audit]]
+            [malt-admin.audit :as audit]
             [malt-admin.offloader :as off]
             [malt-admin.storage
              [log :as slog]
@@ -74,7 +74,7 @@
         :else
         (do
           (models/write-model! storage values)
-          (audit req :upload-model (dissoc values :file))
+          (audit/info req :upload-model (dissoc values :file))
           (off/offload-model! offloader (:id values))
           (redirect-with-flash "/models" {:success "DONE"}))))))
 
@@ -113,7 +113,7 @@
         (->> (in-params/get-in-params storage id)
              (cache-q/insert-in-params! storage new-rev))
         (cache/clear storage id old-rev))
-      (audit req :replace-model (dissoc values :file))
+      (audit/info req :replace-model (dissoc values :file))
       (off/offload-model! offloader id)
       (redirect-with-flash "/models" {:success (format "Model with id %d was replaced" id)}))))
 
@@ -125,7 +125,7 @@
     (models/delete-model! storage model-id)
     (cache/clear storage model-id rev)
     (in-params/delete! storage model-id)
-    (audit req :delete-model {:id model-id})
+    (audit/info req :delete-model {:id model-id})
     (redirect-with-flash "/models"
                          {:success (format "Model with id %d was deleted"
                                            model-id)})))
@@ -134,7 +134,7 @@
                  {storage :storage} :web
                  :as req}]
   (let [file (models/get-model-file storage (Integer/valueOf ^String id))]
-    (audit req :download-model {:id id})
+    (audit/info req :download-model {:id id})
     {:body    (:file file)
      :headers {"Content-Type"        (:content_type file)
                "Content-Disposition" (str "attachment; filename=" (:file_name file))}}))
