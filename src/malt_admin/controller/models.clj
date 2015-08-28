@@ -165,47 +165,45 @@
   (str ssid \- id \- rev))
 
 (defn- get-malt-params [node port model-id rev ssid]
-  (let [res @(http/get (format "http://%s:%s/model/in-params" node port)
-                       {:query-params {:ssid (make-model-sid model-id rev ssid)
-                                       :id model-id}
-                        :as :text})]
-    (if (= (:status res) 200)
-      (json/parse-string (:body res) true)
-      (do
-        (log/errorf "Error during parsing malt-params: %s" res)
-        {}))))
+  (let [url (format "http://%s:%s/models/%s/%s/in-params"
+                    node
+                    port
+                    model-id
+                    (make-model-sid model-id rev ssid))
+        {:keys [status error body]} @(http/get url {:as :text})
+        response (json/parse-string body true)]
+    (cond
+      error (log/error error "Error when get-malt-params")
+      (not= 200 status) (log/error "Server error response in get-malt-params: " response)
+      :else (:data response))))
 
 (defn remove-invalid-outcomes [outcomes]
   (let [has-valid-coef? (comp number? :coef)]
     (filter has-valid-coef? outcomes)))
 
-(defn parse-calc-result! [body]
-  (let [packet (json/parse-string body true)]
-    (if (= (:type packet) :error)
-      (throw (RuntimeException. (if (= (:error_type packet) :inprogress)
-                                  "Calculation already in progress"
-                                  (:error packet)))))
-    {:result (update-in packet [:data] remove-invalid-outcomes)}))
+(defn wrap-error
+  ([msg]
+   (log/error msg)
+   [:error msg])
+  ([e msg]
+    (log/error e msg)
+   [:error (str msg " " (.getLocalizedMessage e))]))
 
 (defn- calculate [node port ssid id rev params]
-  (try
-    (let [malt-session-id (make-model-sid id rev ssid)
-          url (format "http://%s:%s/model/calc/%s/profile"
-                      node port malt-session-id)
-          malt-params {:id id
-                       :ssid malt-session-id
-                       :params (map (fn [[id value]] {:id id :value value}) params)}
-          {:keys [body error status]} @(http/post url {:body    (json/generate-string malt-params)
-                                                       :headers {"Content-type" "text/plain"}
-                                                       :timeout 60000
-                                                       :as      :text})]
-      (when error (throw error))
-      (when-not (= status 200)
-        (throw (RuntimeException. (format "Bad Status Code: %d" status))))
-      (parse-calc-result! body))
-    (catch Exception e
-      (log/error e "While malt calculation")
-      {:error (format "Error: %s" (.getLocalizedMessage e))})))
+  (let [malt-session-id (make-model-sid id rev ssid)
+        url (format "http://%s:%s/models/%s/%s/profile"
+                    node port id malt-session-id)
+        malt-params {:model_id id
+                     :event_id malt-session-id
+                     :params   (map (fn [[id value]] {:id id :value value}) params)}
+        {:keys [body error status]} @(http/post url {:body    (json/generate-string malt-params)
+                                                     :timeout 60000
+                                                     :as      :text})
+        json-response (json/parse-string body true)]
+    (cond
+      error (wrap-error error "Error while calculate")
+      (not= status 200) (wrap-error (str "Unexpected result while calculate: " json-response))
+      :else [:ok (:data json-response)])))
 
 (defn split [pred coll]
   [(filter pred coll) (remove pred coll)])
@@ -270,9 +268,9 @@
 (defn render-profile-page [req model-id rev & {:keys [problems flash in-params out-params log-session-id]}]
   (let [{malt-host :profiling-malt-host
          malt-port :profiling-malt-port} (-> req :web :storage cfg/read-settings)
-         malt-params (get-malt-params malt-host malt-port model-id rev (:session-id req))
+        malt-params (get-malt-params malt-host malt-port model-id rev (:session-id req))
         values (or in-params
-                    (malt-params->form-values malt-params))
+                   (malt-params->form-values malt-params))
         {model-file :file_name model-name :name} (-> req
                                                      :web
                                                      :storage
@@ -310,26 +308,22 @@
          malt-port :profiling-malt-port} (-> req :web :storage cfg/read-settings)
         form (some->> (get-malt-params malt-host malt-port id rev session-id)
                       malt-params->form)
-        in-params (dissoc params :id :submit :rev)]
+        in-params (dissoc params :id :submit :rev)
+        render (partial render-profile-page req id rev :in-params in-params)]
 
     (fp/with-fallback #(render-profile-page req id
                                             :problems %
                                             :in-params in-params)
       (fp/parse-params form in-params)
-      (let [result (calculate malt-host
-                              malt-port
-                              session-id
-                              id
-                              rev
-                              in-params)]
-
-        (if (contains? result :result)
-          (render-profile-page req id rev
-                               :in-params in-params
-                               :out-params (:result result))
-          (render-profile-page req id rev
-                               :in-params in-params
-                               :flash result))))))
+      (let [[type result] (calculate malt-host
+                                     malt-port
+                                     session-id
+                                     id
+                                     rev
+                                     in-params)]
+        (condp = type
+          :ok (render :out-params {:data (remove-invalid-outcomes result)})
+          :error (render :flash {:error result}))))))
 
 (defn read-log [{{storage :storage} :web
                  {:keys [id ssid]} :params :as req}]
