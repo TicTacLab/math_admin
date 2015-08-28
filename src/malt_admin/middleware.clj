@@ -17,15 +17,31 @@
   (some #(re-find % uri)
         [#"^/$" #"^/auth$" #"^/static/*"]))
 
+(defn session-syntax? [session-id]
+  (try
+    (UUID/fromString session-id)
+    (catch IllegalArgumentException _
+      false)
+    (catch NullPointerException _
+      false)))
+
 (defmiddleware wrap-check-session
   [h] [{uri :uri web :web :as req}]
-  (let [session-id  (get-in req [:session :sid])
-        login (storage/get-login (:storage web) session-id)]
+  (let [session-id  (get-in req [:session :sid])]
     (cond
-      (allowed-for-all? uri) (h req )
-      login (do (storage/create-or-update-session! (:storage web) login session-id)
-                (h (assoc req :session-id session-id)))
-      :else (res/redirect "/auth"))))
+      (allowed-for-all? uri)
+      (h req)
+
+      (nil? session-id)
+      (res/redirect "/auth")
+
+      (not (session-syntax? session-id))
+      (do (audit/warn req :invalid-session-id session-id)
+          (render-error req 403))
+
+      (storage/get-login (:storage web) session-id)
+      (do (storage/update-session! (:storage web) session-id)
+          (h (assoc req :session-id session-id))))))
 
 (defn wrap-with-stacktrace [h]
   (if (not= (:app-env @c/config "production"))
