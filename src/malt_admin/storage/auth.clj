@@ -5,7 +5,7 @@
             [clojure.set :refer [rename-keys]])
   (:import (java.util UUID)))
 
-(defn get-login [{conn :conn} session-id]
+(defn get-login-by-session-id [{conn :conn} session-id]
   (:login (cql/get-one conn "sessions"
                        (where [[= :session_id (UUID/fromString session-id)]]))))
 
@@ -17,7 +17,7 @@
     (str session-id)))
 
 (defn update-session! [{:keys [conn session-ttl] :as st} session-id]
-  (let [login (get-login st session-id)]
+  (let [login (get-login-by-session-id st session-id)]
     (cql/insert conn "sessions" {:login      login
                                  :session_id (UUID/fromString session-id)}
                 (using :ttl session-ttl))

@@ -39,7 +39,7 @@
       (do (audit/warn req :invalid-session-id session-id)
           (render-error req 403))
 
-      (storage/get-login (:storage web) session-id)
+      (storage/get-login-by-session-id (:storage web) session-id)
       (do (storage/update-session! (:storage web) session-id)
           (h (assoc req :session-id session-id))))))
 
@@ -82,3 +82,6 @@
         (audit/warn req :csrf-token-don't-match (get-in req [:form-params "csrf"]))
         (render-error req 403)))
     (h req)))
+
+(defmiddleware wrap-no-cache-cookies [h] [req]
+  (assoc-in (h req) [:headers "cache-control"] "no-cache=\"Set-Cookie,Set-Cookie2\""))

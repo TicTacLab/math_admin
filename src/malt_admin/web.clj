@@ -84,6 +84,7 @@
       (wrap-flash)
       (wrap-session {:cookie-name "id"})
       (wrap-cookies)
+      (wrap-no-cache-cookies)
       (wrap-with-web web)
       (wrap-with-stacktrace)))
 
