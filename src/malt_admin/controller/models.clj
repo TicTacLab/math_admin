@@ -1,7 +1,6 @@
 (ns malt-admin.controller.models
-  (:require [malt-admin.view.utils :refer [render h]]
+  (:require [malt-admin.view :refer (render)]
             [malt-admin.form.model :as form]
-            [malt-admin.view.models :as view]
             [malt-admin.audit :as audit]
             [malt-admin.offloader :as off]
             [malt-admin.storage
@@ -26,7 +25,7 @@
            [java.io File]))
 
 (defn index [{{storage :storage} :web :as req}]
-  (render view/index req {:models (models/get-models storage)}))
+  (render "models/index" req {:models (models/get-models storage)}))
 
 (defn upload [{:keys [problems params] :as req}]
   (render "models/upload" req {:upload-form (assoc form/upload-form
@@ -83,12 +82,12 @@
              {id :id :as params} :params
              problems :problems
              :as req}]
-  (let [model (>trace (models/get-model storage (Integer/valueOf ^String id)))]
-    (render view/edit req {:edit-form (assoc form/edit-form
-                                        :values (>trace (if problems params model))
-                                        :action (h "/models/" id)
-                                        :method "PUT"
-                                        :problems problems)})))
+  (let [model (models/get-model storage (Integer/valueOf ^String id))]
+    (render "models/edit" req {:edit-form (assoc form/edit-form
+                                            :values (if problems params model)
+                                            :action (str "/models/" id)
+                                            :method "PUT"
+                                            :problems problems)})))
 
 (defn replace [{{:keys [storage offloader]} :web
                 params             :params

@@ -1,21 +1,15 @@
-(ns malt-admin.view.utils
-  (:require [selmer.filters :as filters]
+(ns malt-admin.view
+  (:require [selmer.parser :as selmer]
+            [selmer.filters :as filters]
             [formative.core :as f]
             [hiccup.core :as h]
             [clojure.pprint :refer [pprint]]
             [ring.util.response :as res]
             [malt-admin.config :as c]
-            [clojure.string :as str]
-            [hiccup.page :as hiccup])
+            [clojure.string :as str])
   (:import [java.text SimpleDateFormat]
-           [java.util TimeZone]
-           (org.owasp.encoder Encode)))
+           [java.util TimeZone]))
 
-(defn h
-  "Escapes html content:
-     [:body (h UNTRUSTED)]"
-  [& texts]
-  (Encode/forHtmlContent (apply str texts)))
 
 (defn- format-timestamp [pattern timestamp-sec]
   (let [ timestamp (* (Long/valueOf ^String timestamp-sec) 1000)]
@@ -43,12 +37,14 @@
 (defn render-form [form]
   (-> form
       (assoc :renderer :bootstrap3-stacked)
-      (f/render-form)))
+      (f/render-form)
+      (h/html)))
 
 (filters/add-filter! :pprint pprint-str)
 (filters/add-filter! :js-date #(format-timestamp "yyyy-MM-dd" %))
 (filters/add-filter! :name name)
 (filters/add-filter! :format-market format-market)
+(filters/add-filter! :form render-form)
 
 (def csrf-script "(function() {
   var cookies = document.cookie;
@@ -66,7 +62,7 @@
   })
 }());")
 
-(defn render [template-fun req context]
+(defn render [template-name req context]
   (let [{session-id :session-id
          flash      :flash} req
          default-context {:signed-in?  (boolean session-id)
@@ -76,9 +72,14 @@
                           :flash       flash
                           :csrf-script csrf-script}
         context (merge context default-context)]
-    (hiccup/html5 (template-fun context))))
+    (selmer/render-file (str template-name ".html") context
+                        {:tag-open \[
+                         :tag-close \]
+                         :filter-open \[
+                         :filter-close \]})))
 
-(defn render-error [req template-fn code]
-  (-> (render template-fn req {})
+(defn render-error [req code]
+  (-> (format "errors/%d" code)
+      (render req {})
       res/response
       (res/status code)))

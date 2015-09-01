@@ -1,0 +1,46 @@
+[% extends "layout.html" %]
+[% block body %]
+<h1>Models</h1>
+[% if admin? %]
+<a href="/models/upload" class="btn btn-primary btn-lg">Upload New</a>
+[% endif %]
+<table class="table table-hover">
+    <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>File Name</th>
+        <th>In Sheet Name</th>
+        <th>Out Sheet Name</th>
+        <th>Last Modified</th>
+        <th>Actions</th>
+    </tr>
+    [% for model in models %]
+    <tr class="model" data-rev="[[model.rev]]" data-id="[[model.id]]">
+        <td class="model-id">[[model.id]]</td>
+        <td class="model-name">[[model.name]]</td>
+        <td class="model-file-name">[[model.file_name]]</td>
+        <td class="model-in-sheet-name">[[model.in_sheet_name]]</td>
+        <td class="model-out-sheet-name">[[model.out_sheet_name]]</td>
+        <td class="model-last-modified">[[model.last_modified]]</td>
+        <td>
+          <form action="/models/[[model.id]]" method="POST" class="form-inline">
+            <div class="btn-group">
+                <a class="btn btn-primary" href="/models/[[model.id]]/[[model.rev]]/profile">Profile</a>
+                [% if admin? %]
+                <a class="btn btn-default confirmable" href="/models/[[model.id]]/download">Download</a>
+                <a class="btn btn-default" href="/models/[[model.id]]/edit">Replace</a>
+                <input type="hidden" name="_method" value="DELETE"/>
+                <button type="submit" class="btn btn-danger confirmable">Delete</button>
+                [% endif %]
+            </div>
+          </form>
+        </td>
+    </tr>
+    [% endfor %]
+</table>
+
+<script>
+    $('.confirmable').click(function() { return confirm('Are you sure?') })
+</script>
+
+[% endblock %]

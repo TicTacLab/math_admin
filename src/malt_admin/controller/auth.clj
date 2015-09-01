@@ -1,6 +1,5 @@
 (ns malt-admin.controller.auth
-  (:require [malt-admin.view.utils :refer (render)]
-            [malt-admin.view.auth :as view]
+  (:require [malt-admin.view :refer (render)]
             [malt-admin.form.auth :as form]
             [malt-admin.helpers :refer [redirect-with-flash error!]]
             [malt-admin.storage.auth :as storage]
@@ -11,7 +10,7 @@
               :as   req}]
   (if session-id
       (res/redirect "/")                                    ;; if already signed in, do nothing
-      (render view/index req {:form (assoc form/signin
+      (render "auth/index" req {:form (assoc form/signin
                                         :problems problems
                                         :values (select-keys params [:login])
                                         :action "/auth"
