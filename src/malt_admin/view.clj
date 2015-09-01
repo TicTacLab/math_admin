@@ -8,8 +8,14 @@
             [malt-admin.config :as c]
             [clojure.string :as str])
   (:import [java.text SimpleDateFormat]
-           [java.util TimeZone]))
+           [java.util TimeZone]
+           (org.owasp.encoder Encode)
+           (com.google.json JsonSanitizer)))
 
+(intern 'selmer.filter-parser 'escape-html* #(Encode/forHtml %))
+
+(defn json [s]
+  (JsonSanitizer/sanitize s))
 
 (defn- format-timestamp [pattern timestamp-sec]
   (let [ timestamp (* (Long/valueOf ^String timestamp-sec) 1000)]

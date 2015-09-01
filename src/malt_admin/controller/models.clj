@@ -308,7 +308,7 @@
          malt-port :profiling-malt-port} (-> req :web :storage cfg/read-settings)
         form (some->> (get-malt-params malt-host malt-port id rev session-id)
                       malt-params->form)
-        in-params (dissoc params :id :submit :rev)
+        in-params (dissoc params :id :submit :rev :csrf)
         render (partial render-profile-page req id rev :in-params in-params)]
 
     (fp/with-fallback #(render-profile-page req id

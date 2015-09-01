@@ -34,7 +34,11 @@
                  [clj-webdriver "0.6.1" :exclusions [com.google.guava/guava org.seleniumhq.selenium/selenium-server]]
                  [org.seleniumhq.selenium/selenium-server "2.44.0" :exclusions [com.google.guava/guava org.yaml/snakeyaml]]
                  [com.aphyr/prism "0.1.1"]
-                 [org.cassandraunit/cassandra-unit "2.0.2.2" :exclusions [org.slf4j/slf4j-log4j12]]]
+                 [org.cassandraunit/cassandra-unit "2.0.2.2" :exclusions [org.slf4j/slf4j-log4j12]]
+
+                 ;Sanitizers
+                 [org.owasp.encoder/encoder "1.2"]
+                 [com.mikesamuel/json-sanitizer "1.0"]]
   :repl-options {:timeout 120000
                  :init-ns user}
   :main malt-admin.main
