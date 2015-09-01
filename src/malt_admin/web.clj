@@ -21,7 +21,8 @@
              [webjars :refer (wrap-webjars)]
              [keyword-params :refer (wrap-keyword-params)]
              [multipart-params :refer (wrap-multipart-params)]]
-            [malt-admin.config :as c]))
+            [malt-admin.config :as c]
+            [malt-admin.view.errors :as errors]))
 
 
 (defmacro allow [req role body]
@@ -29,7 +30,7 @@
            (and (= ~role :admin)
                 (get-in ~req [:session :is-admin])))
      ~body
-     (render-error ~req 403)))
+     (render-error ~req errors/e403 403)))
 
 
 (defroutes routes
@@ -62,12 +63,12 @@
   (PUT "/users/:login/update-password" req (allow req :admin (users/update-password req)))
   (PUT "/users/:login/change-status" req (allow req :admin (users/change-status req)))
 
-  (GET "/static/401" req (render-error req 401))
-  (GET "/static/403" req (render-error req 403))
-  (GET "/static/404" req (render-error req 404))
-  (GET "/static/500" req (render-error req 500))
+  (GET "/static/401" req (render-error req errors/e401 401))
+  (GET "/static/403" req (render-error req errors/e403 403))
+  (GET "/static/404" req (render-error req errors/e404 404))
+  (GET "/static/500" req (render-error req errors/e500 500))
 
-  (ANY "/*" req (render-error req 404)))
+  (ANY "/*" req (render-error req errors/e404 404)))
 
 (defn app [web]
   (-> routes

@@ -3,6 +3,7 @@
             [clojure.tools.logging :as log]
             [ring.middleware.stacktrace :as stacktrace]
             [malt-admin.view.utils :refer (render render-error)]
+            [malt-admin.view.errors :as errors]
             [malt-admin.storage.auth :as storage]
             [malt-admin.config :as c]
             [malt-admin.audit :as audit])
@@ -37,7 +38,7 @@
 
       (not (session-syntax? session-id))
       (do (audit/warn req :invalid-session-id session-id)
-          (render-error req 403))
+          (render-error req errors/e403 403))
 
       (storage/get-login-by-session-id (:storage web) session-id)
       (do (storage/update-session! (:storage web) session-id)
@@ -51,10 +52,10 @@
         (h req)
         (catch SecurityException e
           (log/error e "Exception raised")
-          (render-error req 403))
+          (render-error req errors/e403 403))
         (catch IllegalStateException e
           (log/error e "Exception raised")
-          (render-error req 500))))))
+          (render-error req errors/e500 500))))))
 
 (defmiddleware wrap-with-web
   [h web] [req]
@@ -80,7 +81,7 @@
       (h req)
       (do
         (audit/warn req :csrf-token-don't-match (get-in req [:form-params "csrf"]))
-        (render-error req 403)))
+        (render-error req errors/e403 403)))
     (h req)))
 
 (defmiddleware wrap-no-cache-cookies [h] [req]

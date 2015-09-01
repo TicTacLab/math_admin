@@ -78,8 +78,7 @@
         context (merge context default-context)]
     (hiccup/html5 (template-fun context))))
 
-(defn render-error [req code]
-  (-> (format "errors/%d" code)
-      (render req {})
+(defn render-error [req template-fn code]
+  (-> (render template-fn req {})
       res/response
       (res/status code)))

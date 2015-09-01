@@ -1,6 +1,7 @@
 (ns malt-admin.view.models
   (:require [malt-admin.view.utils :as u :refer [h]]
-            [malt-admin.view.layout :refer [layout-body]]))
+            [malt-admin.view.layout :refer [layout-body]]
+            [malt-admin.form.model :as form]))
 
 (defn index [{:keys [admin? models] :as ctx}]
   (layout-body
@@ -37,9 +38,17 @@
                   (list
                     [:a.btn.btn-default.confirmable {:href (h "/models/" id "/download")}
                      "Download"]
-                    [:a.btn.btn-default {:href "/models/" id "/edit"}
+                    [:a.btn.btn-default {:href (h "/models/" id "/edit")}
                      "Replace"]
                     [:input {:type "hidden", :name "_method", :value "DELETE"}]
                     [:button.btn.btn-danger.confirmable {:type "submit"}
                      "Delete"]))]]]]))]]
       [:script "$('.confirmable').click(function() { return confirm('Are you sure?') })"])))
+
+(defn edit [{:keys [edit-form] :as ctx}]
+  (layout-body
+    ctx
+    (list
+      [:h1 "Replace Model"]
+      (u/render-form edit-form)
+      [:script "$('#field-submit').click (function () {return confirm ('Are you sure?')})"])))

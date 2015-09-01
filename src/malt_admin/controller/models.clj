@@ -1,5 +1,5 @@
 (ns malt-admin.controller.models
-  (:require [malt-admin.view.utils :refer (render)]
+  (:require [malt-admin.view.utils :refer [render h]]
             [malt-admin.form.model :as form]
             [malt-admin.view.models :as view]
             [malt-admin.audit :as audit]
@@ -83,12 +83,12 @@
              {id :id :as params} :params
              problems :problems
              :as req}]
-  (let [model (models/get-model storage (Integer/valueOf ^String id))]
-    (render "models/edit" req {:edit-form (assoc form/edit-form
-                                            :values (if problems params model)
-                                            :action (str "/models/" id)
-                                            :method "PUT"
-                                            :problems problems)})))
+  (let [model (>trace (models/get-model storage (Integer/valueOf ^String id)))]
+    (render view/edit req {:edit-form (assoc form/edit-form
+                                        :values (>trace (if problems params model))
+                                        :action (h "/models/" id)
+                                        :method "PUT"
+                                        :problems problems)})))
 
 (defn replace [{{:keys [storage offloader]} :web
                 params             :params
