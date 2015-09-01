@@ -14,8 +14,8 @@
 (defn h
   "Escapes html content:
      [:body (h UNTRUSTED)]"
-  [text]
-  (Encode/forHtmlContent text))
+  [& texts]
+  (Encode/forHtmlContent (apply str texts)))
 
 (defn- format-timestamp [pattern timestamp-sec]
   (let [ timestamp (* (Long/valueOf ^String timestamp-sec) 1000)]

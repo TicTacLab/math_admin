@@ -24,17 +24,19 @@
         [:span {:class "icon-bar"}]]]
       [:div {:id "navbar", :class "collapse navbar-collapse"}
        (when (:signed-in? ctx)
-        [:ul {:class "nav navbar-nav"}
-         (when (:admin? ctx)
-          [:li
-           [:a {:href "/settings"} "Settings"]]
-          [:li
-           [:a {:href "/users"} "Users"]])
-         [:li
-          [:a {:href "/models"} "Models"]]]
-        [:form {:action "/auth", :method "post", :class "navbar-form navbar-right"}
-         [:input {:type "hidden", :name "_method", :value "DELETE"}]
-         [:button {:type "submit", :class "btn btn-default"} "Sign out"]])]]]
+        (list
+         [:ul {:class "nav navbar-nav"}
+          (when (:admin? ctx)
+           (list
+            [:li
+             [:a {:href "/settings"} "Settings"]]
+            [:li
+             [:a {:href "/users"} "Users"]]
+            [:li
+             [:a {:href "/models"} "Models"]]))]
+         [:form {:action "/auth", :method "post", :class "navbar-form navbar-right"}
+          [:input {:type "hidden", :name "_method", :value "DELETE"}]
+          [:button {:type "submit", :class "btn btn-default"} "Sign out"]]))]]]
     [:div {:class "container-fluid"}
      [:div {:id "flash"}
       (when-let [msg (get-in ctx [:flash :success])]
@@ -50,3 +52,8 @@
          (h msg)]])]
      body
      [:script u/csrf-script]]]])
+
+(defn layout-body [ctx body]
+ (layout ctx {:body body :head nil}))
+
+

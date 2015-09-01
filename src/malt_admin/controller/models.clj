@@ -1,6 +1,7 @@
 (ns malt-admin.controller.models
   (:require [malt-admin.view.utils :refer (render)]
             [malt-admin.form.model :as form]
+            [malt-admin.view.models :as view]
             [malt-admin.audit :as audit]
             [malt-admin.offloader :as off]
             [malt-admin.storage
@@ -25,7 +26,7 @@
            [java.io File]))
 
 (defn index [{{storage :storage} :web :as req}]
-  (render "models/index" req {:models (models/get-models storage)}))
+  (render view/index req {:models (models/get-models storage)}))
 
 (defn upload [{:keys [problems params] :as req}]
   (render "models/upload" req {:upload-form (assoc form/upload-form
