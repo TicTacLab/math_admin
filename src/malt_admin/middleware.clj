@@ -2,7 +2,7 @@
   (:require [ring.util.response :as res]
             [clojure.tools.logging :as log]
             [ring.middleware.stacktrace :as stacktrace]
-            [malt-admin.view :refer (render render-error)]
+            [malt-admin.view.utils :refer (render render-error)]
             [malt-admin.storage.auth :as storage]
             [malt-admin.config :as c]
             [malt-admin.audit :as audit])

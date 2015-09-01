@@ -1,15 +1,21 @@
-(ns malt-admin.view
-  (:require [selmer.parser :as selmer]
-            [selmer.filters :as filters]
+(ns malt-admin.view.utils
+  (:require [selmer.filters :as filters]
             [formative.core :as f]
             [hiccup.core :as h]
             [clojure.pprint :refer [pprint]]
             [ring.util.response :as res]
             [malt-admin.config :as c]
-            [clojure.string :as str])
+            [clojure.string :as str]
+            [hiccup.page :as hiccup])
   (:import [java.text SimpleDateFormat]
-           [java.util TimeZone]))
+           [java.util TimeZone]
+           (org.owasp.encoder Encode)))
 
+(defn h
+  "Escapes html content:
+     [:body (h UNTRUSTED)]"
+  [text]
+  (Encode/forHtmlContent text))
 
 (defn- format-timestamp [pattern timestamp-sec]
   (let [ timestamp (* (Long/valueOf ^String timestamp-sec) 1000)]
@@ -37,14 +43,12 @@
 (defn render-form [form]
   (-> form
       (assoc :renderer :bootstrap3-stacked)
-      (f/render-form)
-      (h/html)))
+      (f/render-form)))
 
 (filters/add-filter! :pprint pprint-str)
 (filters/add-filter! :js-date #(format-timestamp "yyyy-MM-dd" %))
 (filters/add-filter! :name name)
 (filters/add-filter! :format-market format-market)
-(filters/add-filter! :form render-form)
 
 (def csrf-script "(function() {
   var cookies = document.cookie;
@@ -62,7 +66,7 @@
   })
 }());")
 
-(defn render [template-name req context]
+(defn render [template-fun req context]
   (let [{session-id :session-id
          flash      :flash} req
          default-context {:signed-in?  (boolean session-id)
@@ -72,11 +76,7 @@
                           :flash       flash
                           :csrf-script csrf-script}
         context (merge context default-context)]
-    (selmer/render-file (str template-name ".html") context
-                        {:tag-open \[
-                         :tag-close \]
-                         :filter-open \[
-                         :filter-close \]})))
+    (hiccup/html5 (template-fun context))))
 
 (defn render-error [req code]
   (-> (format "errors/%d" code)

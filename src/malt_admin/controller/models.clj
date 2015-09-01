@@ -1,5 +1,5 @@
 (ns malt-admin.controller.models
-  (:require [malt-admin.view :refer (render)]
+  (:require [malt-admin.view.utils :refer (render)]
             [malt-admin.form.model :as form]
             [malt-admin.audit :as audit]
             [malt-admin.offloader :as off]

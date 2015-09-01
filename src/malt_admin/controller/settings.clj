@@ -1,5 +1,5 @@
 (ns malt-admin.controller.settings
-  (:require [malt-admin.view :refer (render)]
+  (:require [malt-admin.view.utils :refer (render)]
             [malt-admin.storage.configuration :as cfg]
             [malt-admin.form.settings :as forms]
             [malt-admin.audit :as audit]

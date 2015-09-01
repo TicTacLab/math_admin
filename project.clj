@@ -23,6 +23,7 @@
                  [com.google.protobuf/protobuf-java "2.5.0"]
                  [formative "0.8.8" :exclusions [org.clojure/clojurescript
                                                  clj-time]]
+                 [org.owasp.encoder/encoder "1.2"]
                  [hiccup "1.0.5"]
                  [com.taoensso/nippy "2.5.2"]
                  [ring-webjars "0.1.0" :exclusions [org.slf4j/slf4j-nop]]

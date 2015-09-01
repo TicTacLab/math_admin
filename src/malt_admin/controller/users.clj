@@ -1,5 +1,5 @@
 (ns malt-admin.controller.users
-  (:require [malt-admin.view :refer (render)]
+  (:require [malt-admin.view.utils :refer (render)]
             [malt-admin.form.user :as form]
             [malt-admin.helpers :refer [redirect-with-flash]]
             [malt-admin.storage.users :as storage]
