@@ -15,6 +15,7 @@
             [malt-admin.middleware :refer :all]
             [ring.util.response :as res]
             [ring.middleware
+             [resource :refer (wrap-resource)]
              [cookies :refer (wrap-cookies)]
              [flash :refer (wrap-flash)]
              [session :refer (wrap-session)]
@@ -75,8 +76,10 @@
 (defn app [web]
   (-> routes
       (wrap-check-session)
+      (wrap-csp)
       (wrap-csrf-cookie)
       (wrap-check-csrf)
+      (wrap-resource "public")
       (wrap-webjars)
       (wrap-keyword-params)
       (wrap-multipart-params)

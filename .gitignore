@@ -10,7 +10,6 @@ config.json
 /.nrepl-port
 **/*.db
 .lein-env
-resources/public/js/
 resources/public/cljs/
 resources/public/vendor/
 .idea

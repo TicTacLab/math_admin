@@ -85,3 +85,14 @@
 
 (defmiddleware wrap-no-cache-cookies [h] [req]
   (assoc-in (h req) [:headers "cache-control"] "no-cache=\"Set-Cookie,Set-Cookie2\""))
+
+(defmiddleware wrap-csp [h] [req]
+  (let [csp (str "default-src 'self'; "
+                 "font-src 'self' https://themes.googleusercontent.com; "
+                 "base-uri 'self'; "
+                 "form-action 'self'; "
+                 "frame-ancestors 'self';")]
+    (-> (h req)
+        (assoc-in [:headers "content-security-policy"] csp)
+        (assoc-in [:headers "x-content-security-policy"] csp)
+        (assoc-in [:headers "x-webkit-csp"] csp))))

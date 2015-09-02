@@ -1,0 +1,1 @@
+$('.confirmable').click(function() { return confirm('Are you sure?') })
