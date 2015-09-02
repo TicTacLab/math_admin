@@ -9,12 +9,18 @@
             [clojure.string :as str])
   (:import [java.text SimpleDateFormat]
            [java.util TimeZone]
-           (org.owasp.encoder Encode)))
+           (org.owasp.encoder Encode)
+           (java.net URLEncoder)))
 
 (defn h
   "Escapes html"
   [& strs]
   (Encode/forHtml (apply str strs)))
+
+(defn u
+  "Urlencode specified string"
+  [o]
+  (URLEncoder/encode (str o) "UTF-8"))
 
 (intern 'selmer.filter-parser 'escape-html* h)
 
@@ -52,6 +58,7 @@
 (filters/add-filter! :name name)
 (filters/add-filter! :format-market format-market)
 (filters/add-filter! :form render-form)
+(filters/add-filter! :u u)
 
 (def csrf-script "(function() {
   var cookies = document.cookie;

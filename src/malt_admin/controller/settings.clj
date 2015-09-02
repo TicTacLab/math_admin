@@ -6,6 +6,13 @@
             [formative.parse :as fp]
             [ring.util.response :as res]))
 
+(defn read-version []
+  (binding [*read-eval* false]
+    (-> "project.clj"
+        slurp
+        read-string
+        (nth 2))))
+
 (defn index [{{storage :storage} :web
               params :params
               problems :problems
@@ -16,7 +23,7 @@
 
     (render "settings/index"
             req
-            {:app-version (-> "project.clj" slurp read-string (nth 2))
+            {:app-version (read-version)
              :form (assoc forms/settings
                      :values settings
                      :problems problems

@@ -1,5 +1,5 @@
 (ns malt-admin.controller.users
-  (:require [malt-admin.view :refer (render)]
+  (:require [malt-admin.view :refer (render u)]
             [malt-admin.form.user :as form]
             [malt-admin.helpers :refer [redirect-with-flash]]
             [malt-admin.storage.users :as storage]
@@ -46,7 +46,7 @@
     (render "users/edit" req {:edit-form (assoc form/edit-form
                                            :values (if problems params user)
                                            :problems problems
-                                           :action (format "/users/%s" login)
+                                           :action (format "/users/%s" (u login))
                                            :method "PUT")
                               :user      user})))
 
@@ -56,7 +56,7 @@
   (render "users/edit-password" req {:edit-password-form (assoc form/edit-password-form
                                                            :values params
                                                            :problems problems
-                                                           :action (format "/users/%s/update-password" login)
+                                                           :action (format "/users/%s/update-password" (u login))
                                                            :method "PUT")
                                      :user               {:login login}}))
 

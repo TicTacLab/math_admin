@@ -1,5 +1,5 @@
 (ns malt-admin.controller.models
-  (:require [malt-admin.view :refer (render)]
+  (:require [malt-admin.view :refer (render u)]
             [malt-admin.form.model :as form]
             [malt-admin.audit :as audit]
             [malt-admin.offloader :as off]
@@ -85,7 +85,7 @@
   (let [model (models/get-model storage (Integer/valueOf ^String id))]
     (render "models/edit" req {:edit-form (assoc form/edit-form
                                             :values (if problems params model)
-                                            :action (str "/models/" id)
+                                            :action (str "/models/" (u id))
                                             :method "PUT"
                                             :problems problems)})))
 
@@ -281,21 +281,21 @@
                          (reduce + 0))]
     (render "models/profile"
             (assoc req :flash flash)
-            {:model-id model-id
-             :model-file (->> model-file
-                              (re-matches #"^(.*)\..*$")
-                              second)
-             :model-name model-name
-             :log-session-id log-session-id
-             :json-out-params (json/generate-string out-params)
-             :calc-result (-> out-params format-calc-result)
+            {:model-id                model-id
+             :model-file              (->> model-file
+                                           (re-matches #"^(.*)\..*$")
+                                           second)
+             :model-name              model-name
+             :log-session-id          log-session-id
+             :json-out-params         (json/generate-string out-params)
+             :calc-result             (-> out-params format-calc-result)
              :calc-result-total-timer total-timer
-             :profile-form (merge (malt-params->form malt-params)
-                                  {:action (str "/models/" model-id "/" rev "/profile")
-                                   :method "POST"
-                                   :values values
-                                   :submit-label "Calculate"
-                                   :problems problems})})))
+             :profile-form            (merge (malt-params->form malt-params)
+                                             {:action       (str "/models/" (u model-id) "/" (u rev) "/profile")
+                                              :method       "POST"
+                                              :values       values
+                                              :submit-label "Calculate"
+                                              :problems     problems})})))
 
 (defn profile [{params :params :as req}]
   (render-profile-page req (Integer/valueOf ^String (:id params)) (:rev params)))
