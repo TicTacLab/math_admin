@@ -37,8 +37,7 @@
                  [org.cassandraunit/cassandra-unit "2.0.2.2" :exclusions [org.slf4j/slf4j-log4j12]]
 
                  ;Sanitizers
-                 [org.owasp.encoder/encoder "1.2"]
-                 [com.mikesamuel/json-sanitizer "1.0"]]
+                 [org.owasp.encoder/encoder "1.2"]]
   :repl-options {:timeout 120000
                  :init-ns user}
   :main malt-admin.main

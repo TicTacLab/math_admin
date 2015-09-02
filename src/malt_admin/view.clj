@@ -9,19 +9,20 @@
             [clojure.string :as str])
   (:import [java.text SimpleDateFormat]
            [java.util TimeZone]
-           (org.owasp.encoder Encode)
-           (com.google.json JsonSanitizer)))
+           (org.owasp.encoder Encode)))
 
-(intern 'selmer.filter-parser 'escape-html* #(Encode/forHtml %))
+(defn h
+  "Escapes html"
+  [& strs]
+  (Encode/forHtml (apply str strs)))
 
-(defn json [s]
-  (JsonSanitizer/sanitize s))
+(intern 'selmer.filter-parser 'escape-html* h)
 
 (defn- format-timestamp [pattern timestamp-sec]
-  (let [ timestamp (* (Long/valueOf ^String timestamp-sec) 1000)]
-       (.format (doto (SimpleDateFormat. pattern)
-             (.setTimeZone (TimeZone/getTimeZone "GMT")))
-           timestamp)))
+  (let [timestamp (* (Long/valueOf ^String timestamp-sec) 1000)]
+    (.format (doto (SimpleDateFormat. pattern)
+               (.setTimeZone (TimeZone/getTimeZone "GMT")))
+             timestamp)))
 
 (defn- pprint-str [value]
   (with-out-str (pprint value)))
