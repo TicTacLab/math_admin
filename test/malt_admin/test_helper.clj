@@ -58,6 +58,14 @@
      (binding [w/*driver* p#]
        ~@body)))
 
+(defn wait-condition
+  ([b expected-condition]
+   (w/wait-until b #(.apply expected-condition (:webdriver %))
+                 1000 1000))
+  ([expected-condition]
+   (w/wait-until w/*driver* #(.apply expected-condition (:webdriver %))
+                 1000 1000)))
+
 (defn fill-in
   ([q text]
    (fill-in w/*driver* q text))

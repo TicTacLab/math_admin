@@ -2,7 +2,8 @@
   (:use clojure.test)
   (:require [malt-admin.test-helper :as t :refer [test-system signin signout go fill-in]]
             [clj-webdriver.taxi :as w :refer [elements click send-keys text value accept wait-until exists?]]
-            [malt-admin.config :as c]))
+            [malt-admin.config :as c])
+  (:import (org.openqa.selenium.support.ui ExpectedConditions)))
 
 (deftest models-test
   (t/with-system [s (test-system @c/config)]
@@ -17,6 +18,7 @@
         (fill-in b "Cache filler address" "127.0.0.1:6666")
 
         (click b "Update")
+        (t/wait-condition b (ExpectedConditions/alertIsPresent))
         (accept b)
 
         (is (= "127.0.0.1" (value b "Profiling malt host")))
@@ -30,6 +32,7 @@
         (fill-in b "Cache filler address" "")
 
         (click b "Update")
+        (t/wait-condition b (ExpectedConditions/alertIsPresent))
         (accept b)
 
         (wait-until b (fn [b] (exists? b [:.form-problems :.control-label])) 5000 0)

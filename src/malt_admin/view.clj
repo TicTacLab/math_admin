@@ -60,22 +60,6 @@
 (filters/add-filter! :form render-form)
 (filters/add-filter! :u u)
 
-(def csrf-script "(function() {
-  var cookies = document.cookie;
-  var matches = cookies.match(/csrf=([^;]*);?/);
-  var token   = matches[1];
-  $('form').each(function(i, rawForm) {
-    var form = $(rawForm);
-    if(form.attr('method').toLowerCase() === 'post') {
-      var hidden = $('<input />');
-      hidden.attr('type', 'hidden');
-      hidden.attr('name', 'csrf');
-      hidden.attr('value', token);
-      form.append(hidden);
-    }
-  })
-}());")
-
 (defn render [template-name req context]
   (let [{session-id :session-id
          flash      :flash} req
@@ -83,8 +67,7 @@
                           :admin?      (get-in req [:session :is-admin])
                           :uri         (:uri req)
                           :env         @c/config
-                          :flash       flash
-                          :csrf-script csrf-script}
+                          :flash       flash}
         context (merge context default-context)]
     (selmer/render-file (str template-name ".html") context
                         {:tag-open \[

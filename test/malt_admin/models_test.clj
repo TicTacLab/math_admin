@@ -2,7 +2,8 @@
   (:use clojure.test)
   (:require [malt-admin.test-helper :as t :refer [test-system signin signout go fill-in wait within]]
             [clj-webdriver.taxi :as w :refer [elements click send-keys text accept implicit-wait]]
-            [malt-admin.config :as c]))
+            [malt-admin.config :as c])
+  (:import (org.openqa.selenium.support.ui ExpectedConditions)))
 
 (deftest models-test
   (t/with-system [s (test-system @c/config)]
@@ -20,6 +21,7 @@
                        (fill-in "Name" "SuperName")
                        (send-keys "File" *file*)
                        (click "Submit")
+                       (Thread/sleep 300)
                        (is (seq (elements  model-selector))))
 
                      (testing "Replace"
@@ -29,6 +31,7 @@
                        (fill-in "Out sheet name" "MEGASHUT")
                        (send-keys "File" "/etc/hosts")
                        (click "Submit")
+                       (t/wait-condition (ExpectedConditions/alertIsPresent))
                        (accept)
                        (wait 100)
                        (within b model-selector
@@ -39,12 +42,14 @@
                      (testing "Download"
                        (within b model-selector
                                (click "Download")
+                               (t/wait-condition b (ExpectedConditions/alertIsPresent))
                                (accept b)
                                (wait 100)))
 
                      (testing "Delete"
                        (within b model-selector
                                (click "Delete")
+                               (t/wait-condition b (ExpectedConditions/alertIsPresent))
                                (accept b)
                                (wait 100))
                        (is (empty? (elements model-selector))))))))
