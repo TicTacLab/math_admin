@@ -11,11 +11,10 @@
              [in-params :as in-params]
              [cache-q :as cache-q]]
             [cheshire.core :as json]
-            [malt-admin.helpers :refer [redirect-with-flash error! Packet]]
+            [malt-admin.helpers :refer [redirect-with-flash error!]]
             [formative.parse :as fp]
             [org.httpkit.client :as http]
             [clojure.tools.trace :refer [trace]]
-            [clojure.pprint :refer [pprint]]
             [clojure.walk :refer [keywordize-keys]]
             [clojure.tools.logging :as log])
   (:refer-clojure :exclude [replace])

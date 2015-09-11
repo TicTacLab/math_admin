@@ -9,4 +9,4 @@
   (some-> (cql/get-one conn "calculation_log"
                       (columns :session_id :model_id :in_params :out_params)
                       (where [[= :session_id ssid] [= :model_id id]]))
-          (update-in [:out_params] (json/parse-string  (String. (Bytes/getArray %))))))
+          (update-in [:out_params] #(json/parse-string  (String. (Bytes/getArray %))))))
