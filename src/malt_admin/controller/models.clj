@@ -330,11 +330,11 @@
                        :as req}]
   (let [{malt-host :profiling-malt-host
          malt-port :profiling-malt-port} (-> req :web :storage cfg/read-settings)]
-    (>pprint @(http/delete (format "http://%s:%s/models/%s/%s"
-                           malt-host malt-port id (make-model-sid id rev ssid))
-                   {:body    ""
-                    :timeout 1000
-                    :as      :text}))
+    @(http/delete (format "http://%s:%s/models/%s/%s"
+                          malt-host malt-port id (make-model-sid id rev ssid))
+                  {:body    ""
+                   :timeout 1000
+                   :as      :text})
     {:status 200}))
 
 (defn read-log [{{storage :storage} :web
