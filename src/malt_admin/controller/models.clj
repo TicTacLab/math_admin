@@ -325,6 +325,18 @@
           :ok (render :out-params {:data (remove-invalid-outcomes result)})
           :error (render :flash {:error result}))))))
 
+(defn delete-session [{ssid :session-id
+                       {:keys [id rev]} :params
+                       :as req}]
+  (let [{malt-host :profiling-malt-host
+         malt-port :profiling-malt-port} (-> req :web :storage cfg/read-settings)]
+    (>pprint @(http/delete (format "http://%s:%s/models/%s/%s"
+                           malt-host malt-port id (make-model-sid id rev ssid))
+                   {:body    ""
+                    :timeout 1000
+                    :as      :text}))
+    {:status 200}))
+
 (defn read-log [{{storage :storage} :web
                  {:keys [id ssid]} :params :as req}]
   (let [model-id (Integer/valueOf ^String id)]

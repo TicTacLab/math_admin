@@ -66,4 +66,17 @@ inParamsFile.change(function(event) {
 
 if(!window.OUT_PARAMS) exportOutParamsBtn.remove();
 
+$('a#back').click(function() {
+  var parts = window.location.pathname.split( '/' );
+  var modelId = parts[2];
+  var revId = parts[3];
+  $.ajax({url: '/models/' + modelId + '/' + revId + '/session',
+          method: 'delete',
+          timeout: 300,
+          async: false});
+  return true;
+
+});
+
 })();
+
