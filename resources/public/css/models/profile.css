@@ -42,9 +42,9 @@
 }
 
 .with-margin {
-  margin: 2px;
+  margin: 2px !important;
 }
 
 .with-no-margin {
-  margin: 0px;
+  margin: 0px !important;
 }
