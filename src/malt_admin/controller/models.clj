@@ -17,8 +17,7 @@
             [clojure.tools.trace :refer [trace]]
             [clojure.pprint :refer [pprint]]
             [clojure.walk :refer [keywordize-keys]]
-            [clojure.tools.logging :as log]
-            [flatland.protobuf.core :as pb])
+            [clojure.tools.logging :as log])
   (:refer-clojure :exclude [replace])
   (:import (java.nio.file Files Paths)
            [java.util UUID Date]

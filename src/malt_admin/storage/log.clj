@@ -1,8 +1,7 @@
 (ns malt-admin.storage.log
   (:require [clojurewerkz.cassaforte.cql :as cql]
             [clojurewerkz.cassaforte.query :refer [where columns]]
-            [flatland.protobuf.core :as pb]
-            [malt-admin.helpers :refer [Packet]])
+            [cheshire.core :as json])
   (:import (com.datastax.driver.core.utils Bytes)))
 
 
@@ -10,4 +9,4 @@
   (some-> (cql/get-one conn "calculation_log"
                       (columns :session_id :model_id :in_params :out_params)
                       (where [[= :session_id ssid] [= :model_id id]]))
-          (update-in [:out_params] #(pb/protobuf-load Packet (Bytes/getArray %)))))
+          (update-in [:out_params] (json/parse-string  (String. (Bytes/getArray %))))))

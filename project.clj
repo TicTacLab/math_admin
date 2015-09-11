@@ -19,8 +19,6 @@
                  [cheshire "5.5.0"]
                  [http-kit "2.1.19"]
                  [prismatic/schema "1.0.1"]
-                 [org.flatland/protobuf "0.8.1"]
-                 [com.google.protobuf/protobuf-java "2.5.0"]
                  [formative "0.8.8" :exclusions [org.clojure/clojurescript
                                                  clj-time]]
                  [hiccup "1.0.5"]
@@ -41,8 +39,7 @@
   :repl-options {:timeout 120000
                  :init-ns user}
   :main malt-admin.main
-  :plugins [[lein-protobuf "0.4.1"]
-            [com.aphyr/prism "0.1.1"]
+  :plugins [[com.aphyr/prism "0.1.1"]
             [theladders/lein-uberjar-deploy "1.0.0"]]
   :aliases {"autotest" ["with-profile" "test" "prism"]}
   :repositories ^:replace [["snapshots" {:url "http://nassau.favorit/repository/snapshots"
