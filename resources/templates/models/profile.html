@@ -2,59 +2,14 @@
 
 [% block head %]
 <link href="/assets/metroui/css/metro-bootstrap.css" rel="stylesheet"/>
+<link href="/css/models/profile.css" rel="stylesheet" />
 [% endblock %]
 
 [% block body %]
 
-<style>
-    .model-input-params .fieldset-submit > .form-group label {
-    display: inline-block;
-    width: 80%;
-    word-wrap: break-word;
-    }
-    .model-input-params .fieldset-submit > .form-group input[type="text"] {
-    display: inline-block;
-    text-align: right;
-    vertical-align: top;
-    width: 67px;
-    }
-
-
-    .model-input-params .form-group {
-    margin-bottom: 0;
-    }
-
-    .model-input-params .form-group input {
-    height: 2em;
-    padding-top: 0px;
-    padding-bottom: 0px;
-    margin-bottom: 0px;
-    margin-top: 0px;
-    }
-
-    .metro .tile {
-    height: auto !important;
-    width: auto !important;
-    cursor: auto;
-    }
-
-    .metro .tile:hover {
-    outline: none;
-    }
-
-    .metro .center {
-    text-align: center;
-    }
-</style>
-
-[% if json-out-params %]
-<script>
-window.OUT_PARAMS = [[ json-out-params|safe ]];
-</script>
-[% endif %]
-
 <div class="row">
     <div class="col-md-4">
+        <a class="btn btn-default" id='back' href="/models">Back</a>
         <h3>Model profiling</h3>
 
     </div>
@@ -81,20 +36,17 @@ window.OUT_PARAMS = [[ json-out-params|safe ]];
 
     </div>
     <div class="col-md-9">
-        <span class="label label-default pull-right">Total time: [[ calc-result-total-timer ]] ms</span>
+        <span class="label label-default pull-right">Total time: [[ calc-result-total-timer|double-format:0 ]] ms</span>
         [% for mgp-code, markets in calc-result.data %]
         <div class="row">
             <div class="metro">
                 <h3>[[ mgp-code ]]</h3>
                 [% for market, outcomes-groups in markets %]
-                <div class="tile" style="margin: 2px">
-                    <h6 class="center" style="margin: 2px">
-                        [[ market.0 ]]
-                        [% if market.1 < 999999 %]
-                          ([[ market.1 ]][% if not market.2 = 0.0 %] [[ market.2 ]][% endif %])
-                        [% endif %]
+                <div class="tile with-margin">
+                    <h6 class="center with-margin">
+                        [[market|format-market]]
                     </h6>
-                    <table class="table" style="margin: 0px">
+                    <table class="table with-no-margin">
                         [% for outcomes in outcomes-groups %]
                         <tr>
                             [% for outcome in outcomes %]
@@ -105,10 +57,10 @@ window.OUT_PARAMS = [[ json-out-params|safe ]];
                                 <br/>
                                 [% if outcome.timer %]
                                   <span class="[% if outcome.timer > 1 %]text-warning[% endif %]">
-                                      [% if outcome.timer = 0 %]
+                                      [% if outcome.timer <= 1 %]
                                       &lt; 1 ms
                                       [% else %]
-                                      [[ outcome.timer ]] ms
+                                      [[ outcome.timer|double-format:0 ]] ms
                                       [% endif %]
                                   </span>
                                 [% endif %]
@@ -136,25 +88,13 @@ window.OUT_PARAMS = [[ json-out-params|safe ]];
         <h4 class="modal-title">Options</h4>
       </div>
       <div class="modal-body">
-          <form class="form-inline" action="/models/[[model-id]]/log" method="POST">
-              <div class="form-group">
-                  <div class="input-group">
-                      <div class="input-group-addon">SID</div>
-                      <input type="text" class="form-control input-small" placeholder="Session token..." name="ssid"
-                             value="[[log-session-id]]">
-                      <span class="input-group-btn">
-                          <button type="submit" class="btn btn-default" id="export-params-btn">Load from log</button>
-                      </span>
-                  </div>
-              </div>
-          </form>
           <div class="btn-group">
             <a href="#" class="btn btn-default" id="export-in-params-btn">Export IN params</a>
             <a href="#" class="btn btn-default" id="import-in-params-btn">Import IN params</a>
             <a href="#" class="btn btn-default" id="export-out-params-btn">Export OUT params</a>
           </div>
-          <input type="file" id="in-params-file" name="file" style="display:none"/>
-          <a href="#" id="download-anchor" style="display:none"></a>
+          <input type="file" id="in-params-file" name="file" class="hidden" />
+          <a href="#" id="download-anchor" class="hidden"></a>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -164,76 +104,6 @@ window.OUT_PARAMS = [[ json-out-params|safe ]];
   </div>
 </div>
 
-<script src="/assets/metroui/min/metro.min.js"></script>
-<script>
-(function() {
-
-var downloadAnchor = $("#download-anchor");
-var exportInParamsBtn = $("#export-in-params-btn");
-var exportOutParamsBtn = $("#export-out-params-btn");
-var importInParamsBtn = $("#import-in-params-btn");
-// var inputParams = $(".model-input-params input[type='text']");
-var inParamsContainer = $(".model-input-params");
-var inputParams = inParamsContainer.find("input[type='text']");
-var inParamsFile = $("#in-params-file");
-
-var getInParams = function() {
-    var res = {};
-    inputParams.each(function(i, domEl) {
-      var jqEl = $(domEl);
-      var value = jqEl.val();
-      var name = jqEl.attr('name');
-      res[name] = value;
-    });
-    return res;
-};
-
-var getOutParams = function() {
-    return window.OUT_PARAMS;
-};
-
-var downloadJson = function(data, fileName) {
-  var dataUrl = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data, null, 2));
-
-  downloadAnchor.attr("href", dataUrl);
-  downloadAnchor.attr("download", fileName);
-  downloadAnchor[0].click();
-};
-
-var fillInParams = function(inParams) {
-  for(name in inParams) {
-    var el = inParamsContainer.find("input[type='text'][name='" + name + "']");
-    var value = inParams[name];
-    el.val(value);
-  }
-};
-
-exportInParamsBtn.click(function() {
-  downloadJson(getInParams(), "in-params.json");
-});
-
-exportOutParamsBtn.click(function() {
-  downloadJson(getOutParams(), "out-params.json");
-});
-
-importInParamsBtn.click(function() {
-  inParamsFile[0].click();
-});
-
-
-inParamsFile.change(function(event) {
-  var file = event.target.files[0];
-  var reader = new FileReader();
-  reader.onload = function(e) {
-    var inParams = JSON.parse(e.target.result);
-    fillInParams(inParams);
-    alert("DONE");
-  };
-  reader.readAsText(file);
-});
-
-if(!window.OUT_PARAMS) exportOutParamsBtn.remove();
-
-})();
-</script>
+<script src="/assets/metroui/min/metro.min.js" type="text/javascript"></script>
+<script src="/js/models/profile.js" type="text/javascript"></script>
 [% endblock %]

@@ -6,40 +6,40 @@
   :dependencies [[org.clojure/clojure "1.6.0"]
                  [com.betinvest/noilly "0.1.4"]
                  [javax.servlet/javax.servlet-api "3.1.0"]
-                 [com.stuartsierra/component "0.2.2"]
-                 [org.slf4j/slf4j-api "1.7.7"]
-                 [ch.qos.logback/logback-core "1.1.2"]
-                 [ch.qos.logback/logback-classic "1.1.2"]
+                 [com.stuartsierra/component "0.2.3"]
+                 [org.slf4j/slf4j-api "1.7.12"]
+                 [ch.qos.logback/logback-core "1.1.3"]
+                 [ch.qos.logback/logback-classic "1.1.3"]
                  [org.clojure/tools.logging "0.3.1"]
-                 [clojurewerkz/cassaforte "2.0.1" :exclusions [com.google.guava/guava]]
+                 [clojurewerkz/cassaforte "2.0.2" :exclusions [com.google.guava/guava]]
                  [clojurewerkz/scrypt "1.2.0"]
-                 [compojure "1.2.0"]
-                 [selmer "0.7.2"]
-                 [ring "1.3.2"]
-                 [cheshire "5.3.1"]
-                 [http-kit "2.1.16"]
-                 [prismatic/schema "0.3.6"]
-                 [org.flatland/protobuf "0.8.1"]
-                 [com.google.protobuf/protobuf-java "2.5.0"]
+                 [compojure "1.4.0"]
+                 [selmer "0.9.1"]
+                 [ring "1.4.0"]
+                 [cheshire "5.5.0"]
+                 [http-kit "2.1.19"]
+                 [prismatic/schema "1.0.1"]
                  [formative "0.8.8" :exclusions [org.clojure/clojurescript
                                                  clj-time]]
                  [hiccup "1.0.5"]
-                 [com.taoensso/nippy "2.5.2"]
-                 [ring-webjars "0.1.0" :exclusions [org.slf4j/slf4j-nop]]
-                 [org.webjars/bootstrap "3.3.2"]
+                 [com.taoensso/nippy "2.9.0"]
+                 [ring-webjars "0.1.1" :exclusions [org.slf4j/slf4j-nop]]
+                 [org.webjars/bootstrap "3.3.4"]
                  [org.webjars/jquery "2.1.3"]
                  [org.webjars/metroui "2.0.23"]
-                 [org.clojure/test.check "0.7.0"]
+                 [org.clojure/test.check "0.8.1"]
                  [com.betinvest/zabbix-clojure-agent "0.1.8"]
-                 [clj-webdriver "0.6.1" :exclusions [com.google.guava/guava org.seleniumhq.selenium/selenium-server]]
-                 [org.seleniumhq.selenium/selenium-server "2.44.0" :exclusions [com.google.guava/guava org.yaml/snakeyaml]]
-                 [com.aphyr/prism "0.1.1"]
-                 [org.cassandraunit/cassandra-unit "2.0.2.2" :exclusions [org.slf4j/slf4j-log4j12]]]
+                 [clj-webdriver "0.7.2" :exclusions [com.google.guava/guava org.seleniumhq.selenium/selenium-server]]
+                 [org.seleniumhq.selenium/selenium-server "2.47.1" :exclusions [com.google.guava/guava org.yaml/snakeyaml]]
+                 [com.aphyr/prism "0.1.3"]
+                 [org.cassandraunit/cassandra-unit "2.1.9.2" :exclusions [org.slf4j/slf4j-log4j12]]
+
+                 ;Sanitizers
+                 [org.owasp.encoder/encoder "1.2"]]
   :repl-options {:timeout 120000
                  :init-ns user}
   :main malt-admin.main
-  :plugins [[lein-protobuf "0.4.1"]
-            [com.aphyr/prism "0.1.1"]
+  :plugins [[com.aphyr/prism "0.1.1"]
             [theladders/lein-uberjar-deploy "1.0.0"]]
   :aliases {"autotest" ["with-profile" "test" "prism"]}
   :repositories ^:replace [["snapshots" {:url "http://nassau.favorit/repository/snapshots"
@@ -63,11 +63,11 @@
              :staging    {:jvm-opts ["-Dlogback.configurationFile=logback.production.xml"]}
              :dev        {:source-paths ["dev"]
                           :global-vars {*warn-on-reflection* false}
-                          :dependencies [[ns-tracker "0.2.2"]
-                                         [aprint "0.1.0"]
-                                         [http-kit.fake "0.2.1"]
+                          :dependencies [[ns-tracker "0.3.0"]
+                                         [aprint "0.1.3"]
+                                         [http-kit.fake "0.2.2"]
                                          [criterium "0.4.3"]
-                                         [im.chit/vinyasa "0.3.4"]
+                                         [im.chit/vinyasa "0.4.1"]
                                          [org.clojure/tools.trace "0.7.8"]]
                           :injections [(require '[vinyasa.inject :as inject])
                                        (require 'aprint.core)
@@ -79,4 +79,4 @@
                                                   [clojure.pprint pprint]
                                                   [clojure.tools.trace trace]
                                                   [criterium.core bench])]}
-             :test       {:dependencies [[http-kit.fake "0.2.1"]]}})
+             :test       {:dependencies [[http-kit.fake "0.2.2"]]}})

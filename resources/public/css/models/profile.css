@@ -1,0 +1,50 @@
+.model-input-params .fieldset-submit > .form-group label {
+  display: inline-block;
+  width: 80%;
+  word-wrap: break-word;
+}
+.model-input-params .fieldset-submit > .form-group input[type="text"] {
+  display: inline-block;
+  text-align: right;
+  vertical-align: top;
+  width: 67px;
+}
+
+
+.model-input-params .form-group {
+  margin-bottom: 0;
+}
+
+.model-input-params .form-group input {
+  height: 2em;
+  padding-top: 0px;
+  padding-bottom: 0px;
+  margin-bottom: 0px;
+  margin-top: 0px;
+}
+
+.metro .tile {
+  height: auto !important;
+  width: auto !important;
+  cursor: auto;
+}
+
+.metro .tile:hover {
+  outline: none;
+}
+
+.metro .center {
+  text-align: center;
+}
+
+.hidden {
+  display: none;
+}
+
+.with-margin {
+  margin: 2px !important;
+}
+
+.with-no-margin {
+  margin: 0px !important;
+}

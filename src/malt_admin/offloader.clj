@@ -5,8 +5,12 @@
             [clojure.tools.logging :as log]
             [cheshire.core :as json]
             [com.stuartsierra.component :as component]
-            [schema.core :as s])
-  (:import [com.datastax.driver.core.utils Bytes]))
+            [schema.core :as s]
+            [clojurewerkz.cassaforte.cql :as cql])
+  (:import [com.datastax.driver.core.utils Bytes]
+           [java.io FilenameFilter File]
+           [java.nio.file Files]
+           [java.util Date]))
 
 (def repo-path "mathmods")
 
@@ -115,7 +119,40 @@
         (map->Offloader $)))
 
 
-(comment
-  (write-models-to-folder! "all-models" (models/get-models (:storage dev/system)))
-  )
+(defn read-file-bytes [file]
+  (Files/readAllBytes (.toPath file)))
 
+(defn list-selected-files-in-dir [dir-path extension]
+  (let [filter (reify FilenameFilter
+                 (^boolean accept [_this ^File _dir ^String name]
+                   (.endsWith name extension)))]
+    (seq (.listFiles (io/file dir-path) filter))))
+
+(defn read-model [meta-file]
+  (-> meta-file
+      (slurp)
+      (json/parse-string true)
+      (update-in [:last_modified] #(Date. %))
+      ((fn [model] (assoc model
+                     :file
+                     (read-file-bytes (File. (.getParentFile meta-file)
+                                             (:file_name model))))))))
+
+(defn load-models-from-dir [dir-path]
+  (as-> dir-path $
+        (list-selected-files-in-dir $ ".json")
+        (map read-model $)
+        (doall $)))
+
+(comment
+  (def models-dir "de-models")
+
+  (write-models-to-folder! models-dir (models/get-models (:storage dev/system)))
+
+  (doseq [table #{"models" "cache_q" "caches" "calculation_log" "in_params"}]
+    (cql/truncate (get-in dev/system [:storage :conn]) table))
+
+  (doseq [model (load-models-from-dir models-dir)]
+    (models/write-model! (:storage dev/system) model))
+
+  )

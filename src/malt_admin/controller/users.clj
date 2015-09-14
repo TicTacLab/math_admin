@@ -1,9 +1,9 @@
 (ns malt-admin.controller.users
-  (:require [malt-admin.view :refer (render)]
+  (:require [malt-admin.view :refer (render u)]
             [malt-admin.form.user :as form]
             [malt-admin.helpers :refer [redirect-with-flash]]
             [malt-admin.storage.users :as storage]
-            [malt-admin.audit :refer [audit]]
+            [malt-admin.audit :as audit]
             [formative.parse :as fp]
             [clojurewerkz.scrypt.core :as sc]))
 
@@ -30,7 +30,7 @@
         (do (storage/write-user! storage (-> values
                                              (encrypt-password)
                                              (dissoc :password_confirmation)))
-            (audit req :create-user (dissoc values :password_confirmation :password))
+            (audit/info req :create-user (dissoc values :password_confirmation :password))
             (redirect-with-flash "/users" {:success (format "User \"%s\" successfully created" (:login values))}))))))
 
 (defn index [{{storage :storage} :web
@@ -46,7 +46,7 @@
     (render "users/edit" req {:edit-form (assoc form/edit-form
                                            :values (if problems params user)
                                            :problems problems
-                                           :action (format "/users/%s" login)
+                                           :action (format "/users/%s" (u login))
                                            :method "PUT")
                               :user      user})))
 
@@ -56,7 +56,7 @@
   (render "users/edit-password" req {:edit-password-form (assoc form/edit-password-form
                                                            :values params
                                                            :problems problems
-                                                           :action (format "/users/%s/update-password" login)
+                                                           :action (format "/users/%s/update-password" (u login))
                                                            :method "PUT")
                                      :user               {:login login}}))
 
@@ -64,10 +64,10 @@
                {storage :storage} :web
                :as req}]
   (fp/with-fallback #(malt-admin.controller.users/edit (assoc req :problems %))
-    (let [values (fp/parse-params form/edit-form params)]
+    (let [values (merge {:is_admin false} (fp/parse-params form/edit-form params))]
       (storage/update-user! storage (:login params) values)
-      (audit req :update-user (select-keys params [:login :name :is_admin]))
-      (redirect-with-flash "/users" {:success (format "User \"%s\" successfully updated" (:login values))}))))
+      (audit/info req :update-user (select-keys params [:login :name :is_admin]))
+      (redirect-with-flash "/users" {:success (format "User \"%s\" successfully updated" (:login params))}))))
 
 (defn update-password [{params :params
                         {storage :storage} :web
@@ -77,8 +77,8 @@
       (storage/update-user! storage (:login params) (-> values
                                                         (encrypt-password)
                                                         (dissoc :password_confirmation)))
-      (audit req :update-user-password (select-keys params [:login]))
-      (redirect-with-flash "/users" {:success (format "Password for \"%s\" successfully updated" (:login values))}))))
+      (audit/info req :update-user-password (select-keys params [:login]))
+      (redirect-with-flash "/users" {:success (format "Password for \"%s\" successfully updated" (:login params))}))))
 
 (defn change-status [{{:keys [action login]} :params
                       {storage :storage}     :web :as req}]
@@ -88,6 +88,6 @@
                     nil)]
     (do
       (storage/update-user! storage login {:status status})
-      (audit req :change-user-status {:login login :status status})
+      (audit/info req :change-user-status {:login login :status status})
       (redirect-with-flash "/users" {:success (format "Change status for user \"%s\" to \"%s\"" login status)}))
     (redirect-with-flash "/users" {:error (format "Bad action \"%s\"" action)})))

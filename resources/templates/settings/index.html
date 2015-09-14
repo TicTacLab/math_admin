@@ -2,24 +2,11 @@
 [% block body %]
 <h1>Admin settings</h1>
 
-<style>
-    .note.help-inline {
-    color: #737373;
-    display: block;
-    margin-bottom: 10px;
-    margin-top: 5px;
-    }
-</style>
-
-<script>
-    window.APP_VERSION = "[[ app-version ]]";
-</script>
-
-
 [[ form|form|safe ]]
 
-<script>
-    $('#field-submit').click(function() { return confirm('Are you sure?') })
-</script>
+<div>
+    <small>Version: [[app-version]]</small>
+</div>
 
+<script src="js/settings/index.js" type="text/javascript"></script>
 [% endblock %]

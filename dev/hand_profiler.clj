@@ -39,25 +39,20 @@
                    {:id 31, :value 5}
                    {:id 32, :value 0}]})
 
-(defn pack-params [model-id session-id params]
-  (-> params
-      (assoc :ssid session-id
-             :id model-id)
-
-      (json/generate-string)))
+(defn read-in-params [file]
+  (json/generate-string
+    {:params (map (fn [[k v]]
+                    {:id    k
+                     :value v})
+                  (json/parse-string (slurp file)))}))
 
 (defn profile
-  [url model-id session-id params]
-  @(http/post url {:body    (pack-params model-id session-id params)
+  [url params]
+  @(http/post url {:body    params
                    :headers {"Content-type" "text/plain"}
                    :timeout 60000
-                   :as      :byte-array})
-  nil)
+                   :as      :byte-array}))
 
 (defn profile-new [host port model-id session-id params]
-  (-> (format "http://%s:%s/model/calc/%s/binary" host port session-id)
-      (profile model-id session-id params)))
-
-(defn profile-old [host port model-id session-id params]
-  (-> (format "http://%s:%s/rest/calc" host port)
-      (profile model-id session-id params)))
+  (-> (format "http://%s:%s/models/%s/%s/calculate" host port model-id session-id)
+      (profile params)))

@@ -9,7 +9,7 @@
     <logger name="org.apache.cassandra" level="ERROR"/>
     <logger name="com.datastax.driver" level="WARN"/>
     <logger name="me.prettyprint.cassandra" level="WARN"/>
-    <logger name="malt-admin.audit" level="ERROR"/>
+    <logger name="malt-admin.audit" level="WARN"/>
 
     <root level="INFO">
         <appender-ref ref="console"/>

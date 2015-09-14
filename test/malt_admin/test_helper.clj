@@ -32,24 +32,24 @@
     (addShutdownHook (Thread. stop-browser!)))
 
 (w/set-finder! (fn finder
-               ([q]
-                (finder w/*driver* q))
-               ([driver q]
-                (cond
-                  (element-like? q) q
-                  (keyword? q) (w/css-finder driver (name q))
-                  (sequential? q) (w/css-finder driver (str/join " " (map name q)))
-                  (string? q) (or (not-nil-elements (w/xpath-finder driver (format ".//a[text()='%s']" q)))
-                                  (not-nil-elements (w/xpath-finder driver (format ".//input[@type='submit' and @value='%s']" q)))
-                                  (not-nil-elements (w/xpath-finder driver (format ".//button[text()='%s']" q)))
-                                  (let [labels (w/xpath-finder driver
-                                                            (format ".//label[text()='%s']|.//label[./*[text()='%s']]" q q))
-                                        id (webdriver/attribute (first labels) :for)]
-                                    (not-nil-elements (w/xpath-finder driver (format ".//*[@id='%s']" id)))))))))
+                 ([q]
+                  (finder w/*driver* q))
+                 ([driver q]
+                  (cond
+                    (element-like? q) q
+                    (keyword? q) (w/css-finder driver (name q))
+                    (sequential? q) (w/css-finder driver (str/join " " (map name q)))
+                    (string? q) (or (not-nil-elements (w/xpath-finder driver (format ".//a[text()='%s']" q)))
+                                    (not-nil-elements (w/xpath-finder driver (format ".//input[@type='submit' and @value='%s']" q)))
+                                    (not-nil-elements (w/xpath-finder driver (format ".//button[text()='%s']" q)))
+                                    (let [labels (w/xpath-finder driver
+                                                                 (format ".//label[text()='%s']|.//label[./*[text()='%s']]" q q))
+                                          id (webdriver/attribute (first labels) :for)]
+                                      (not-nil-elements (w/xpath-finder driver (format ".//*[@id='%s']" id)))))))))
 
 (defn go
   ([url]
-    (go w/*driver* url))
+   (go w/*driver* url))
   ([browser & [url]]
    (w/to browser (str @base-url url))))
 
@@ -58,18 +58,26 @@
      (binding [w/*driver* p#]
        ~@body)))
 
+(defn wait-condition
+  ([b expected-condition]
+   (w/wait-until b #(.apply expected-condition (:webdriver %))
+                 1000 1000))
+  ([expected-condition]
+   (w/wait-until w/*driver* #(.apply expected-condition (:webdriver %))
+                 1000 1000)))
+
 (defn fill-in
   ([q text]
-    (fill-in w/*driver* q text))
+   (fill-in w/*driver* q text))
   ([browser q text]
    (w/clear browser q)
    (w/input-text browser q text)))
 
 (defn signin
   ([]
-    (signin w/*driver*))
+   (signin w/*driver*))
   ([browser]
-    (signin browser "admin" "admin1488"))
+   (signin browser "admin" "admin1488"))
   ([browser login password]
    (doto browser
      (go "/auth")
@@ -80,7 +88,7 @@
 
 (defn signout
   ([]
-    (signout w/*driver*))
+   (signout w/*driver*))
   ([browser]
    (w/click browser "Sign out")))
 

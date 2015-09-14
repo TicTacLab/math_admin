@@ -25,10 +25,10 @@
           [% endif %]
         </td>
         <td>
-            <form action="/users/[[user.login]]/change-status" method="POST">
+            <form action="/users/[[user.login|u]]/change-status" method="POST">
               <div class="btn-group">
-                <a class="btn btn-default" href="/users/[[user.login]]/edit">Edit</a>
-                <a class="btn btn-default" href="/users/[[user.login]]/edit-password">Password</a>
+                <a class="btn btn-default" href="/users/[[user.login|u]]/edit">Edit</a>
+                <a class="btn btn-default" href="/users/[[user.login|u]]/edit-password">Password</a>
                 <input type="hidden" name="_method" value="PUT"/>
                 [% ifequal user.status "active" %]
                 <button type="submit" class="btn btn-danger" name="action" value="deactivate">Deactivate</button>

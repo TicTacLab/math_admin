@@ -12,9 +12,10 @@
              [filler :as filler]
              [auth :as auth]]
             [malt-admin.view :refer (render render-error)]
-            [malt-admin.middleware :refer (wrap-check-session wrap-with-web wrap-with-stacktrace)]
+            [malt-admin.middleware :refer :all]
             [ring.util.response :as res]
             [ring.middleware
+             [resource :refer (wrap-resource)]
              [cookies :refer (wrap-cookies)]
              [flash :refer (wrap-flash)]
              [session :refer (wrap-session)]
@@ -49,6 +50,7 @@
   (GET    "/models/:id/download"      req (allow req :admin (models/download req)))
   (GET    "/models/:id/:rev/profile"  req (allow req :any   (models/profile req)))
   (POST   "/models/:id/:rev/profile"  req (allow req :any   (models/profile-execute req)))
+  (DELETE "/models/:id/:rev/session"  req (allow req :any   (models/delete-session req)))
   (POST   "/models/:id/log"           req (allow req :any   (models/read-log req)))
   (PUT    "/models/:id"               req (allow req :admin (models/replace req)))
   (DELETE "/models/:id"               req (allow req :admin (models/delete req)))
@@ -75,13 +77,18 @@
 (defn app [web]
   (-> routes
       (wrap-check-session)
+      (wrap-csp)
+      (wrap-csrf-cookie)
+      (wrap-check-csrf)
+      (wrap-resource "public")
       (wrap-webjars)
       (wrap-keyword-params)
       (wrap-multipart-params)
       (wrap-params)
       (wrap-flash)
-      (wrap-session)
+      (wrap-session {:cookie-name "id"})
       (wrap-cookies)
+      (wrap-no-cache-cookies)
       (wrap-with-web web)
       (wrap-with-stacktrace)))
 

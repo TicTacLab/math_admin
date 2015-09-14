@@ -2,9 +2,16 @@
   (:require [malt-admin.view :refer (render)]
             [malt-admin.storage.configuration :as cfg]
             [malt-admin.form.settings :as forms]
-            [malt-admin.audit :refer [audit]]
+            [malt-admin.audit :as audit]
             [formative.parse :as fp]
             [ring.util.response :as res]))
+
+(defn read-version []
+  (binding [*read-eval* false]
+    (-> "project.clj"
+        slurp
+        read-string
+        (nth 2))))
 
 (defn index [{{storage :storage} :web
               params :params
@@ -16,7 +23,7 @@
 
     (render "settings/index"
             req
-            {:app-version (-> "project.clj" slurp read-string (nth 2))
+            {:app-version (read-version)
              :form (assoc forms/settings
                      :values settings
                      :problems problems
@@ -29,5 +36,5 @@
   (fp/with-fallback #(index (assoc req :problems %))
     (let [settings (fp/parse-params forms/settings params)]
       (cfg/write-settings! storage settings)
-      (audit req :udpate-settings settings)
+      (audit/info req :udpate-settings settings)
       (res/redirect-after-post "/settings"))))

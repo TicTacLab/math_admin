@@ -1,8 +1,7 @@
 (ns malt-admin.controller.models
-  (:require [malt-admin.view :refer (render)]
+  (:require [malt-admin.view :refer (render u)]
             [malt-admin.form.model :as form]
             [malt-admin.audit :refer [audit]]
-            [malt-admin.offloader :as off]
             [malt-admin.storage
              [log :as slog]
              [models :as models]
@@ -11,15 +10,12 @@
              [in-params :as in-params]
              [cache-q :as cache-q]]
             [cheshire.core :as json]
-            [malt-admin.helpers :refer [redirect-with-flash error! Packet]]
+            [malt-admin.helpers :refer [redirect-with-flash error!]]
             [formative.parse :as fp]
             [org.httpkit.client :as http]
             [clojure.tools.trace :refer [trace]]
-            [clojure.pprint :refer [pprint]]
-            [aprint.core :refer [aprint]]
             [clojure.walk :refer [keywordize-keys]]
-            [clojure.tools.logging :as log]
-            [flatland.protobuf.core :as pb])
+            [clojure.tools.logging :as log])
   (:refer-clojure :exclude [replace])
   (:import (java.nio.file Files Paths)
            [java.util UUID Date]
@@ -75,7 +71,7 @@
         :else
         (do
           (models/write-model! storage values)
-          (audit req :upload-model (dissoc values :file))
+          (audit/info req :upload-model (dissoc values :file))
           (off/offload-model! offloader (:id values))
           (redirect-with-flash "/models" {:success "DONE"}))))))
 
@@ -86,7 +82,7 @@
   (let [model (models/get-model storage (Integer/valueOf ^String id))]
     (render "models/edit" req {:edit-form (assoc form/edit-form
                                             :values (if problems params model)
-                                            :action (str "/models/" id)
+                                            :action (str "/models/" (u id))
                                             :method "PUT"
                                             :problems problems)})))
 
@@ -114,7 +110,7 @@
         (->> (in-params/get-in-params storage id)
              (cache-q/insert-in-params! storage new-rev))
         (cache/clear storage id old-rev))
-      (audit req :replace-model (dissoc values :file))
+      (audit/info req :replace-model (dissoc values :file))
       (off/offload-model! offloader id)
       (redirect-with-flash "/models" {:success (format "Model with id %d was replaced" id)}))))
 
@@ -126,7 +122,7 @@
     (models/delete-model! storage model-id)
     (cache/clear storage model-id rev)
     (in-params/delete! storage model-id)
-    (audit req :delete-model {:id model-id})
+    (audit/info req :delete-model {:id model-id})
     (redirect-with-flash "/models"
                          {:success (format "Model with id %d was deleted"
                                            model-id)})))
@@ -135,7 +131,7 @@
                  {storage :storage} :web
                  :as req}]
   (let [file (models/get-model-file storage (Integer/valueOf ^String id))]
-    (audit req :download-model {:id id})
+    (audit/info req :download-model {:id id})
     {:body    (:file file)
      :headers {"Content-Type"        (:content_type file)
                "Content-Disposition" (str "attachment; filename=" (:file_name file))}}))
@@ -166,43 +162,45 @@
   (str ssid \- id \- rev))
 
 (defn- get-malt-params [node port model-id rev ssid]
-  (let [res @(http/get (format "http://%s:%s/model/in-params" node port)
-                       {:query-params {:ssid (make-model-sid model-id rev ssid)
-                                       :id model-id}
-                        :as :text})]
-    (if (= (:status res) 200)
-      (json/parse-string (:body res) true)
-      (do
-        (log/errorf "Error during parsing malt-params: %s" res)
-        {}))))
+  (let [url (format "http://%s:%s/models/%s/%s/in-params"
+                    node
+                    port
+                    model-id
+                    (make-model-sid model-id rev ssid))
+        {:keys [status error body]} @(http/get url {:as :text})
+        response (json/parse-string body true)]
+    (cond
+      error (log/error error "Error when get-malt-params")
+      (not= 200 status) (log/error "Server error response in get-malt-params: " response)
+      :else (:data response))))
 
-(defn parse-calc-result! [body]
-  (let [packet (pb/protobuf-load Packet body)]
-    (if (= (:type packet) :error)
-      (throw (RuntimeException. (if (= (:error_type packet) :inprogress)
-                                  "Calculation already in progress"
-                                  (:error packet)))))
-    {:result packet}))
+(defn remove-invalid-outcomes [outcomes]
+  (let [has-valid-coef? (comp number? :coef)]
+    (filter has-valid-coef? outcomes)))
+
+(defn wrap-error
+  ([msg]
+   (log/error msg)
+   [:error msg])
+  ([e msg]
+    (log/error e msg)
+   [:error (str msg " " (.getLocalizedMessage e))]))
 
 (defn- calculate [node port ssid id rev params]
-  (try
-    (let [malt-session-id (make-model-sid id rev ssid)
-          url (format "http://%s:%s/model/calc/%s"
-                      node port malt-session-id)
-          malt-params {:id id
-                       :ssid malt-session-id
-                       :params (map (fn [[id value]] {:id id :value value}) params)}
-          {:keys [body error status]} @(http/post url {:body    (json/generate-string malt-params)
-                                                       :headers {"Content-type" "text/plain"}
-                                                       :timeout 60000
-                                                       :as      :byte-array})]
-      (when error (throw error))
-      (when-not (= status 200)
-        (throw (RuntimeException. (format "Bad Status Code: %d" status))))
-      (parse-calc-result! body))
-    (catch Exception e
-      (log/error e "While malt calculation")
-      {:error (format "Error: %s" (.getLocalizedMessage e))})))
+  (let [malt-session-id (make-model-sid id rev ssid)
+        url (format "http://%s:%s/models/%s/%s/profile"
+                    node port id malt-session-id)
+        malt-params {:model_id id
+                     :event_id malt-session-id
+                     :params   (map (fn [[id value]] {:id id :value value}) params)}
+        {:keys [body error status]} @(http/post url {:body    (json/generate-string malt-params)
+                                                     :timeout 60000
+                                                     :as      :text})
+        json-response (json/parse-string body true)]
+    (cond
+      error (wrap-error error "Error while calculate")
+      (not= status 200) (wrap-error (str "Unexpected result while calculate: " json-response))
+      :else [:ok (:data json-response)])))
 
 (defn split [pred coll]
   [(filter pred coll) (remove pred coll)])
@@ -230,6 +228,12 @@
             pkey2 (into [priority2] key2)]
         (compare pkey1 pkey2)))))
 
+
+(defn stringify-params [calc-result]
+  (->> calc-result
+       (map #(update-in % [:param] str))
+       (map #(update-in % [:param2] str))))
+
 (defn format-calc-result [calc-result]
   (let [calc-result (into {} calc-result)
         mgp-comparator (-> calc-result
@@ -242,6 +246,7 @@
     (update-in calc-result [:data]
                (fn [data]
                  (->> data
+                      (stringify-params)
                       (group-by :mgp_code)
                       (map (fn [[mgp_code outcomes]]
                              (vector mgp_code (->> outcomes
@@ -261,9 +266,9 @@
 (defn render-profile-page [req model-id rev & {:keys [problems flash in-params out-params log-session-id]}]
   (let [{malt-host :profiling-malt-host
          malt-port :profiling-malt-port} (-> req :web :storage cfg/read-settings)
-         malt-params (get-malt-params malt-host malt-port model-id rev (:session-id req))
+        malt-params (get-malt-params malt-host malt-port model-id rev (:session-id req))
         values (or in-params
-                    (malt-params->form-values malt-params))
+                   (malt-params->form-values malt-params))
         {model-file :file_name model-name :name} (-> req
                                                      :web
                                                      :storage
@@ -274,21 +279,21 @@
                          (reduce + 0))]
     (render "models/profile"
             (assoc req :flash flash)
-            {:model-id model-id
-             :model-file (->> model-file
-                              (re-matches #"^(.*)\..*$")
-                              second)
-             :model-name model-name
-             :log-session-id log-session-id
-             :json-out-params (json/generate-string out-params)
-             :calc-result (-> out-params format-calc-result)
+            {:model-id                model-id
+             :model-file              (->> model-file
+                                           (re-matches #"^(.*)\..*$")
+                                           second)
+             :model-name              model-name
+             :log-session-id          log-session-id
+             :json-out-params         (json/generate-string out-params)
+             :calc-result             (-> out-params format-calc-result)
              :calc-result-total-timer total-timer
-             :profile-form (merge (malt-params->form malt-params)
-                                  {:action (str "/models/" model-id "/" rev "/profile")
-                                   :method "POST"
-                                   :values values
-                                   :submit-label "Calculate"
-                                   :problems problems})})))
+             :profile-form            (merge (malt-params->form malt-params)
+                                             {:action       (str "/models/" (u model-id) "/" (u rev) "/profile")
+                                              :method       "POST"
+                                              :values       values
+                                              :submit-label "Calculate"
+                                              :problems     problems})})))
 
 (defn profile [{params :params :as req}]
   (render-profile-page req (Integer/valueOf ^String (:id params)) (:rev params)))
@@ -301,26 +306,34 @@
          malt-port :profiling-malt-port} (-> req :web :storage cfg/read-settings)
         form (some->> (get-malt-params malt-host malt-port id rev session-id)
                       malt-params->form)
-        in-params (dissoc params :id :submit :rev)]
+        in-params (dissoc params :id :submit :rev :csrf)
+        render (partial render-profile-page req id rev :in-params in-params)]
 
     (fp/with-fallback #(render-profile-page req id
                                             :problems %
                                             :in-params in-params)
       (fp/parse-params form in-params)
-      (let [result (calculate malt-host
-                              malt-port
-                              session-id
-                              id
-                              rev
-                              in-params)]
+      (let [[type result] (calculate malt-host
+                                     malt-port
+                                     session-id
+                                     id
+                                     rev
+                                     in-params)]
+        (condp = type
+          :ok (render :out-params {:data (remove-invalid-outcomes result)})
+          :error (render :flash {:error result}))))))
 
-        (if (contains? result :result)
-          (render-profile-page req id rev
-                               :in-params in-params
-                               :out-params (:result result))
-          (render-profile-page req id rev
-                               :in-params in-params
-                               :flash result))))))
+(defn delete-session [{ssid :session-id
+                       {:keys [id rev]} :params
+                       :as req}]
+  (let [{malt-host :profiling-malt-host
+         malt-port :profiling-malt-port} (-> req :web :storage cfg/read-settings)]
+    @(http/delete (format "http://%s:%s/models/%s/%s"
+                          malt-host malt-port id (make-model-sid id rev ssid))
+                  {:body    ""
+                   :timeout 1000
+                   :as      :text})
+    {:status 200}))
 
 (defn read-log [{{storage :storage} :web
                  {:keys [id ssid]} :params :as req}]

@@ -17,9 +17,9 @@
           (fill-in "Name" "SuperName")
           (send-keys "File" *file*)
           (click "Submit")
+          (Thread/sleep 300)
           (within b (keyword (format ".model[data-id='%d']" id))
-            (is (= "SuperName" (text :.model-name))))
-          (signout)))
+            (is (= "SuperName" (text :.model-name))))))
 
       (testing "Admin permissions"
         (signin b)
@@ -45,36 +45,4 @@
         (is (seq (find-elements b {:xpath "//h1[text()='Admin settings']"}))
             "Should have access to settings")
 
-        (signout b))
-
-
-      (testing "User permissions"
-        (signin b "guest" "guest")
-
-        (go b "/models")
-        (is (seq (find-elements b {:xpath "//h1[text()='Models']"}))
-            "Should have access to models")
-        (is (seq (find-elements b {:xpath "//a[text()='Profile']"}))
-            "Should see Profile btn")
-        (is (empty? (find-elements b {:xpath "//a[text()='Download']"}))
-            "Should not see Download btn")
-        (is (empty? (find-elements b {:xpath "//a[text()='Replace']"}))
-            "Should not see Replace btn")
-        (is (empty? (find-elements b {:xpath "//button[text()='Delete']"}))
-            "Should not see Delete btn")
-
-
-        (go b "/users")
-        (is (seq (find-elements b {:xpath "//span[text()='Access denied']"}))
-            "Should not have access to users")
-
-        (go b "/settings")
-        (is (seq (find-elements b {:xpath "//span[text()='Access denied']"}))
-            "Should not have access to settings")
-
-        (go b "/models/1/download")
-        (is (seq (find-elements b {:xpath "//span[text()='Access denied']"}))
-            "Downloading should be strictly forbidden!")
-
-        (go b "/models") ;; for signout button
         (signout b)))))
