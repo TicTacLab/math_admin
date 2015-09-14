@@ -27,7 +27,7 @@
 
 (defmiddleware wrap-check-session
   [h] [{uri :uri web :web :as req}]
-  (let [session-id  (get-in req [:session :sid])]
+  (let [session-id (get-in req [:session :sid])]
     (cond
       (allowed-for-all? uri)
       (h req)
@@ -39,9 +39,11 @@
       (do (audit/warn req :invalid-session-id session-id)
           (render-error req 403))
 
-      (storage/get-login-by-session-id (:storage web) session-id)
-      (do (storage/update-session! (:storage web) session-id)
-          (h (assoc req :session-id session-id))))))
+      :else
+      (if (storage/get-login-by-session-id (:storage web) session-id)
+        (do (storage/update-session! (:storage web) session-id)
+            (h (assoc req :session-id session-id)))
+        (res/redirect "/auth")))))
 
 (defn wrap-with-stacktrace [h]
   (if (not= (:app-env @c/config "production"))
