@@ -2,8 +2,7 @@
   (:use clojure.test)
   (:require [malt-admin.test-helper :as t :refer [test-system within signin signout go fill-in]]
             [clj-webdriver.taxi :as w :refer [elements click send-keys text]]
-            [malt-admin.config :as c])
-  (:import (org.openqa.selenium.support.ui ExpectedConditions)))
+            [malt-admin.config :as c]))
 
 (deftest users-test
   (t/with-system [s (test-system @c/config)]

@@ -44,7 +44,7 @@
                                (click "Download")
                                (t/wait-condition b (ExpectedConditions/alertIsPresent))
                                (accept b)
-                               (wait 100)))
+                               (wait 150)))
 
                      (testing "Delete"
                        (within b model-selector
