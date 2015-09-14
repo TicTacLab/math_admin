@@ -1,7 +1,7 @@
 (ns malt-admin.controller.models
   (:require [malt-admin.view :refer (render u)]
             [malt-admin.form.model :as form]
-            [malt-admin.audit :refer [audit]]
+            [malt-admin.audit :as audit]
             [malt-admin.storage
              [log :as slog]
              [models :as models]
@@ -15,7 +15,8 @@
             [org.httpkit.client :as http]
             [clojure.tools.trace :refer [trace]]
             [clojure.walk :refer [keywordize-keys]]
-            [clojure.tools.logging :as log])
+            [clojure.tools.logging :as log]
+            [malt-admin.offloader :as off])
   (:refer-clojure :exclude [replace])
   (:import (java.nio.file Files Paths)
            [java.util UUID Date]
