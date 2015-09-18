@@ -10,7 +10,6 @@
   width: 67px;
 }
 
-
 .model-input-params .form-group {
   margin-bottom: 0;
 }
@@ -23,28 +22,6 @@
   margin-top: 0px;
 }
 
-.metro .tile {
-  height: auto !important;
-  width: auto !important;
-  cursor: auto;
-}
-
-.metro .tile:hover {
-  outline: none;
-}
-
-.metro .center {
-  text-align: center;
-}
-
 .hidden {
   display: none;
-}
-
-.with-margin {
-  margin: 2px !important;
-}
-
-.with-no-margin {
-  margin: 0px !important;
 }
