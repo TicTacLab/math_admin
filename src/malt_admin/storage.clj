@@ -21,7 +21,6 @@
 (defrecord Storage [conn
                     storage-nodes
                     storage-keyspace
-                    settings-table
                     storage-user
                     storage-password
                     session-ttl]
@@ -50,7 +49,6 @@
    :storage-keyspace s/Str
    :storage-user s/Str
    :storage-password s/Str
-   :settings-table s/Str
    :session-ttl s/Int})
 
 (defn new-storage [m]
