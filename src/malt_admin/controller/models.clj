@@ -175,6 +175,19 @@
       (not= 200 status) (log/error "Server error response in get-malt-params: " response)
       :else (:data response))))
 
+(defn- get-model-out-values-header [node port model-id rev ssid]
+  (let [url (format "http://%s:%s/models/%s/%s/out-values-header"
+                    node
+                    port
+                    model-id
+                    (make-model-sid model-id rev ssid))
+        {:keys [status error body]} @(http/get url {:as :text})
+        response (json/parse-string body true)]
+    (cond
+      error (log/error error "Error when get-model-out-values-header")
+      (not= 200 status) (log/error "Server error response in get-model-out-values-header: " response)
+      :else (map keyword (:data response)))))
+
 (defn remove-invalid-outcomes [outcomes]
   (let [has-valid-coef? (comp number? :coef)]
     (filter has-valid-coef? outcomes)))
@@ -276,24 +289,24 @@
         total-timer (->> out-params
                          :data
                          (map :timer)
-                         (reduce + 0))]
+                         (reduce + 0))
+        out-values (:data out-params)
+        out-header (when out-values (get-model-out-values-header malt-host malt-port model-id rev (:session-id req)))]
     (render "models/profile"
             (assoc req :flash flash)
-            {:model-id                model-id
-             :model-file              (->> model-file
-                                           (re-matches #"^(.*)\..*$")
-                                           second)
-             :model-name              model-name
-             :log-session-id          log-session-id
-             :json-out-params         (json/generate-string out-params)
-             :calc-result             (-> out-params format-calc-result)
-             :calc-result-total-timer total-timer
-             :profile-form            (merge (malt-params->form malt-params)
-                                             {:action       (str "/models/" (u model-id) "/" (u rev) "/profile")
-                                              :method       "POST"
-                                              :values       values
-                                              :submit-label "Calculate"
-                                              :problems     problems})})))
+            {:model-file   (->> model-file
+                                (re-matches #"^(.*)\..*$")
+                                second)
+             :model-name   model-name
+             :out-values   (some->> out-values (map (apply juxt out-header)))
+             :out-header   (some->> out-header (map name))
+             :total-timer  total-timer
+             :profile-form (merge (malt-params->form malt-params)
+                                  {:action       (str "/models/" (u model-id) "/" (u rev) "/profile")
+                                   :method       "POST"
+                                   :values       values
+                                   :submit-label "Calculate"
+                                   :problems     problems})})))
 
 (defn profile [{params :params :as req}]
   (render-profile-page req (Integer/valueOf ^String (:id params)) (:rev params)))

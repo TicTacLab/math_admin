@@ -1,7 +1,6 @@
 [% extends "layout.html" %]
 
 [% block head %]
-<link href="/assets/metroui/css/metro-bootstrap.css" rel="stylesheet"/>
 <link href="/css/models/profile.css" rel="stylesheet" />
 [% endblock %]
 
@@ -36,47 +35,32 @@
 
     </div>
     <div class="col-md-9">
-        <span class="label label-default pull-right">Total time: [[ calc-result-total-timer|double-format:0 ]] ms</span>
-        [% for mgp-code, markets in calc-result.data %]
+        <span class="label label-default pull-right">Total time: [[ total-timer|double-format:0 ]] ms</span>
+        [% if out-values %]
         <div class="row">
-            <div class="metro">
-                <h3>[[ mgp-code ]]</h3>
-                [% for market, outcomes-groups in markets %]
-                <div class="tile with-margin">
-                    <h6 class="center with-margin">
-                        [[market|format-market]]
-                    </h6>
-                    <table class="table with-no-margin">
-                        [% for outcomes in outcomes-groups %]
-                        <tr>
-                            [% for outcome in outcomes %]
-                            <td class="center" data-id="[[outcome.id]]">
-                                [[outcome.o_code]]
-                                <br/>
-                                [[outcome.coef|double-format:2]]
-                                <br/>
-                                [% if outcome.timer %]
-                                  <span class="[% if outcome.timer > 1 %]text-warning[% endif %]">
-                                      [% if outcome.timer <= 1 %]
-                                      &lt; 1 ms
-                                      [% else %]
-                                      [[ outcome.timer|double-format:0 ]] ms
-                                      [% endif %]
-                                  </span>
-                                [% endif %]
-                            </td>
-                            [% endfor %]
-                        </tr>
-                        [% endfor %]
-                    </table>
-                </div>
+            <h2>Out values</h2 >
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    [% for head in out-header %]
+                    <th>[[ head ]]</th>
+                    [% endfor %]
+                </tr>
+                </thead>
+                <tbody>
+                [% for out-value in out-values %]
+                <tr>
+                    [% for value in out-value %]
+                    <td>[[ value ]]</td>
+                    [% endfor %]
+                </tr>
                 [% endfor %]
-            </div>
+                </tbody>
+            </table>
         </div>
-        [% endfor %]
+        [% endif %]
     </div>
 </div>
-
 
 
 <!-- Modal -->
