@@ -162,7 +162,7 @@
   (str ssid \- id \- rev))
 
 (defn- get-malt-params [api-addr model-id rev ssid]
-  (let [url (format "http://%s/api/models/%s/%s/in-params"
+  (let [url (format "http://%s/models/%s/%s/in-params"
                     api-addr
                     model-id
                     (make-model-sid model-id rev ssid))
@@ -173,10 +173,9 @@
       (not= 200 status) (log/error "Server error response in get-malt-params: " response)
       :else (:data response))))
 
-(defn- get-model-out-values-header [node port model-id rev ssid]
-  (let [url (format "http://%s:%s/models/%s/%s/out-values-header"
-                    node
-                    port
+(defn- get-model-out-values-header [api-addr model-id rev ssid]
+  (let [url (format "http://%s/models/%s/%s/out-values-header"
+                    api-addr
                     model-id
                     (make-model-sid model-id rev ssid))
         {:keys [status error body]} @(http/get url {:as :text})
@@ -293,7 +292,7 @@
                          (reduce + 0))
         out-values (:data out-params)
         out-header (when out-values
-                     (get-model-out-values-header malt-host malt-port model-id rev (:session-id req)))]
+                     (get-model-out-values-header api-addr model-id rev (:session-id req)))]
     (render "models/profile"
             (assoc req :flash flash)
             {:model-file   (->> model-file
