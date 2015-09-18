@@ -6,7 +6,6 @@
             [clojure.tools.logging :as log]
             [clojure.tools.trace :refer (trace)]
             [malt-admin.controller
-             [settings :as settings]
              [models :as models]
              [users :as users]
              [filler :as filler]
@@ -40,9 +39,6 @@
   (GET    "/auth" req (allow req :any (auth/index req)))
   (POST   "/auth" req (allow req :any (auth/sign-in req)))
   (DELETE "/auth" req (allow req :any (auth/sign-out req)))
-
-  (GET    "/settings" req (allow req :admin (settings/index req)))
-  (POST   "/settings" req (allow req :admin (settings/update req)))
 
   (GET    "/models"                   req (allow req :any   (models/index req)))
   (GET    "/models/upload"            req (allow req :admin (models/upload req)))
@@ -92,7 +88,7 @@
       (wrap-with-web web)
       (wrap-with-stacktrace)))
 
-(defrecord Web [host port server storage handler offloader]
+(defrecord Web [host port api-addr server storage handler offloader]
   component/Lifecycle
 
   (start [component]
@@ -120,8 +116,9 @@
       :handler nil)))
 
 (def WebSchema
-  {:port s/Int
-   :host s/Str})
+  {:port     s/Int
+   :host     s/Str
+   :api-addr s/Str})
 
 (defn new-web [m]
   (as-> m $

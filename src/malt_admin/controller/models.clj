@@ -2,12 +2,10 @@
   (:require [malt-admin.view :refer (render u)]
             [malt-admin.form.model :as form]
             [malt-admin.audit :as audit]
-            [malt-admin.offloader :as off]
             [malt-admin.storage
              [log :as slog]
              [models :as models]
              [cache :as cache]
-             [configuration :as cfg]
              [in-params :as in-params]
              [cache-q :as cache-q]]
             [cheshire.core :as json]
@@ -16,7 +14,8 @@
             [org.httpkit.client :as http]
             [clojure.tools.trace :refer [trace]]
             [clojure.walk :refer [keywordize-keys]]
-            [clojure.tools.logging :as log])
+            [clojure.tools.logging :as log]
+            [malt-admin.offloader :as off])
   (:refer-clojure :exclude [replace])
   (:import (java.nio.file Files Paths)
            [java.util UUID Date]
@@ -162,10 +161,9 @@
 (defn make-model-sid [id rev ssid]
   (str ssid \- id \- rev))
 
-(defn- get-malt-params [node port model-id rev ssid]
-  (let [url (format "http://%s:%s/models/%s/%s/in-params"
-                    node
-                    port
+(defn- get-malt-params [api-addr model-id rev ssid]
+  (let [url (format "http://%s/api/models/%s/%s/in-params"
+                    api-addr
                     model-id
                     (make-model-sid model-id rev ssid))
         {:keys [status error body]} @(http/get url {:as :text})
@@ -200,10 +198,10 @@
     (log/error e msg)
    [:error (str msg " " (.getLocalizedMessage e))]))
 
-(defn- calculate [node port ssid id rev params]
+(defn- calculate [api-addr ssid id rev params]
   (let [malt-session-id (make-model-sid id rev ssid)
-        url (format "http://%s:%s/models/%s/%s/profile"
-                    node port id malt-session-id)
+        url (format "http://%s/models/%s/%s/profile"
+                    api-addr id malt-session-id)
         malt-params {:model_id id
                      :event_id malt-session-id
                      :params   (map (fn [[id value]] {:id id :value value}) params)}
@@ -274,15 +272,15 @@
                                                    ;; partition bus for 6 columns
                                                    (map (fn [[market outcomes]]
                                                           [market (partition-all 6 outcomes)]))))))
+
                       (into (sorted-map-by mgp-comparator)))))))
 
 (defn format-timer-value [out-value]
   (update-in out-value [:timer] #(format "%.2f" %)))
 
 (defn render-profile-page [req model-id rev & {:keys [problems flash in-params out-params log-session-id]}]
-  (let [{malt-host :profiling-malt-host
-         malt-port :profiling-malt-port} (-> req :web :storage cfg/read-settings)
-        malt-params (get-malt-params malt-host malt-port model-id rev (:session-id req))
+  (let [{api-addr :api-addr} (:web req)
+        malt-params (get-malt-params api-addr model-id rev (:session-id req))
         values (or in-params
                    (malt-params->form-values malt-params))
         {model-file :file_name model-name :name} (-> req
@@ -321,9 +319,8 @@
                         params :params :as req}]
   (let [id (Integer/valueOf ^String (:id params))
         rev (:rev params)
-        {malt-host :profiling-malt-host
-         malt-port :profiling-malt-port} (-> req :web :storage cfg/read-settings)
-        form (some->> (get-malt-params malt-host malt-port id rev session-id)
+        {api-addr :api-addr} (:web req)
+        form (some->> (get-malt-params api-addr id rev session-id)
                       malt-params->form)
         in-params (dissoc params :id :submit :rev :csrf)
         render (partial render-profile-page req id rev :in-params in-params)]
@@ -332,8 +329,7 @@
                                             :problems %
                                             :in-params in-params)
       (fp/parse-params form in-params)
-      (let [[type result] (calculate malt-host
-                                     malt-port
+      (let [[type result] (calculate api-addr
                                      session-id
                                      id
                                      rev
@@ -345,10 +341,9 @@
 (defn delete-session [{ssid :session-id
                        {:keys [id rev]} :params
                        :as req}]
-  (let [{malt-host :profiling-malt-host
-         malt-port :profiling-malt-port} (-> req :web :storage cfg/read-settings)]
-    @(http/delete (format "http://%s:%s/models/%s/%s"
-                          malt-host malt-port id (make-model-sid id rev ssid))
+  (let [{api-addr :api-addr} (:web req)]
+    @(http/delete (format "http://%s/models/%s/%s"
+                          api-addr id (make-model-sid id rev ssid))
                   {:body    ""
                    :timeout 1000
                    :as      :text})

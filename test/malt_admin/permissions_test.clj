@@ -41,8 +41,4 @@
         (is (seq (find-elements b {:xpath "//h1[text()='Users']"}))
             "Should have access to users")
 
-        (go b "/settings")
-        (is (seq (find-elements b {:xpath "//h1[text()='Admin settings']"}))
-            "Should have access to settings")
-
         (signout b)))))

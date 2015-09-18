@@ -5,7 +5,6 @@
             [clj-webdriver.taxi :as w]
             [clojure.string :as str]
             [com.stuartsierra.component :as component]
-            [malt-admin.embedded-storage :refer (map->EmbeddedStorage)]
             [malt-admin.system :as sys]))
 
 (defonce browser (atom nil))
@@ -95,10 +94,7 @@
 (defn wait [ms]
   (Thread/sleep ms))
 
-(defn test-system [{:keys [storage-nodes
-                           storage-keyspace
-                           configuration-table
-                           settings-table] :as conf}]
+(defn test-system [conf]
   (sys/new-system conf))
 
 (defmacro with-system [[nm system] & body]
