@@ -275,6 +275,9 @@
 
                       (into (sorted-map-by mgp-comparator)))))))
 
+(defn format-timer-value [out-value]
+  (update-in out-value [:timer] #(format "%.2f" %)))
+
 (defn render-profile-page [req model-id rev & {:keys [problems flash in-params out-params log-session-id]}]
   (let [{api-addr :api-addr} (:web req)
         malt-params (get-malt-params api-addr model-id rev (:session-id req))
@@ -289,14 +292,17 @@
                          (map :timer)
                          (reduce + 0))
         out-values (:data out-params)
-        out-header (when out-values (get-model-out-values-header malt-host malt-port model-id rev (:session-id req)))]
+        out-header (when out-values
+                     (get-model-out-values-header malt-host malt-port model-id rev (:session-id req)))]
     (render "models/profile"
             (assoc req :flash flash)
             {:model-file   (->> model-file
                                 (re-matches #"^(.*)\..*$")
                                 second)
              :model-name   model-name
-             :out-values   (some->> out-values (map (apply juxt out-header)))
+             :out-values   (some->> out-values
+                                    (map format-timer-value)
+                                    (map (apply juxt (concat out-header [:timer]))))
              :out-header   (some->> out-header (map name))
              :total-timer  total-timer
              :profile-form (merge (malt-params->form malt-params)
