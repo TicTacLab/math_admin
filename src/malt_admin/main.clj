@@ -23,7 +23,7 @@
              (noilly/start c/config
                            #(swap! system
                                    (fn [s]
-                                     (component/stop s)
+                                     (when s (component/stop s))
                                      (component/start (s/new-system @c/config))))))))
   (.. Runtime
       (getRuntime)
