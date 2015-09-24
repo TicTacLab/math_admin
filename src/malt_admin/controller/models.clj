@@ -99,11 +99,8 @@
           id (:id values)
           old-rev (models/get-rev storage id)
           new-rev (:rev values)]
-      (when (:in_params_changed parsed-params)
-        (in-params/delete! storage id))
       (models/replace-model! storage values)
 
-      ;; TODO: make filler better
       #_(when (:file values)
         ;; clean and copy in-params to CACHE_Q table
         (cache-q/delete! storage id old-rev)
