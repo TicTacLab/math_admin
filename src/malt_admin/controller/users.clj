@@ -4,8 +4,10 @@
             [malt-admin.helpers :refer [redirect-with-flash]]
             [malt-admin.storage.users :as storage]
             [malt-admin.audit :as audit]
+            [malt-admin.password :as pass]
             [formative.parse :as fp]
-            [clojurewerkz.scrypt.core :as sc]))
+            [clojurewerkz.scrypt.core :as sc]
+            [ring.util.response :as res]))
 
 
 (defn new* [{:keys [problems params] :as req}]
@@ -17,6 +19,10 @@
 
 (defn ^:private encrypt-password [params]
   (update-in params [:password] sc/encrypt 16384 8 1))
+
+;; --------------------
+;; Actions
+;; --------------------
 
 (defn create [{params :params
                {storage :storage} :web
@@ -91,3 +97,8 @@
       (audit/info req :change-user-status {:login login :status status})
       (redirect-with-flash "/users" {:success (format "Change status for user \"%s\" to \"%s\"" login status)}))
     (redirect-with-flash "/users" {:error (format "Bad action \"%s\"" action)})))
+
+(defn pass-analyze [{pass :body}]
+  (-> (format "{\"grade\": %d}" (pass/analyze pass))
+      (res/response)
+      (res/content-type "application/json")))

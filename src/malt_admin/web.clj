@@ -58,6 +58,7 @@
   (GET    "/users/new"                    req (allow req :admin (users/new* req)))
   (POST   "/users"                        req (allow req :admin (users/create req)))
   (GET    "/users/:login/edit"            req (allow req :admin (users/edit req)))
+  (POST   "/users/pass-analyze"           req (allow req :admin (users/pass-analyze req)))
   (PUT    "/users/:login"                 req (allow req :admin (users/update req)))
   (GET    "/users/:login/edit-password"   req (allow req :admin (users/edit-password req)))
   (PUT    "/users/:login/update-password" req (allow req :admin (users/update-password req)))

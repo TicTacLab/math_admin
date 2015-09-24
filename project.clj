@@ -34,6 +34,8 @@
                  [com.aphyr/prism "0.1.3"]
                  [org.cassandraunit/cassandra-unit "2.1.9.2" :exclusions [org.slf4j/slf4j-log4j12]]
 
+                 [org.owasp.passfault/passfault-core "0.7"]
+
                  ;Sanitizers
                  [org.owasp.encoder/encoder "1.2"]]
   :repl-options {:timeout 120000
