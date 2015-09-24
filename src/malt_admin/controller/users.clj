@@ -7,7 +7,10 @@
             [malt-admin.password :as pass]
             [formative.parse :as fp]
             [clojurewerkz.scrypt.core :as sc]
-            [ring.util.response :as res]))
+            [ring.util.response :as res]
+            [cheshire.core :as json]
+            [clojure.java.io :as io])
+  (:import (java.io Reader)))
 
 
 (defn new* [{:keys [problems params] :as req}]
@@ -98,7 +101,9 @@
       (redirect-with-flash "/users" {:success (format "Change status for user \"%s\" to \"%s\"" login status)}))
     (redirect-with-flash "/users" {:error (format "Bad action \"%s\"" action)})))
 
-(defn pass-analyze [{pass :body}]
-  (-> (format "{\"grade\": %d}" (pass/analyze pass))
-      (res/response)
-      (res/content-type "application/json")))
+(defn pass-analyze [req]
+  (let [pass (-> req :body .bytes slurp json/parse-string (get "password"))
+        grade (pass/analyze pass)]
+    (-> (format "{\"grade\": %d}" grade)
+        (res/response)
+        (res/content-type "application/json"))))

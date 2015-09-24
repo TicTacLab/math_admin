@@ -34,15 +34,17 @@
   [nano]
   (let [years (/ nano 1e9 60 60 24 30.5 12)]
     (cond
-      (<= years 1)   0
-      (<= 1 years 3) 1
+      (<= years 1)   1
+      (<= 1 years 3) 2
       :else          3)))
 
 (defn analyze [pass]
-  (let [analysis (PasswordAnalysis. pass)]
-    (.blockingAnalyze finder analysis)
-    (->> analysis
-         (.calculateHighestProbablePatterns)
-         (.getTotalCost)
-         (.getTimeToCrackNanoSeconds machine)
-         (nano2grade))))
+  (if-not (seq pass)
+    1
+    (let [analysis (PasswordAnalysis. pass)]
+     (.blockingAnalyze finder analysis)
+     (->> analysis
+          (.calculateHighestProbablePatterns)
+          (.getTotalCost)
+          (.getTimeToCrackNanoSeconds machine)
+          (nano2grade)))))
