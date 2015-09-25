@@ -144,9 +144,9 @@
     (concat submit fields submit)))
 
 (defn- malt-params->form-values [malt-params]
-  (some->> malt-params
-           (map (juxt (comp str :id) :value))
-           (into {})))
+  (->> malt-params
+       (map (juxt (comp str :id) :value))
+       (into {})))
 
 (defn- malt-params->form [malt-params]
   (hash-map :fields (malt-params->form-fileds malt-params)
@@ -163,12 +163,13 @@
                     api-addr
                     model-id
                     (make-model-sid model-id rev ssid))
-        {:keys [status error body]} @(http/get url {:as :text})
+        {:keys [status error body]} @(http/get url {:query-params {:plain "true"}
+                                                    :as :text})
         response (json/parse-string body true)]
     (cond
       error (log/error error "Error when get-malt-params")
       (not= 200 status) (log/error "Server error response in get-malt-params: " response)
-      :else (:data response))))
+      :else (>pprint (:data response)))))
 
 (defn- get-model-out-values-header [api-addr model-id rev ssid]
   (let [url (format "http://%s/models/%s/%s/out-values-header"
@@ -290,6 +291,7 @@
         out-values (:data out-params)
         out-header (when out-values
                      (get-model-out-values-header api-addr model-id rev (:session-id req)))]
+    (>pprint malt-params)
     (render "models/profile"
             (assoc req :flash flash)
             {:model-file   (->> model-file
