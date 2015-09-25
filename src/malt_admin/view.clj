@@ -60,6 +60,14 @@
 (filters/add-filter! :form render-form)
 (filters/add-filter! :u u)
 
+(selmer/add-tag! :get
+                 (fn [[row-name k-name] ctx]
+                   (let [row (get ctx (keyword row-name))
+                         key (if (or (.startsWith k-name "\"") (.startsWith k-name "'"))
+                               (.substring k-name 1 (dec (count k-name)))
+                               (get ctx (keyword k-name)))]
+                     (get row (keyword key)))))
+
 (defn render [template-name req context]
   (let [{session-id :session-id
          flash      :flash} req

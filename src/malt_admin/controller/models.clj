@@ -163,25 +163,36 @@
                     api-addr
                     model-id
                     (make-model-sid model-id rev ssid))
-        {:keys [status error body]} @(http/get url {:query-params {:plain "true"}
-                                                    :as :text})
+        {:keys [status error body]} @(http/get url {:as :text})
         response (json/parse-string body true)]
     (cond
       error (log/error error "Error when get-malt-params")
       (not= 200 status) (log/error "Server error response in get-malt-params: " response)
-      :else (>pprint (:data response)))))
+      :else (:data response))))
 
-(defn- get-model-out-values-header [api-addr model-id rev ssid]
+(defn- get-out-sheet-header [api-addr model-id rev ssid]
   (let [url (format "http://%s/models/%s/%s/out-values-header"
                     api-addr
                     model-id
                     (make-model-sid model-id rev ssid))
         {:keys [status error body]} @(http/get url {:as :text})
-        response (json/parse-string body true)]
+        response (json/parse-string body)]
     (cond
       error (log/error error "Error when get-model-out-values-header")
       (not= 200 status) (log/error "Server error response in get-model-out-values-header: " response)
-      :else (map keyword (:data response)))))
+      :else (map keyword (get response "data")))))
+
+(defn- get-in-sheet-header [api-addr model-id rev ssid]
+  (let [url (format "http://%s/models/%s/%s/in-params-header"
+                    api-addr
+                    model-id
+                    (make-model-sid model-id rev ssid))
+        {:keys [status error body]} @(http/get url {:as :text})
+        response (json/parse-string body)]
+    (cond
+      error (log/error error "Error when get-model-out-values-header")
+      (not= 200 status) (log/error "Server error response in get-model-out-values-header: " response)
+      :else (get response "data"))))
 
 (defn remove-invalid-outcomes [outcomes]
   (let [has-valid-coef? (comp number? :coef)]
@@ -275,40 +286,44 @@
 (defn format-timer-value [out-value]
   (update-in out-value [:timer] #(format "%.2f" %)))
 
+;; TODO: send to the server all params, not only id and value
+(defn merge-malt-params [id->value malt-params]
+  (mapv (fn [{id :id :as row}]
+          (assoc row :value (id->value (str id))))
+        malt-params))
+
 (defn render-profile-page [req model-id rev & {:keys [problems flash in-params out-params log-session-id]}]
   (let [{api-addr :api-addr} (:web req)
-        malt-params (get-malt-params api-addr model-id rev (:session-id req))
-        values (or in-params
-                   (malt-params->form-values malt-params))
+        values (if in-params
+                 (merge-malt-params in-params (get-malt-params api-addr model-id rev (:session-id req)))
+                 (get-malt-params api-addr model-id rev (:session-id req)))
         {model-file :file_name model-name :name} (-> req
                                                      :web
                                                      :storage
                                                      (models/get-model model-id))
-        total-timer (->> out-params
+        total-time (when out-params
+                     (->> out-params
                          :data
                          (map :timer)
-                         (reduce + 0))
+                         (reduce + 0)))
         out-values (:data out-params)
         out-header (when out-values
-                     (get-model-out-values-header api-addr model-id rev (:session-id req)))]
-    (>pprint malt-params)
+                     (get-out-sheet-header api-addr model-id rev (:session-id req)))]
     (render "models/profile"
             (assoc req :flash flash)
-            {:model-file   (->> model-file
-                                (re-matches #"^(.*)\..*$")
-                                second)
-             :model-name   model-name
-             :out-values   (some->> out-values
-                                    (map format-timer-value)
-                                    (map (apply juxt (concat out-header [:timer]))))
-             :out-header   (some->> out-header (map name))
-             :total-timer  total-timer
-             :profile-form (merge (malt-params->form malt-params)
-                                  {:action       (str "/models/" (u model-id) "/" (u rev) "/profile")
-                                   :method       "POST"
-                                   :values       values
-                                   :submit-label "Calculate"
-                                   :problems     problems})})))
+            {:model-file  (->> model-file
+                               (re-matches #"^(.*)\..*$")
+                               second)
+             :model-name  model-name
+             :model-id model-id
+             :rev rev
+             :in-values values
+             :in-header (get-in-sheet-header api-addr model-id rev (:session-id req))
+             :out-values  (->> out-values
+                               (map format-timer-value)
+                               (map (apply juxt (concat out-header [:timer]))))
+             :out-header  (map name out-header)
+             :total-time total-time})))
 
 (defn profile [{params :params :as req}]
   (render-profile-page req (Integer/valueOf ^String (:id params)) (:rev params)))

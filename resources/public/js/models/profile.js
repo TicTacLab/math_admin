@@ -78,5 +78,9 @@ $('a#back').click(function() {
 
 });
 
+$('#calculate-button').click(function() {
+  $('#in-sheet-form').submit();
+})
+
 })();
 

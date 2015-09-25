@@ -25,3 +25,9 @@
 .hidden {
   display: none;
 }
+
+
+.navbar-bottom-fixed {
+  position: fixed;
+  bottom: 0px;
+}
