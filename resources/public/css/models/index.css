@@ -1,0 +1,39 @@
+.navigation {
+  font-size: 12px;
+  padding: 8px 15px;
+  margin-bottom: 20px;
+  list-style: none;
+  background-color: #f5f5f5;
+  border-radius: 4px;
+}
+.navigation .navigation-default {
+  color: gray;
+}
+.navigation .navigation-active {
+   color: #CC9933;
+}
+
+.navigation .navigation-done {
+   font-weight: bold;
+}
+
+.sheet {
+   overflow: scroll;
+   height: 400px;
+}
+.sheet table {
+   width: 900px;
+}
+.sheet-table {
+   width: 850px;
+   height: 600px;
+   overflow: auto
+}
+
+.handsontable .htDimmed {
+    color: inherit !important;
+}
+
+.cell-form {
+    margin-bottom: 20px;
+}

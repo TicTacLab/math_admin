@@ -4,7 +4,8 @@
   var token   = matches[1];
   $('form').each(function(i, rawForm) {
     var form = $(rawForm);
-    if(form.attr('method').toLowerCase() === 'post') {
+    var method = form.attr('method');
+    if(method && method.toLowerCase() === 'post') {
       var hidden = $('<input />');
       hidden.attr('type', 'hidden');
       hidden.attr('name', 'csrf');

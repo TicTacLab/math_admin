@@ -1,4 +1,10 @@
 [% extends "layout.html" %]
+
+[% block head %]
+<link href="/css/models/index.css" rel="stylesheet"/>
+<link rel="stylesheet" href='/vendor/handsontable-master/dist/handsontable.full.css'/>
+[% endblock %]
+
 [% block body %]
 
 <!-- Modal -->
@@ -6,33 +12,142 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title" id="uploadModelDetails">Upload Model</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="uploadModelDetails">Model Info</h4>
             </div>
             <div class="modal-body">
-                ...
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary" data-dismiss="modal" data-toggle="modal" data-target="#upload-model-in">Next</button>
+                <div class="container-fluid">
+                    <div class="row navigation">
+                        <div class="col-md-3">
+                            <span class="navigation-active">Model Info</span>
+                            <span class="pull-right">→</span>
+                        </div>
+                        <div class="col-md-3">
+                            <span class="navigation-default">Select In Cells</span>
+                            <span class="pull-right">→</span>
+                        </div>
+                        <div class="col-md-3">
+                            <span class="navigation-default">Select Out Cells</span>
+                            <span class="pull-right">→</span>
+                        </div>
+                        <div class="col-md-3">
+                            <span class="navigation-default">Review and Upload</span>
+                        </div>
+                    </div>
+                    <form class="form-horizontal">
+                        <div class="form-group">
+                            <label for="model-id" class="col-sm-3 control-label">Model ID*</label>
+
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" id="model-id" placeholder="">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="model-name" class="col-sm-3 control-label">Name*</label>
+
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" id="model-name" placeholder="">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="model-file" class="col-sm-3 control-label">Excel File*</label>
+
+                            <div class="col-sm-9">
+                                <input type="file" class="form-control" id="model-file" placeholder=""
+                                       accept=".xls, .xlsx">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" data-dismiss="modal" data-toggle="modal"
+                            data-target="#upload-model-in">Next
+                    </button>
+                </div>
             </div>
         </div>
     </div>
 </div>
 <div class="modal fade" id="upload-model-in" tabindex="-1" role="dialog" aria-labelledby="uploadModelIn">
-    <div class="modal-dialog" role="document">
+    <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="uploadModelIn">Select In Cells</h4>
             </div>
             <div class="modal-body">
-                ...
+                <div class="row navigation">
+                    <div class="col-md-3">
+                        <span class="navigation-done">Model Info</span>
+                        <span class="pull-right">→</span>
+                    </div>
+                    <div class="col-md-3">
+                        <span class="navigation-active">Select In Cells</span>
+                        <span class="pull-right">→</span>
+                    </div>
+                    <div class="col-md-3">
+                        <span class="navigation-default">Select Out Cells</span>
+                        <span class="pull-right">→</span>
+                    </div>
+                    <div class="col-md-3">
+                        <span class="navigation-default">Review and Upload</span>
+                    </div>
+                </div>
+                <div class="row cell-form">
+                    <div class="col-md-12">
+                        <div class="input-group">
+                            <input type="text" class="form-control" placeholder="Enter name of the cell">
+                            <span class="input-group-btn">
+                                <button class="btn btn-default" type="button">Cancel</button>
+                                <button class="btn btn-primary" type="button">Save</button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <!-- Nav tabs -->
+                        <ul class="nav nav-tabs" role="tablist">
+                            <li role="presentation" class="active">
+                                <a href="#markets-sheet" aria-controls="home" role="tab" data-toggle="tab">Markets</a>
+                            </li>
+                            <li role="presentation">
+                                <a href="#correct-score-sheet" aria-controls="profile" role="tab" data-toggle="tab">Correct
+                                    Score</a>
+                            </li>
+                            <li role="presentation">
+                                <a href="#scoreboardss-sheet" aria-controls="messages" role="tab" data-toggle="tab">Scoreboards</a>
+                            </li>
+                            <li role="presentation">
+                                <a href="#races-sheet" aria-controls="settings" role="tab" data-toggle="tab">Races</a>
+                            </li>
+                        </ul>
+
+                        <!-- Tab panes -->
+                        <div class="tab-content">
+                            <div role="tabpanel" class="tab-pane active" id="home">
+                                <div class="sheet-table">
+
+                                </div>
+                            </div>
+                            <div role="tabpanel" class="tab-pane" id="profile">...</div>
+                            <div role="tabpanel" class="tab-pane" id="messages">...</div>
+                            <div role="tabpanel" class="tab-pane" id="settings">...</div>
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-default" data-dismiss="modal" data-toggle="modal" data-target="#upload-model-details">Back</button>
-                <button type="button" class="btn btn-primary" data-dismiss="modal" data-toggle="modal" data-target="#upload-model-out">Next</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal" data-toggle="modal"
+                        data-target="#upload-model-details">Back
+                </button>
+                <button type="button" class="btn btn-primary" data-dismiss="modal" data-toggle="modal"
+                        data-target="#upload-model-out">Next
+                </button>
             </div>
         </div>
     </div>
@@ -41,16 +156,38 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="uploadModelOut">Select Out Cells</h4>
             </div>
             <div class="modal-body">
+                <div class="row navigation">
+                    <div class="col-md-3">
+                        <span class="navigation-done">Model Info</span>
+                        <span class="pull-right">→</span>
+                    </div>
+                    <div class="col-md-3">
+                        <span class="navigation-done">Select In Cells</span>
+                        <span class="pull-right">→</span>
+                    </div>
+                    <div class="col-md-3">
+                        <span class="navigation-active">Select Out Cells</span>
+                        <span class="pull-right">→</span>
+                    </div>
+                    <div class="col-md-3">
+                        <span class="navigation-default">Review and Upload</span>
+                    </div>
+                </div>
                 ...
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-default" data-dismiss="modal" data-toggle="modal" data-target="#upload-model-in">Back</button>
-                <button type="button" class="btn btn-primary" data-dismiss="modal" data-toggle="modal" data-target="#upload-model-review">Next</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal" data-toggle="modal"
+                        data-target="#upload-model-in">Back
+                </button>
+                <button type="button" class="btn btn-primary" data-dismiss="modal" data-toggle="modal"
+                        data-target="#upload-model-review">Next
+                </button>
             </div>
         </div>
     </div>
@@ -59,15 +196,35 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="uploadModelReview">Review and Upload</h4>
             </div>
             <div class="modal-body">
+                <div class="row navigation">
+                    <div class="col-md-3">
+                        <span class="navigation-done">Model Info</span>
+                        <span class="pull-right">→</span>
+                    </div>
+                    <div class="col-md-3">
+                        <span class="navigation-done">Select In Cells</span>
+                        <span class="pull-right">→</span>
+                    </div>
+                    <div class="col-md-3">
+                        <span class="navigation-done">Select Out Cells</span>
+                        <span class="pull-right">→</span>
+                    </div>
+                    <div class="col-md-3">
+                        <span class="navigation-active">Review and Upload</span>
+                    </div>
+                </div>
                 ...
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-default" data-dismiss="modal" data-toggle="modal" data-target="#upload-model-out">Back</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal" data-toggle="modal"
+                        data-target="#upload-model-out">Back
+                </button>
                 <button type="button" class="btn btn-primary" data-dismiss="modal">Upload</button>
             </div>
         </div>
@@ -96,17 +253,17 @@
         <td class="model-out-sheet-name">[[model.out_sheet_name]]</td>
         <td class="model-last-modified">[[model.last_modified]]</td>
         <td>
-          <form action="/models/[[model.id|u]]" method="POST" class="form-inline">
-            <div class="btn-group">
-                <a class="btn btn-primary" href="/models/[[model.id|u]]/[[model.rev|u]]/profile">Profile</a>
-                [% if admin? %]
-                <a class="btn btn-default confirmable" href="/models/[[model.id|u]]/download">Download</a>
-                <a class="btn btn-default" href="/models/[[model.id|u]]/edit">Replace</a>
-                <input type="hidden" name="_method" value="DELETE"/>
-                <button type="submit" class="btn btn-danger confirmable">Delete</button>
-                [% endif %]
-            </div>
-          </form>
+            <form action="/models/[[model.id|u]]" method="POST" class="form-inline">
+                <div class="btn-group">
+                    <a class="btn btn-primary" href="/models/[[model.id|u]]/[[model.rev|u]]/profile">Profile</a>
+                    [% if admin? %]
+                    <a class="btn btn-default confirmable" href="/models/[[model.id|u]]/download">Download</a>
+                    <a class="btn btn-default" href="/models/[[model.id|u]]/edit">Replace</a>
+                    <input type="hidden" name="_method" value="DELETE"/>
+                    <button type="submit" class="btn btn-danger confirmable">Delete</button>
+                    [% endif %]
+                </div>
+            </form>
         </td>
     </tr>
     [% endfor %]
@@ -115,6 +272,7 @@
 [% endblock %]
 
 [% block scripts %]
-<script asrc="/js/models/index.js" type="text/javascript"></script>
+<script src="/js/models/index.js" type="text/javascript"></script>
+<script src="/vendor/handsontable-master/dist/handsontable.full.js"></script>
 [% endblock %]
 

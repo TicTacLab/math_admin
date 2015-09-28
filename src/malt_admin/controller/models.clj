@@ -362,3 +362,11 @@
       (render-profile-page req model-id
                            :log-session-id ssid
                            :flash {:error "No such log entry."}))))
+
+(defn gen-excel-cols [n]
+  (let [iterate-fn (fn [s]
+                     (let [lst-code (byte (last s))]
+                       (if (== lst-code 90)
+                         (apply str (repeat (inc (count s)) "A"))
+                         (str (apply str (butlast s)) (char (inc lst-code))))))]
+    (take n (iterate iterate-fn "A"))))
