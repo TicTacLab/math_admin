@@ -86,7 +86,7 @@
                                                   [clojure.tools.trace trace]
                                                   [criterium.core bench])]}
              :test       {:dependencies [[http-kit.fake "0.2.2"]]}}
-  :cljsbuild {:builds [{:dev      {:optimizations :none}
+  :cljsbuild {:builds [{:dev      {:optimizations :advanced}
                         :min      {:optimizations :advanced}
                         :compiler {:source-paths ["src-cljs"]
                                    :output-dir   "resources/public/js/compiled"
