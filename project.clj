@@ -3,7 +3,7 @@
   :url "http://example.com/FIXME"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
-  :dependencies [[org.clojure/clojure "1.6.0"]
+  :dependencies [[org.clojure/clojure "1.7.0"]
                  [com.betinvest/noilly "0.1.4"]
                  [javax.servlet/javax.servlet-api "3.1.0"]
                  [com.stuartsierra/component "0.2.3"]
@@ -36,13 +36,17 @@
 
                  [org.owasp.passfault/passfault-core "0.7"]
 
+                 [org.clojure/clojurescript "1.7.48"]
+                 [prismatic/dommy "1.1.0"]
+
                  ;Sanitizers
                  [org.owasp.encoder/encoder "1.2"]]
   :repl-options {:timeout 120000
                  :init-ns user}
   :main malt-admin.main
   :plugins [[com.aphyr/prism "0.1.1"]
-            [theladders/lein-uberjar-deploy "1.0.0"]]
+            [theladders/lein-uberjar-deploy "1.0.0"]
+            [lein-cljsbuild "1.1.0"]]
   :aliases {"autotest" ["with-profile" "test" "prism"]}
   :repositories ^:replace [["snapshots" {:url "http://52.28.244.218:8080/repository/snapshots"
                                          :username :env
@@ -81,4 +85,9 @@
                                                   [clojure.pprint pprint]
                                                   [clojure.tools.trace trace]
                                                   [criterium.core bench])]}
-             :test       {:dependencies [[http-kit.fake "0.2.2"]]}})
+             :test       {:dependencies [[http-kit.fake "0.2.2"]]}}
+  :cljsbuild {:builds [{:dev      {:optimizations :none}
+                        :min      {:optimizations :advanced}
+                        :compiler {:source-paths ["src-cljs"]
+                                   :output-dir   "resources/public/js/compiled"
+                                   :output-to    "resources/public/js/compiled/main.js"}}]})
