@@ -1,11 +1,9 @@
 (ns malt-admin.models.index
-  (:require [dommy.core :as dom]))
+  (:require [malt-admin.utils :as utils]))
 
 (enable-console-print!)
 
 (defn init-confirmable! []
-  (dom/listen! [js/document :.confirmable]
-               :click #(when-not (js/confirm "Are you sure?")
-                        (.preventDefault %))))
+  (utils/confirmable :.confirmable "Are you sure?"))
 
 (init-confirmable!)

@@ -1,1 +1,1 @@
-$('#field-submit').click(function() { return confirm('Are you sure?') })
+goog.require("malt_admin.models.edit")
