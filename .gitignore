@@ -14,4 +14,4 @@ resources/public/cljs/
 resources/public/vendor/
 .idea
 *.iml
-figwhell_server.log
+figwheel_server.log
