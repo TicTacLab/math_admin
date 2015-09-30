@@ -18,7 +18,8 @@
             [malt-admin.offloader :as off]
             [schema.core :as s]
             [malcolmx.core :as mx]
-            [clojure.string :as str])
+            [clojure.string :as str]
+            [ring.util.response :as res])
   (:refer-clojure :exclude [replace])
   (:import (java.nio.file Files Paths)
            [java.util UUID Date]
@@ -397,7 +398,8 @@
                       (:filename file)
                       (:content-type file))
         res (upload-draft* web draft ssid)]
-    (if (ok? res)
-      "OK"
-      {:status 500
-       :body   (json/generate-string (select-keys res [:errors]))})))
+    (res/content-type
+      (if (ok? res)
+        {:status 200 :body "{\"ok\":\"ok\"}"}
+        {:status 400 :body (json/generate-string (select-keys res [:errors]))})
+      "application/json")))
