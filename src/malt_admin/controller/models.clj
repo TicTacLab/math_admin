@@ -15,11 +15,14 @@
             [clojure.tools.trace :refer [trace]]
             [clojure.walk :refer [keywordize-keys]]
             [clojure.tools.logging :as log]
-            [malt-admin.offloader :as off])
+            [malt-admin.offloader :as off]
+            [schema.core :as s]
+            [malcolmx.core :as mx]
+            [clojure.string :as str])
   (:refer-clojure :exclude [replace])
   (:import (java.nio.file Files Paths)
            [java.util UUID Date]
-           [java.io File]))
+           [java.io File ByteArrayInputStream]))
 
 (defn index [{{storage :storage} :web :as req}]
   (render "models/index" req {:models (models/get-models storage)}))
@@ -86,7 +89,7 @@
                                             :method "PUT"
                                             :problems problems)})))
 
-(defn replace [{{:keys [storage offloader]} :web
+(defn replace-model [{{:keys [storage offloader]} :web
                 params             :params
                 :as                req}]
   (fp/with-fallback #(malt-admin.controller.models/edit (assoc req :problems %))
@@ -361,11 +364,40 @@
       (render-profile-page req model-id
                            :log-session-id ssid
                            :flash {:error "No such log entry."}))))
+(s/defrecord Draft
+  [file :- bytes
+   size :- s/Int
+   file-name :- s/Str
+   content-type :- s/Str])
 
-(defn gen-excel-cols [n]
-  (let [iterate-fn (fn [s]
-                     (let [lst-code (byte (last s))]
-                       (if (== lst-code 90)
-                         (apply str (repeat (inc (count s)) "A"))
-                         (str (apply str (butlast s)) (char (inc lst-code))))))]
-    (take n (iterate iterate-fn "A"))))
+(s/defn upload-draft*
+  [web draft :- Draft session-id]
+  (prn (:file-name draft))
+  (cond
+    (> (:size draft) (:max-file-size web))
+    {:errors ["File is too big"]}
+
+    (not (mx/excel-file? (ByteArrayInputStream. (:file draft))
+                         (last (str/split (:file-name draft) #"\."))))
+    {:errors ["File should be .xls or .xlsx type"]}
+
+    :else
+    (do
+      (models/write-draft-model! (:storage web) draft session-id)
+      {:ok ""})))
+
+(defn ok? [result]
+  (:ok result))
+
+(defn upload-draft [{{file :file} :params
+                     ssid :session-id
+                     web :web}]
+  (let [draft (Draft. (Files/readAllBytes (Paths/get (.toURI ^File (:tempfile file))))
+                      (:size file)
+                      (:filename file)
+                      (:content-type file))
+        res (upload-draft* web draft ssid)]
+    (if (ok? res)
+      "OK"
+      {:status 500
+       :body   (json/generate-string (select-keys res [:errors]))})))

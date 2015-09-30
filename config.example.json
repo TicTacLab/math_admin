@@ -16,5 +16,7 @@
     "storage-password": "CacNeck5",
     "storage-user": "malt",
     "host": "0.0.0.0",
-    "port": 8080
+    "port": 8080,
+    "max-file-size": 52428800,
+    "draft-file-ttl": 10800
 }

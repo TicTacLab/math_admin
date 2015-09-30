@@ -23,7 +23,8 @@
                     storage-keyspace
                     storage-user
                     storage-password
-                    session-ttl]
+                    session-ttl
+                    draft-file-ttl]
   component/Lifecycle
 
   (start [component]
@@ -49,7 +50,8 @@
    :storage-keyspace s/Str
    :storage-user s/Str
    :storage-password s/Str
-   :session-ttl s/Int})
+   :session-ttl s/Int
+   :draft-file-ttl s/Int})
 
 (defn new-storage [m]
   (as-> m $

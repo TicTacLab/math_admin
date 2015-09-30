@@ -48,13 +48,12 @@
   (POST   "/models/:id/:rev/profile"  req (allow req :any   (models/profile-execute req)))
   (DELETE "/models/:id/:rev/session"  req (allow req :any   (models/delete-session req)))
   (POST   "/models/:id/log"           req (allow req :any   (models/read-log req)))
-  (PUT    "/models/:id"               req (allow req :admin (models/replace req)))
+  (PUT    "/models/:id"               req (allow req :admin (models/replace-model req)))
   (DELETE "/models/:id"               req (allow req :admin (models/delete req)))
   (POST   "/models"                   req (allow req :admin (models/do-upload req)))
 
-  (GET    "/filler"                       req (allow req :admin (filler/index req)))
+  (POST   "/models/upload-wizard/load-file" req (allow req :admin (models/upload-draft req)))
 
-  (GET    "/users"                        req (allow req :admin (users/index req)))
   (GET    "/users/new"                    req (allow req :admin (users/new* req)))
   (POST   "/users"                        req (allow req :admin (users/create req)))
   (GET    "/users/:login/edit"            req (allow req :admin (users/edit req)))
@@ -89,14 +88,14 @@
       (wrap-with-web web)
       (wrap-with-stacktrace)))
 
-(defrecord Web [host port api-addr server storage handler offloader]
+(defrecord Web [host port api-addr max-file-size server storage handler offloader]
   component/Lifecycle
 
   (start [component]
     (let [handler (app component)
           srv (http-kit/run-server handler {:port port
                                             :host host
-                                            :max-body 52428800 ;; 50Mb
+                                            :max-body max-file-size ;; 50Mb
                                             :join? false})]
       (selmer.parser/set-resource-path! (clojure.java.io/resource "templates"))
       (if (= (:app-env @c/config) "production")
@@ -117,9 +116,10 @@
       :handler nil)))
 
 (def WebSchema
-  {:port     s/Int
-   :host     s/Str
-   :api-addr s/Str})
+  {:port          s/Int
+   :host          s/Str
+   :api-addr      s/Str
+   :max-file-size s/Num})
 
 (defn new-web [m]
   (as-> m $

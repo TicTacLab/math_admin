@@ -1,4 +1,4 @@
-(ns malt-admin.permissions-test
+(ns malt-admin.ui.permissions-test
   (:use clojure.test)
   (:require [malt-admin.test-helper :as t :refer [test-system signin signout go fill-in within]]
             [clj-webdriver.taxi :as w :refer [click send-keys text find-elements elements]]

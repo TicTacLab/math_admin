@@ -1,4 +1,4 @@
-(ns malt-admin.users-test
+(ns malt-admin.ui.users-test
   (:use clojure.test)
   (:require [malt-admin.test-helper :as t :refer [test-system within signin signout go fill-in]]
             [clj-webdriver.taxi :as w :refer [elements click send-keys text]]

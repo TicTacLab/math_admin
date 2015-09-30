@@ -33,12 +33,14 @@
                  [org.seleniumhq.selenium/selenium-server "2.47.1" :exclusions [com.google.guava/guava org.yaml/snakeyaml]]
                  [com.aphyr/prism "0.1.3"]
                  [org.cassandraunit/cassandra-unit "2.1.9.2" :exclusions [org.slf4j/slf4j-log4j12]]
+                 [malcolmx "0.1.4-SNAPSHOT"]
 
                  [org.owasp.passfault/passfault-core "0.7"]
 
                  [org.clojure/clojurescript "1.7.48"]
                  [prismatic/dommy "1.1.0"]
                  [reagent "0.5.1"]
+                 [cljs-http "0.1.37"]
 
                  ;Sanitizers
                  [org.owasp.encoder/encoder "1.2"]]
@@ -56,7 +58,7 @@
                            ["releases" {:url "http://52.28.244.218:8080/repository/internal"
                                         :username :env
                                         :password :env}]]
-  :jvm-opts ["-Dlogback.configurationFile=logback.xml" "-Dwebdriver.chrome.driver=/usr/lib/chromium-browser/chromedriver"]
+  :jvm-opts ["-XX:MaxPermSize=300M" "-Dlogback.configurationFile=logback.xml" "-Dwebdriver.chrome.driver=/usr/lib/chromium-browser/chromedriver"]
   :uberjar-name "malt-admin-standalone.jar"
   :release-tasks [["vcs" "assert-committed"]
                   ["change" "version"

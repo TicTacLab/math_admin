@@ -1,26 +1,32 @@
 (ns ^:figwheel-always malt-admin.models.upload
-  (:require [reagent.core :as r]))
+  (:require [reagent.core :as r]
+            [cljs-http.client :as http]
+            [cljs.core.async :as a])
+  (:require-macros [cljs.core.async.macros :refer [go]]))
 
 (enable-console-print!)
 
+
 (defn load-file-step []
-  [:form {:id "load-file-form"
-          :class "form-horizontal"}
-   [:div {:class "form-group"}
-    [:label {:class "col-sm-3 control-label"
-             :for "model-file"}
-     "Excel File*"]
-    [:div {:class "col-sm-9"}
-     [:input {:id     "model-file"
-              :class  "form-control"
-              :type   "file"
-              :accept ".xls, .xlsx"}]
-     [:p {:class "help-block"} "Maximum size is 50 megabytes."]]]])
+  [:div
+   [:h3 "Load Excel File"]
+   [:form {:id    "load-file-form"
+           :class "form-horizontal"}
+    [:div {:class "form-group"}
+     [:label {:class "col-sm-2 control-label"
+              :for   "model-file"}
+      "Excel File*"]
+     [:div {:class "col-sm-10"}
+      [:input {:id     "model-file"
+               :class  "form-control"
+               :type   "file"
+               :accept ".xls, .xlsx"}]
+      [:p {:class "help-block"} "Maximum size is 50 megabytes."]]]]])
 
 (defn navigation []
   [:div {:class "row navigation"}
    [:div {:class "col-md-3"}
-    [:span {:class "navigation-active"} "Model Information"]
+    [:span {:class "navigation-active"} "Load Excel File"]
     [:span {:class "pull-right"} "→"]]
    [:div {:class "col-md-3"}
     [:span {:class "navigation-default"} "Select In Cells"]
@@ -38,10 +44,12 @@
   (let [file (-> (.getElementById js/document "model-file")
                  (.-files)
                  (aget 0))]
-    (when (> (.-size file) 52428800)
-      (js/alert "File is to big!!")))
-  (let [form-data (js/FormData. (.getElementById js/document "load-file-form"))]
-    (println form-data)))
+    (if (> (.-size file) 52428800)
+      (js/console.log "File is too big!!")
+      (go
+        (let [res (<! (http/post "/models/upload-wizard/load-file"
+                                 {:multipart-params [["file" file]]}))]
+          (println res))))))
 
 (defn step-controls []
   [:div

@@ -1,6 +1,7 @@
 (ns malt-admin.storage.models
   (:require [clojurewerkz.cassaforte.cql :as cql]
-            [clojurewerkz.cassaforte.query :refer [where columns order-by]]))
+            [clojurewerkz.cassaforte.query :refer [where columns order-by using]])
+  (:import (java.util UUID)))
 
 (defn write-model! [storage model]
   (let [{:keys [conn]} storage]
@@ -46,3 +47,13 @@
     (boolean (cql/get-one conn "models"
                           (columns :id)
                           (where [[= :id id]])))))
+
+(defn write-draft-model! [storage draft session-id]
+  (let [{:keys [conn]} storage
+        {:keys [file file-name content-type]} draft]
+    (cql/insert conn "draft_models"
+                {:file         file
+                 :file_name    file-name
+                 :content_type content-type
+                 :session_id   (UUID/fromString session-id)}
+                (using :ttl (:draft-file-ttl storage)))))
