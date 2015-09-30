@@ -1,0 +1,1 @@
+goog.require("malt_admin.models.upload")

@@ -169,7 +169,7 @@
     (cond
       error (log/error error "Error when get-malt-params")
       (not= 200 status) (log/error "Server error response in get-malt-params: " response)
-      :else (>pprint (:data response)))))
+      :else (:data response))))
 
 (defn- get-model-out-values-header [api-addr model-id rev ssid]
   (let [url (format "http://%s/models/%s/%s/out-values-header"
@@ -291,7 +291,6 @@
         out-values (:data out-params)
         out-header (when out-values
                      (get-model-out-values-header api-addr model-id rev (:session-id req)))]
-    (>pprint malt-params)
     (render "models/profile"
             (assoc req :flash flash)
             {:model-file   (->> model-file

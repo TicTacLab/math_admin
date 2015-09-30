@@ -1,5 +1,24 @@
 [% extends "layout.html" %]
+
+[% block head %]
+<link href="/css/models/upload.css" rel="stylesheet"/>
+<link rel="stylesheet" href='/vendor/handsontable-master/dist/handsontable.full.css'/>
+[% endblock %]
+
 [% block body %]
 <h1>Upload Model</h1>
-[[ upload-form|form|safe ]]
+<div class="modal-body">
+    <div class="container-fluid">
+        <div id="navigation-container" class="row"></div>
+        <div id="load-file-step"></div>
+    </div>
+    <div class="modal-footer">
+        <div id="step-controls"></div>
+    </div>
+</div>
+<!-- [[ upload-form|form|safe ]] -->
+[% endblock %]
+
+[% block scripts %]
+<script src="/js/models/upload.js"></script>
 [% endblock %]

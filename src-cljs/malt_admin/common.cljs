@@ -1,4 +1,2 @@
-(ns malt-admin.common
+(ns ^:figwheel-always malt-admin.common
   (:require malt-admin.csrf))
-
-(enable-console-print!)

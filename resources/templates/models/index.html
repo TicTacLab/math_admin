@@ -16,57 +16,7 @@
                         aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="uploadModelDetails">Model Info</h4>
             </div>
-            <div class="modal-body">
-                <div class="container-fluid">
-                    <div class="row navigation">
-                        <div class="col-md-3">
-                            <span class="navigation-active">Model Info</span>
-                            <span class="pull-right">→</span>
-                        </div>
-                        <div class="col-md-3">
-                            <span class="navigation-default">Select In Cells</span>
-                            <span class="pull-right">→</span>
-                        </div>
-                        <div class="col-md-3">
-                            <span class="navigation-default">Select Out Cells</span>
-                            <span class="pull-right">→</span>
-                        </div>
-                        <div class="col-md-3">
-                            <span class="navigation-default">Review and Upload</span>
-                        </div>
-                    </div>
-                    <form class="form-horizontal">
-                        <div class="form-group">
-                            <label for="model-id" class="col-sm-3 control-label">Model ID*</label>
 
-                            <div class="col-sm-9">
-                                <input type="text" class="form-control" id="model-id" placeholder="">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="model-name" class="col-sm-3 control-label">Name*</label>
-
-                            <div class="col-sm-9">
-                                <input type="text" class="form-control" id="model-name" placeholder="">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="model-file" class="col-sm-3 control-label">Excel File*</label>
-
-                            <div class="col-sm-9">
-                                <input type="file" class="form-control" id="model-file" placeholder=""
-                                       accept=".xls, .xlsx">
-                            </div>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary" data-dismiss="modal" data-toggle="modal"
-                            data-target="#upload-model-in">Next
-                    </button>
-                </div>
-            </div>
         </div>
     </div>
 </div>
@@ -232,7 +182,7 @@
 </div>
 <h1>Models</h1>
 [% if admin? %]
-<button class="btn btn-primary btn-lg" data-toggle="modal" data-target="#upload-model-details">Upload New</button>
+<a href="/models/upload" class="btn btn-primary btn-lg">Upload New</a>
 [% endif %]
 <table class="table table-hover">
     <tr>

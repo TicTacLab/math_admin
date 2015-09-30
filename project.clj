@@ -38,6 +38,7 @@
 
                  [org.clojure/clojurescript "1.7.48"]
                  [prismatic/dommy "1.1.0"]
+                 [reagent "0.5.1"]
 
                  ;Sanitizers
                  [org.owasp.encoder/encoder "1.2"]]
@@ -46,7 +47,8 @@
   :main malt-admin.main
   :plugins [[com.aphyr/prism "0.1.1"]
             [theladders/lein-uberjar-deploy "1.0.0"]
-            [lein-cljsbuild "1.1.0"]]
+            [lein-cljsbuild "1.1.0"]
+            [lein-figwheel "0.4.0"]]
   :aliases {"autotest" ["with-profile" "test" "prism"]}
   :repositories ^:replace [["snapshots" {:url "http://52.28.244.218:8080/repository/snapshots"
                                          :username :env
@@ -69,6 +71,7 @@
              :staging    {:jvm-opts ["-Dlogback.configurationFile=logback.production.xml"]}
              :dev        {:source-paths ["dev"]
                           :global-vars {*warn-on-reflection* false}
+                          :plugins [[lein-figwheel "0.4.0"]]
                           :dependencies [[ns-tracker "0.3.0"]
                                          [aprint "0.1.3"]
                                          [http-kit.fake "0.2.2"]
@@ -86,8 +89,17 @@
                                                   [clojure.tools.trace trace]
                                                   [criterium.core bench])]}
              :test       {:dependencies [[http-kit.fake "0.2.2"]]}}
-  :cljsbuild {:builds [{:dev      {:optimizations :advanced}
-                        :min      {:optimizations :advanced}
+  :cljsbuild {:builds [{:id "dev"
+                        :figwheel true
+                        :source-paths ["src-cljs"]
+                        :compiler {
+                                   :optimizations :none
+                                   :asset-path   "/js/compiled"
+                                   :output-dir   "resources/public/js/compiled"
+                                   :output-to    "resources/public/js/compiled/main.js"}}
+                       {:id "min"
+                        :optimizations :advanced
                         :compiler {:source-paths ["src-cljs"]
                                    :output-dir   "resources/public/js/compiled"
-                                   :output-to    "resources/public/js/compiled/main.js"}}]})
+                                   :output-to    "resources/public/js/compiled/main.js"}}]}
+  :figwheel {:nrepl-port 7999})

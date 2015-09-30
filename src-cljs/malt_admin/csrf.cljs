@@ -14,4 +14,3 @@
                            (dom/set-attr! :value token))))))))
 
 (append-csrf-inputs!)
-

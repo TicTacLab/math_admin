@@ -74,7 +74,7 @@
 (defn app [web]
   (-> routes
       (wrap-check-session)
-      (wrap-csp)
+      #_(wrap-csp)
       (wrap-csrf-cookie)
       (wrap-check-csrf)
       (wrap-resource "public")
