@@ -55,5 +55,10 @@
                 {:file         file
                  :file_name    file-name
                  :content_type content-type
-                 :session_id   (UUID/fromString session-id)}
-                (using :ttl (:draft-file-ttl storage)))))
+                 :session_id   (UUID/fromString session-id)})))
+
+(defn get-draft-model [storage ssid]
+  (let [{:keys [conn]} storage]
+    (cql/get-one conn "draft_models"
+                 (columns :file :file_name :content_type)
+                 (where [[= :session_id (UUID/fromString ssid)]]))))

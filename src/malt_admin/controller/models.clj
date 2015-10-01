@@ -365,6 +365,16 @@
       (render-profile-page req model-id
                            :log-session-id ssid
                            :flash {:error "No such log entry."}))))
+
+(defn ok [ok-value]
+  {:ok ok-value})
+
+(defn error [errors]
+  {:errors errors})
+
+(defn ok? [result]
+  (:ok result))
+
 (s/defrecord Draft
   [file :- bytes
    size :- s/Int
@@ -376,19 +386,16 @@
   (prn (:file-name draft))
   (cond
     (> (:size draft) (:max-file-size web))
-    {:errors ["File is too big"]}
+    (error ["File is too big"])
 
     (not (mx/excel-file? (ByteArrayInputStream. (:file draft))
                          (last (str/split (:file-name draft) #"\."))))
-    {:errors ["File should be .xls or .xlsx type"]}
+    (error ["File should be .xls or .xlsx type"])
 
     :else
     (do
       (models/write-draft-model! (:storage web) draft session-id)
-      {:ok ""})))
-
-(defn ok? [result]
-  (:ok result))
+      (ok ""))))
 
 (defn upload-draft [{{file :file} :params
                      ssid :session-id
@@ -398,8 +405,21 @@
                       (:filename file)
                       (:content-type file))
         res (upload-draft* web draft ssid)]
-    (res/content-type
-      (if (ok? res)
-        {:status 200 :body "{\"ok\":\"ok\"}"}
-        {:status 400 :body (json/generate-string (select-keys res [:errors]))})
-      "application/json")))
+    (-> (res/response (json/generate-string res))
+        (res/content-type "application/json")
+        (res/status (if (ok? res) 200 400)))))
+
+(s/defn get-sheets-names* [web ssid]
+  (if-let [draft (models/get-draft-model (:storage web) ssid)]
+    (ok (mx/get-sheets-names (mx/parse draft)))
+    (error ["You should upload your file first"])))
+
+(defn get-sheets-names [{ssid :session-id
+                         web :web}]
+  (let [res (get-sheets-names* web ssid)]
+    (-> (res/response (json/generate-string res))
+        (res/content-type "application/json")
+        (res/status (if (ok? res) 200 400)))))
+
+(defn get-sheet [req]
+  )
