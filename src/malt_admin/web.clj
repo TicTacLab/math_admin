@@ -54,7 +54,7 @@
 
   (POST   "/models/upload-wizard/load-file" req (allow req :admin (models/upload-draft req)))
   (GET    "/models/upload-wizard/get-sheets-names" req (allow req :admin (models/get-sheets-names req)))
-  (GET    "/models/upload-wizard/get-sheet" req (allow req :admin (models/get-sheet req)))
+  (GET    "/models/upload-wizard/get-sheet/:sheet-name" req (allow req :admin (models/get-sheet req)))
 
   (GET    "/users/new"                    req (allow req :admin (users/new* req)))
   (POST   "/users"                        req (allow req :admin (users/create req)))

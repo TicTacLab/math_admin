@@ -1,7 +1,8 @@
 (ns malt-admin.storage.models
   (:require [clojurewerkz.cassaforte.cql :as cql]
             [clojurewerkz.cassaforte.query :refer [where columns order-by using]])
-  (:import (java.util UUID)))
+  (:import (java.util UUID)
+           (java.nio HeapByteBuffer)))
 
 (defn write-model! [storage model]
   (let [{:keys [conn]} storage]
@@ -58,7 +59,11 @@
                  :session_id   (UUID/fromString session-id)})))
 
 (defn get-draft-model [storage ssid]
-  (let [{:keys [conn]} storage]
-    (cql/get-one conn "draft_models"
-                 (columns :file :file_name :content_type)
-                 (where [[= :session_id (UUID/fromString ssid)]]))))
+  (let [{:keys [conn]} storage
+        draft (cql/get-one conn "draft_models"
+                           (columns :file :file_name :content_type)
+                           (where [[= :session_id (UUID/fromString ssid)]]))]
+    (update draft :file (fn [^HeapByteBuffer hbb]
+                          (let [ba (byte-array (.remaining hbb))]
+                            (.get hbb ba 0 (alength ba))
+                            ba)))))

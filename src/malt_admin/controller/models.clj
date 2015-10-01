@@ -411,7 +411,7 @@
 
 (s/defn get-sheets-names* [web ssid]
   (if-let [draft (models/get-draft-model (:storage web) ssid)]
-    (ok (mx/get-sheets-names (mx/parse draft)))
+    (ok (mx/get-sheets-names (mx/parse (:file draft))))
     (error ["You should upload your file first"])))
 
 (defn get-sheets-names [{ssid :session-id
@@ -421,5 +421,17 @@
         (res/content-type "application/json")
         (res/status (if (ok? res) 200 400)))))
 
-(defn get-sheet [req]
-  )
+(defn get-sheet* [web sheet-name ssid]
+  (if-let [draft (models/get-draft-model (:storage web) ssid)]
+    (if-let [sheet (mx/get-sheet sheet-name (mx/parse draft))]
+      (ok sheet)
+      (error [(str "There is no sheet " sheet-name)]))
+    (error ["You should upload your file first"])))
+
+(defn get-sheet [{ssid :session-id
+                  {sheet-name :sheet-name} :params
+                  web :web}]
+  (let [res (get-sheet* web sheet-name ssid)]
+    (-> (res/response (json/generate-string res))
+        (res/content-type "application/json")
+        (res/status (if (ok? res) 200 400)))))
