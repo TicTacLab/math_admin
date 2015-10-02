@@ -51,6 +51,11 @@
     (assoc model :last_modified (Date.))
     model))
 
+(defn add-default-fields [model]
+  (assoc model
+    :in_sheet_name "IN"
+    :out_sheet_name "OUT"))
+
 (defn do-upload [{params :params
                   {:keys [storage offloader]} :web
                   :as req}]
@@ -59,6 +64,7 @@
                       (fp/parse-params form/upload-form)
                       (prepare-file-attrs)
                       (add-last-modified)
+                      (add-default-fields)
                       (generate-revision))]
 
       (cond
