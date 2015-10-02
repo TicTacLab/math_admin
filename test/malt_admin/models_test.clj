@@ -18,7 +18,6 @@
 
                        (click "Upload New")
                        (fill-in "ID" (str id))
-                       (fill-in "Name" "SuperName")
                        (send-keys "File" *file*)
                        (click "Submit")
                        (Thread/sleep 300)
@@ -27,16 +26,12 @@
                      (testing "Replace"
                        (within b model-selector
                                (click "Replace"))
-                       (fill-in "In sheet name" "MEGASHIT")
-                       (fill-in "Out sheet name" "MEGASHUT")
                        (send-keys "File" "/etc/hosts")
                        (click "Submit")
                        (t/wait-condition (ExpectedConditions/alertIsPresent))
                        (accept)
                        (wait 100)
                        (within b model-selector
-                               (is (= "MEGASHIT" (text :.model-in-sheet-name)))
-                               (is (= "MEGASHUT" (text :.model-out-sheet-name)))
                                (is (= "hosts" (text :.model-file-name)))))
 
                      (testing "Download"

@@ -14,12 +14,11 @@
           (go "/models")
           (click "Upload New")
           (fill-in "ID" (str id))
-          (fill-in "Name" "SuperName")
-          (send-keys "File" *file*)
+          (send-keys "File" "/etc/hosts")
           (click "Submit")
           (Thread/sleep 300)
           (within b (keyword (format ".model[data-id='%d']" id))
-            (is (= "SuperName" (text :.model-name))))))
+            (is (= "hosts" (text :.model-file-name))))))
 
       (testing "Admin permissions"
         (signin b)
