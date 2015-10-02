@@ -2,18 +2,19 @@
   (:require [cljs-http.client :as http])
   (:require-macros [cljs.core.async.macros :refer [go]]))
 
+(enable-console-print!)
+
 (defn check-file-existence [step-state event]
-  (let [valid? (-> (.getElementById js/document "model-file")
+  (let [file (-> (.getElementById js/document "model-file")
                    (.-files)
-                   (aget 0)
-                   (boolean))]
-    (swap! step-state assoc :valid? valid?))
-  true)
+                   (aget 0))]
+    (js/console.log file)
+    (swap! step-state assoc :file file)))
 
 (defn load-excel-file [step-state event]
   (when-let [file (-> (.getElementById js/document "model-file")
-                 (.-files)
-                 (aget 0))]
+                      (.-files)
+                      (aget 0))]
     (cond
       (> (.-size file) 52428800)
       (swap! step-state update :errors conj "File is too big")
@@ -25,13 +26,13 @@
           (if-not (:success res)
             (swap! step-state update :errors into (get-in res [:body :errors]))
             (do
-              (println res)
+
               (println (<! (http/get "/models/upload-wizard/get-sheets-names"))))))))))
 
 (def step
   {:name      "Load Excel File"
    :state-fn  (fn [] {:errors #{}
-                      :valid? false})
+                      :file   nil})
    :body-comp (fn [state]
                 (fn []
                   [:form {:id    "load-file-form"
@@ -45,10 +46,12 @@
                               :class     "form-control"
                               :type      "file"
                               :accept    ".xls, .xlsx"
-                              :on-change (partial check-file-existence state)}]
+                              :on-change (partial check-file-existence state)
+                              :value     (:file @state)
+                              }]
                      [:p {:class "help-block"} "Maximum size is 50 megabytes."]
                      (for [e (:errors @state)]
                        [:p {:class "help-block", :key e} e])]]]))
 
    :next-fn   load-excel-file
-   :valid-fn  :valid?})
+   :valid-fn  :file})
