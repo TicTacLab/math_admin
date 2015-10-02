@@ -109,7 +109,7 @@
         (cache/clear storage id old-rev))
       (audit/info req :replace-model (dissoc values :file))
       (off/offload-model! offloader id)
-      (redirect-with-flash "/models" {:success (format "Model with id %d was replaced" id)}))))
+      (redirect-with-flash "/models" {:success (format "File with id %d was replaced" id)}))))
 
 (defn delete [{{id :id}           :params
                {storage :storage} :web
@@ -121,7 +121,7 @@
     (in-params/delete! storage model-id)
     (audit/info req :delete-model {:id model-id})
     (redirect-with-flash "/models"
-                         {:success (format "Model with id %d was deleted"
+                         {:success (format "File with id %d was deleted"
                                            model-id)})))
 
 (defn download [{{id :id} :params

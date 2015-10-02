@@ -3,11 +3,8 @@
 
 (def form
   {:fields      [{:name :id :type :text :datatype :int}
-                 {:name :name :type :text}
-                 {:name :file :type :file}
-                 {:name :in_sheet_name :type :text}
-                 {:name :out_sheet_name :type :text}]
-   :validations [[:required [:id :name :in_sheet_name :out_sheet_name]]]
+                 {:name :file :type :file}]
+   :validations [[:required [:id]]]
    :enctype     "multipart/form-data"})
 
 (def upload-form
@@ -16,5 +13,4 @@
 
 (def edit-form
   (-> form
-      (f/merge-fields [{:name :id :readonly true}
-                       {:name :file_name :type :text :disabled true}])))
+      (f/merge-fields [{:name :id :readonly true}])))

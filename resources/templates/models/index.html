@@ -1,26 +1,20 @@
 [% extends "layout.html" %]
 [% block body %]
-<h1>Models</h1>
+<h1>Files</h1>
 [% if admin? %]
 <a href="/models/upload" class="btn btn-primary btn-lg">Upload New</a>
 [% endif %]
 <table class="table table-hover">
     <tr>
         <th>ID</th>
-        <th>Name</th>
         <th>File Name</th>
-        <th>In Sheet Name</th>
-        <th>Out Sheet Name</th>
         <th>Last Modified</th>
         <th>Actions</th>
     </tr>
     [% for model in models %]
     <tr class="model" data-rev="[[model.rev]]" data-id="[[model.id]]">
         <td class="model-id">[[model.id]]</td>
-        <td class="model-name">[[model.name]]</td>
         <td class="model-file-name">[[model.file_name]]</td>
-        <td class="model-in-sheet-name">[[model.in_sheet_name]]</td>
-        <td class="model-out-sheet-name">[[model.out_sheet_name]]</td>
         <td class="model-last-modified">[[model.last_modified]]</td>
         <td>
           <form action="/models/[[model.id|u]]" method="POST" class="form-inline">
