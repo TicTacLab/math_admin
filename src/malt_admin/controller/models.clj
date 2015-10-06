@@ -26,7 +26,7 @@
 
 (defn upload [{:keys [problems params] :as req}]
   (render "models/upload" req {:upload-form (assoc form/upload-form
-                                              :action "/models"
+                                              :action "/files"
                                               :method "POST"
                                               :values (merge {:in_sheet_name  "IN"
                                                               :out_sheet_name "OUT"}
@@ -79,7 +79,7 @@
           (models/write-model! storage values)
           (audit/info req :upload-model (dissoc values :file))
           (off/offload-model! offloader (:id values))
-          (redirect-with-flash "/models" {:success "DONE"}))))))
+          (redirect-with-flash "/files" {:success "DONE"}))))))
 
 (defn edit [{{storage :storage} :web
              {id :id :as params} :params
@@ -88,7 +88,7 @@
   (let [model (models/get-model storage (Integer/valueOf ^String id))]
     (render "models/edit" req {:edit-form (assoc form/edit-form
                                             :values (if problems params model)
-                                            :action (str "/models/" (u id))
+                                            :action (str "/files/" (u id))
                                             :method "PUT"
                                             :problems problems)})))
 
@@ -115,7 +115,7 @@
         (cache/clear storage id old-rev))
       (audit/info req :replace-model (dissoc values :file))
       (off/offload-model! offloader id)
-      (redirect-with-flash "/models" {:success (format "File with id %d was replaced" id)}))))
+      (redirect-with-flash "/files" {:success (format "File with id %d was replaced" id)}))))
 
 (defn delete [{{id :id}           :params
                {storage :storage} :web
@@ -126,7 +126,7 @@
     (cache/clear storage model-id rev)
     (in-params/delete! storage model-id)
     (audit/info req :delete-model {:id model-id})
-    (redirect-with-flash "/models"
+    (redirect-with-flash "/files"
                          {:success (format "File with id %d was deleted"
                                            model-id)})))
 
@@ -165,7 +165,7 @@
   (str ssid \- id \- rev))
 
 (defn- get-malt-params [api-addr model-id rev ssid]
-  (let [url (format "http://%s/models/%s/%s/in-params"
+  (let [url (format "http://%s/files/%s/%s/in-params"
                     api-addr
                     model-id
                     (make-model-sid model-id rev ssid))
@@ -177,7 +177,7 @@
       :else (:data response))))
 
 (defn- get-model-out-values-header [api-addr model-id rev ssid]
-  (let [url (format "http://%s/models/%s/%s/out-values-header"
+  (let [url (format "http://%s/files/%s/%s/out-values-header"
                     api-addr
                     model-id
                     (make-model-sid model-id rev ssid))
@@ -202,7 +202,7 @@
 
 (defn- calculate [api-addr ssid id rev params]
   (let [malt-session-id (make-model-sid id rev ssid)
-        url (format "http://%s/models/%s/%s/profile"
+        url (format "http://%s/files/%s/%s/profile"
                     api-addr id malt-session-id)
         malt-params {:model_id id
                      :event_id malt-session-id
@@ -308,7 +308,7 @@
              :out-header   (some->> out-header (map name))
              :total-timer  total-timer
              :profile-form (merge (malt-params->form malt-params)
-                                  {:action       (str "/models/" (u model-id) "/" (u rev) "/profile")
+                                  {:action       (str "/files/" (u model-id) "/" (u rev) "/profile")
                                    :method       "POST"
                                    :values       values
                                    :submit-label "Calculate"
@@ -344,7 +344,7 @@
                        {:keys [id rev]} :params
                        :as req}]
   (let [{api-addr :api-addr} (:web req)]
-    @(http/delete (format "http://%s/models/%s/%s"
+    @(http/delete (format "http://%s/files/%s/%s"
                           api-addr id (make-model-sid id rev ssid))
                   {:body    ""
                    :timeout 1000
