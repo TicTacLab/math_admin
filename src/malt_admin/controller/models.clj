@@ -169,24 +169,22 @@
                     api-addr
                     model-id
                     (make-model-sid model-id rev ssid))
-        {:keys [status error body]} @(http/get url {:as :text})
-        response (json/parse-string body true)]
+        {:keys [status error body]} @(http/get url {:as :text})]
     (cond
       error (log/error error "Error when get-malt-params")
-      (not= 200 status) (log/error "Server error response in get-malt-params: " response)
-      :else (:data response))))
+      (not= 200 status) (log/error "Server error response in get-malt-params: " body)
+      :else (:data (json/parse-string body true)))))
 
 (defn- get-model-out-values-header [api-addr model-id rev ssid]
   (let [url (format "http://%s/files/%s/%s/out-values-header"
                     api-addr
                     model-id
                     (make-model-sid model-id rev ssid))
-        {:keys [status error body]} @(http/get url {:as :text})
-        response (json/parse-string body true)]
+        {:keys [status error body]} @(http/get url {:as :text})]
     (cond
       error (log/error error "Error when get-model-out-values-header")
-      (not= 200 status) (log/error "Server error response in get-model-out-values-header: " response)
-      :else (map keyword (:data response)))))
+      (not= 200 status) (log/error "Server error response in get-model-out-values-header: " body)
+      :else (map keyword (:data (json/parse-string body true))))))
 
 (defn remove-invalid-outcomes [outcomes]
   (let [has-valid-coef? (comp number? :coef)]
