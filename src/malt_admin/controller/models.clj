@@ -209,12 +209,11 @@
                      :params   (map (fn [[id value]] {:id id :value value}) params)}
         {:keys [body error status]} @(http/post url {:body    (json/generate-string malt-params)
                                                      :timeout 60000
-                                                     :as      :text})
-        json-response (json/parse-string body true)]
+                                                     :as      :text})]
     (cond
       error (wrap-error error "Error while calculate")
-      (not= status 200) (wrap-error (str "Unexpected result while calculate: " json-response))
-      :else [:ok (:data json-response)])))
+      (not= status 200) (wrap-error (str "Unexpected result while calculate: " body))
+      :else [:ok (:data (json/parse-string body true))])))
 
 (defn split [pred coll]
   [(filter pred coll) (remove pred coll)])
