@@ -6,13 +6,13 @@
              [log :as slog]
              [models :as models]
              [cache :as cache]
-             [in-params :as in-params]
-             [cache-q :as cache-q]]
+             [in-params :as in-params]]
             [cheshire.core :as json]
             [malt-admin.helpers :refer [redirect-with-flash error!]]
             [formative.parse :as fp]
             [org.httpkit.client :as http]
             [clojure.tools.trace :refer [trace]]
+            [clojure.string :as s]
             [clojure.walk :refer [keywordize-keys]]
             [clojure.tools.logging :as log]
             [malt-admin.offloader :as off])
@@ -102,17 +102,8 @@
                      (add-last-modified)
                      (generate-revision)
                      (select-keys [:id :file :name :file_name :content_type :in_sheet_name :out_sheet_name :rev :last_modified]))
-          id (:id values)
-          old-rev (models/get-rev storage id)
-          new-rev (:rev values)]
+          id (:id values)]
       (models/replace-model! storage values)
-
-      #_(when (:file values)
-        ;; clean and copy in-params to CACHE_Q table
-        (cache-q/delete! storage id old-rev)
-        (->> (in-params/get-in-params storage id)
-             (cache-q/insert-in-params! storage new-rev))
-        (cache/clear storage id old-rev))
       (audit/info req :replace-model (dissoc values :file))
       (off/offload-model! offloader id)
       (redirect-with-flash "/files" {:success (format "File with id %d was replaced" id)}))))
@@ -164,7 +155,7 @@
 (defn make-model-sid [id rev ssid]
   (str ssid \- id \- rev))
 
-(defn- get-malt-params [api-addr model-id rev ssid]
+(defn get-malt-params [api-addr model-id rev ssid]
   (let [url (format "http://%s/files/%s/%s/in-params"
                     api-addr
                     model-id
@@ -176,7 +167,34 @@
       (not= 200 status) (log/error "Server error response in get-malt-params: " response)
       :else (:data response))))
 
-(defn- get-model-out-values-header [api-addr model-id rev ssid]
+(defn wrap-error
+  ([msg]
+   (log/error msg)
+   [:error msg])
+  ([e msg]
+   (log/error e msg)
+   [:error (str msg " " (.getLocalizedMessage e))]))
+
+(defn error-response->string-message [response]
+  (->> response
+       :errors
+       (map :message)
+       (s/join " ")))
+
+(defn get-malt-params [api-addr model-id rev ssid]
+  (let [url (format "http://%s/files/%s/%s/in-params"
+                    api-addr
+                    model-id
+                    (make-model-sid model-id rev ssid))
+        {:keys [status error body]} @(http/get url {:as :text})
+        response (json/parse-string body true)]
+    (cond
+      error (wrap-error error "Error when get-malt-params")
+      (not= status 200) (wrap-error (str "Unexpected result while get-malt-params: "
+                                         (error-response->string-message response)))
+      :else [:ok (:data response)])))
+
+(defn get-model-out-values-header [api-addr model-id rev ssid]
   (let [url (format "http://%s/files/%s/%s/out-values-header"
                     api-addr
                     model-id
@@ -184,23 +202,12 @@
         {:keys [status error body]} @(http/get url {:as :text})
         response (json/parse-string body true)]
     (cond
-      error (log/error error "Error when get-model-out-values-header")
-      (not= 200 status) (log/error "Server error response in get-model-out-values-header: " response)
-      :else (map keyword (:data response)))))
+      error (wrap-error error "Error when get-model-out-values-header")
+      (not= 200 status) (wrap-error (str "Unexpected result while get-model-out-values-header: "
+                                         (error-response->string-message response)))
+      :else [:ok (->> response :data (map keyword))])))
 
-(defn remove-invalid-outcomes [outcomes]
-  (let [has-valid-coef? (comp number? :coef)]
-    (filter has-valid-coef? outcomes)))
-
-(defn wrap-error
-  ([msg]
-   (log/error msg)
-   [:error msg])
-  ([e msg]
-    (log/error e msg)
-   [:error (str msg " " (.getLocalizedMessage e))]))
-
-(defn- calculate [api-addr ssid id rev params]
+(defn calculate [api-addr ssid id rev params]
   (let [malt-session-id (make-model-sid id rev ssid)
         url (format "http://%s/files/%s/%s/profile"
                     api-addr id malt-session-id)
@@ -215,6 +222,10 @@
       error (wrap-error error "Error while calculate")
       (not= status 200) (wrap-error (str "Unexpected result while calculate: " json-response))
       :else [:ok (:data json-response)])))
+
+(defn remove-invalid-outcomes [outcomes]
+  (let [has-valid-coef? (comp number? :coef)]
+    (filter has-valid-coef? outcomes)))
 
 (defn split [pred coll]
   [(filter pred coll) (remove pred coll)])
@@ -280,9 +291,9 @@
 (defn format-timer-value [out-value]
   (update-in out-value [:timer] #(format "%.2f" %)))
 
-(defn render-profile-page [req model-id rev & {:keys [problems flash in-params out-params log-session-id]}]
+#_(defn render-profile-page [req model-id rev & {:keys [problems flash in-params out-params]}]
   (let [{api-addr :api-addr} (:web req)
-        malt-params (get-malt-params api-addr model-id rev (:session-id req))
+        malt-params (second (get-malt-params api-addr model-id rev (:session-id req)))
         values (or in-params
                    (malt-params->form-values malt-params))
         {model-file :file_name model-name :name} (-> req
@@ -314,6 +325,58 @@
                                    :submit-label "Calculate"
                                    :problems     problems})})))
 
+(defn render-profile-page [req model-id rev & {:keys [problems flash in-params out-params]}]
+  (let [{api-addr :api-addr} (:web req)
+        model-file (as-> req $
+                         (:web $)
+                         (:storage $)
+                         (models/get-model $ model-id)
+                         (:file_name $)
+                         (re-matches #"^(.*)\..*$" $)
+                         (second $))
+        [malt-params-type malt-params] (get-malt-params api-addr model-id rev (:session-id req))]
+    (if (= :ok malt-params-type)
+      (let [values (or in-params
+                       (malt-params->form-values malt-params))
+            profile-form (merge (malt-params->form malt-params)
+                                {:action       (str "/files/" (u model-id) "/" (u rev) "/profile")
+                                 :method       "POST"
+                                 :values       values
+                                 :submit-label "Calculate"
+                                 :problems     problems})]
+        (if out-params
+          (let [[out-header-type out-header] (get-model-out-values-header api-addr model-id rev (:session-id req))]
+            (if (= :ok out-header-type)
+              (render "models/profile"
+                      (assoc req :flash flash)
+                      {:model-file   model-file
+                       :profile-form profile-form
+                       :total-timer (->> out-params
+                                         :data
+                                         (map :timer)
+                                         (reduce + 0))
+                       :out-values (some->> out-params
+                                            :data
+                                            (map format-timer-value)
+                                            (map (apply juxt (concat out-header [:timer]))))
+                       :out-header (some->> out-header :data (map name))})
+              (render "models/profile"
+                      (assoc req :flash {:error out-header})
+                      {:model-file  model-file
+                       :total-timer 0
+                       :profile-form profile-form})))
+          (render "models/profile"
+                  (assoc req :flash flash)
+                  {:model-file   model-file
+                   :total-timer 0
+                   :profile-form profile-form})))
+      (render "models/profile"
+              (assoc req :flash {:error malt-params})
+              {:model-file  model-file
+               :total-timer 0}))
+
+    ))
+
 (defn profile [{params :params :as req}]
   (render-profile-page req (Integer/valueOf ^String (:id params)) (:rev params)))
 
@@ -322,11 +385,12 @@
   (let [id (Integer/valueOf ^String (:id params))
         rev (:rev params)
         {api-addr :api-addr} (:web req)
+        ;; FIXME: handle server error!!!
         form (some->> (get-malt-params api-addr id rev session-id)
+                      second
                       malt-params->form)
         in-params (dissoc params :id :submit :rev :csrf)
         render (partial render-profile-page req id rev :in-params in-params)]
-
     (fp/with-fallback #(render-profile-page req id
                                             :problems %
                                             :in-params in-params)
