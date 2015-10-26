@@ -256,7 +256,7 @@
                                                               :data
                                                               (map format-timer-value)
                                                               (map (apply juxt (concat out-header [:timer]))))
-                                         :out-header (some->> out-header :data (map name)))
+                                         :out-header (map name out-header))
                   :error (render-with-flash {:error out-header}
                                             :profile-form profile-form)))
               (render-with-flash flash
