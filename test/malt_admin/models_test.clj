@@ -9,7 +9,7 @@
   (t/with-system [s (test-system @c/config)]
                  (let [b (t/start-browser! s)]
                    (signin)
-                   (go "/models")
+                   (go "/files")
 
                    (let [id (rand-int 1000000)
                          model-selector (keyword (format ".model[data-id='%d']" id))]
