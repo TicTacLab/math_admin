@@ -155,13 +155,14 @@
 (defn make-model-sid [id rev ssid]
   (str ssid \- id \- rev))
 
-(defn wrap-error
-  ([msg]
-   (log/error msg)
-   [:error msg])
-  ([e msg]
-   (log/error e msg)
-   [:error (str msg (.getLocalizedMessage e))]))
+(defn wrap-error [log-error-prefix error]
+  (if (instance? Throwable error)
+    (do
+      (log/error error log-error-prefix)
+      [:error (.getLocalizedMessage error)])
+    (do
+      (log/error (str log-error-prefix error))
+      [:error error])))
 
 (defn error-response->string-message [response]
   (->> response
@@ -176,14 +177,14 @@
                     (make-model-sid model-id rev ssid))
         {:keys [status error body]} @(http/get url {:as :text})
         response (json/parse-string body true)
-        error-msg "Error while getting params: "]
+        error-prefix "Error while getting params: "]
     (cond
-      error (wrap-error error error-msg)
-      (not= status 200) (wrap-error (str error-msg (error-response->string-message response)))
+      error (wrap-error error-prefix error)
+      (not= status 200) (wrap-error error-prefix (error-response->string-message response))
       :else [:ok (:data response)])))
 
 (defn get-model-out-values-header [api-addr model-id rev ssid]
-  (let [error-msg "Error while getting header: "
+  (let [error-prefix "Error while getting header: "
         url (format "http://%s/files/%s/%s/out-values-header"
                     api-addr
                     model-id
@@ -191,12 +192,12 @@
         {:keys [status error body]} @(http/get url {:as :text})
         response (json/parse-string body true)]
     (cond
-      error (wrap-error error error-msg)
-      (not= 200 status) (wrap-error (str error-msg (error-response->string-message response)))
+      error (wrap-error error-prefix error)
+      (not= 200 status) (wrap-error error-prefix (error-response->string-message response))
       :else [:ok (->> response :data (map keyword))])))
 
 (defn calculate [api-addr ssid id rev params]
-  (let [error-msg "Error while calculation: "
+  (let [error-prefix "Error while calculation: "
         malt-session-id (make-model-sid id rev ssid)
         url (format "http://%s/files/%s/%s/profile"
                     api-addr id malt-session-id)
@@ -208,8 +209,8 @@
                                                      :as      :text})
         json-response (json/parse-string body true)]
     (cond
-      error (wrap-error error error-msg)
-      (not= status 200) (wrap-error (str error-msg (error-response->string-message json-response)))
+      error (wrap-error error-prefix error)
+      (not= status 200) (wrap-error error-prefix (error-response->string-message json-response))
       :else [:ok (:data json-response)])))
 
 (defn remove-invalid-outcomes [outcomes]
