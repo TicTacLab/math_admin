@@ -1,0 +1,41 @@
+[% extends "layout-fluid.html" %]
+
+[% block head %]
+<link href="/css/models/profile.css" rel="stylesheet" />
+[% endblock %]
+
+[% block body %]
+
+<div class="row">
+    <div class="col-md-4">
+        <form>
+            <div class="form-group">
+                <textarea name="event-log"></textarea>
+            </div>
+            <div class="radio">
+                <label>
+                    <input type="radio" name="send-type" value="append"/>
+                    Append
+                </label>
+            </div>
+            <div class="radio">
+                <label>
+                    <input type="radio" name="send-type" value="set" checked="true"/>
+                    Set
+                </label>
+            </div>
+            <div class="form-group">
+                <button type="submit">Send</button>
+            </div>
+        </form>
+    </div>
+    <div class="col-md-4">
+        <pre>[[ event-log ]]</pre>
+    </div>
+    <div class="col-md-4">
+        <pre>[[ out-log ]]</pre>
+    </div>
+
+</div>
+
+[% endblock body %]

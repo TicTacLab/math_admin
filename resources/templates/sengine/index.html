@@ -20,6 +20,7 @@
       <td>
         <form action="/sengine/files/[[file.id|u]]" method="POST" class="form-inline">
           <div class="btn-group">
+            <a class="btn btn-primary" href="/sengine/files/[[file.id|u]]/profile">Profile</a>
             [% if admin? %]
             <a class="btn btn-default confirmable" href="/sengine/files/[[file.id|u]]/download">Download</a>
             <a class="btn btn-default" href="/sengine/files/[[file.id|u]]/edit">Edit</a>

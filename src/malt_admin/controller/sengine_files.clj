@@ -8,7 +8,8 @@
             [malt-admin.helpers :refer [redirect-with-flash error!]]
             [malt-admin.form.model :as form]
             [malt-admin.audit :as audit]
-            [clojure.java.io :as io]))
+            [clojure.java.io :as io])
+  (:import (java.util UUID)))
 
 (defn wrap-error [log-error-prefix error]
   (if (instance? Throwable error)
@@ -83,7 +84,7 @@
                                                 (vector)
                                                 (into {})
                                                 (assoc req :flash)) {})
-            (not= status 201) (render "sengine/upload" (->> response
+            (not= status 200) (render "sengine/upload" (->> response
                                                             (error-response->string-message)
                                                             (wrap-error error-prefix)
                                                             (vector)
@@ -125,7 +126,7 @@
                                                 (vector)
                                                 (into {})
                                                 (assoc req :flash)) {})
-            (not= status 204) (render "sengine/upload" (->> response
+            (not= status 200) (render "sengine/upload" (->> response
                                                             (error-response->string-message)
                                                             (wrap-error error-prefix)
                                                             (vector)
@@ -148,13 +149,13 @@
                  (wrap-error error-prefix)
                  (vector)
                  (into {})
-                 (redirect-with-flash "/sengine/index"))
-      (not= status 204) (->> response
+                 (redirect-with-flash "/sengine/files"))
+      (not= status 200) (->> response
                              (error-response->string-message)
                              (wrap-error error-prefix)
                              (vector)
                              (into {})
-                             (redirect-with-flash "sengine/index"))
+                             (redirect-with-flash "/sengine/files"))
       :else (do
               (audit/info req :delete-sengine-file {:id id})
               (redirect-with-flash "/sengine/files"
@@ -179,9 +180,37 @@
                               (wrap-error error-prefix $)
                               (vector $)
                               (into {} $)
-                              (redirect-with-flash "sengine/index" $))
+                              (redirect-with-flash "/sengine/files" $))
       :else (do
               (audit/info req :download-sengine-model {:id id})
               {:body body
                :headers {"Content-Type" (:content-type headers)
                          "Content-Disposition" (:content-disposition headers)}}))))
+
+
+(defn init-profile-session [{params :params web :web :as req}]
+  (let [{:keys [id]} params
+        {:keys [sengine-addr]} web
+        event-id (str (UUID/randomUUID))
+        url (format "http://%s/files/%s/%s" sengine-addr id event-id)
+        {:keys [status body error]} @(http/post url)
+        error-prefix "Error while creating session: "]
+    (cond
+      error (->> error
+                 (wrap-error error-prefix)
+                 (vector)
+                 (into {})
+                 (redirect-with-flash "/sengine/files"))
+      (not= status 200) (as-> body $
+                              (json/parse-string $ true)
+                              (error-response->string-message $)
+                              (wrap-error error-prefix $)
+                              (vector $)
+                              (into {} $)
+                              (redirect-with-flash "/sengine/files" $))
+      :else (do
+              (redirect-with-flash (format "/sengine/files/%s/profile/%s" id event-id) {})))))
+
+(defn view-profile [req]
+  (render "sengine/profile" req {}))
+
