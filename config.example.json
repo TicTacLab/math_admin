@@ -9,6 +9,7 @@
       "192.168.167.146"
     ],
     "api-addr": "localhost:80",
+    "sengine-addr": "localhost:3001",
     "offload-repo": null,
     "zabbix-host": null,
     "zabbix-port": 10051,
