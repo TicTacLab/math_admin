@@ -58,6 +58,7 @@
   (POST "/sengine/files" req (allow req :admin (sengine/do-upload req)))
   (GET "/sengine/files/:id/edit" req (allow req :admin (sengine/edit req)))
   (POST "/sengine/files/:id/edit" req (allow req :admin (sengine/do-edit req)))
+  (GET "/sengine/files/:id/download" req (allow req :admin (sengine/download req)))
   (DELETE "/sengine/files/:id" req (allow req :admin (sengine/delete req)))
 
   (GET "/filler" req (allow req :admin (filler/index req)))

@@ -7,7 +7,8 @@
             [malt-admin.view :refer (render u)]
             [malt-admin.helpers :refer [redirect-with-flash error!]]
             [malt-admin.form.model :as form]
-            [malt-admin.audit :as audit]))
+            [malt-admin.audit :as audit]
+            [clojure.java.io :as io]))
 
 (defn wrap-error [log-error-prefix error]
   (if (instance? Throwable error)
@@ -158,3 +159,29 @@
               (audit/info req :delete-sengine-file {:id id})
               (redirect-with-flash "/sengine/files"
                                    {:success (format "File with id %s was deleted" id)})))))
+
+(defn download
+  [{:keys [params web] :as req}]
+  (let [{:keys [id]} params
+        {:keys [sengine-addr]} web
+        url (format "http://%s/files/%s" sengine-addr id)
+        {:keys [status body error headers]} @(http/get url)
+        error-prefix "Error while downloading file from sengine: "]
+    (cond
+      error (->> error
+                 (wrap-error error-prefix)
+                 (vector)
+                 (into {})
+                 (redirect-with-flash "/sengine/index"))
+      (not= status 200) (as-> (String. body) $
+                              (json/parse-string $ true)
+                              (error-response->string-message $)
+                              (wrap-error error-prefix $)
+                              (vector $)
+                              (into {} $)
+                              (redirect-with-flash "sengine/index" $))
+      :else (do
+              (audit/info req :download-sengine-model {:id id})
+              {:body body
+               :headers {"Content-Type" (:content-type headers)
+                         "Content-Disposition" (:content-disposition headers)}}))))
