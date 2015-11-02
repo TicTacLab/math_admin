@@ -13,10 +13,10 @@
       <th>Actions</th>
     </tr>
     [% for file in files %]
-    <tr class="model" data-rev="[[file.rev]]" data-id="[[file.id]]">
+    <tr class="model" data-id="[[file.id]]">
       <td class="model-id">[[file.id]]</td>
-      <td class="model-file-name">[[file.file_name]]</td>
-      <td class="model-last-modified">[[file.last_modified]]</td>
+      <td class="model-file-name">[[file.file-name]]</td>
+      <td class="model-last-modified">[[file.last-modified]]</td>
       <td>
         <form action="/mengine/files/[[file.id|u]]" method="POST" class="form-inline">
           <div class="btn-group">

@@ -22,7 +22,7 @@
 
 (defn index
   [{{:keys [sengine-addr]} :web :as req}]
-  (let [url (format "http://%s/file" sengine-addr)
+  (let [url (format "http://%s/files" sengine-addr)
         {:keys [status body error]} @(http/get url)
         response (json/parse-string body true)
         error-prefix "Error while getting files: "]
