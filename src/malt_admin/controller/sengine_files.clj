@@ -133,3 +133,28 @@
             :else (do
                     (audit/info req :replace-sengine-file (dissoc values :file))
                     (redirect-with-flash "/sengine/files" {:success "DONE"}))))))))
+
+(defn delete
+  [{:keys [web params] :as req}]
+  (let [{:keys [sengine-addr]} web
+        {:keys [id]} params
+        url (format "http://%s/files/%s" sengine-addr id)
+        {:keys [status body error]} @(http/delete url)
+        response (json/parse-string body true)
+        error-prefix "Error while deleting file from sengine: "]
+    (cond
+      error (->> error
+                 (wrap-error error-prefix)
+                 (vector)
+                 (into {})
+                 (redirect-with-flash "/sengine/index"))
+      (not= status 204) (->> response
+                             (error-response->string-message)
+                             (wrap-error error-prefix)
+                             (vector)
+                             (into {})
+                             (redirect-with-flash "sengine/index"))
+      :else (do
+              (audit/info req :delete-sengine-file {:id id})
+              (redirect-with-flash "/sengine/files"
+                                   {:success (format "File with id %s was deleted" id)})))))
