@@ -18,11 +18,11 @@
       <td class="model-file-name">[[file.file-name]]</td>
       <td class="model-last-modified">[[file.last-modified]]</td>
       <td>
-        <form action="/mengine/files/[[file.id|u]]" method="POST" class="form-inline">
+        <form action="/sengine/files/[[file.id|u]]" method="POST" class="form-inline">
           <div class="btn-group">
             [% if admin? %]
-            <a class="btn btn-default confirmable" href="/mengine/files/[[file.id|u]]/download">Download</a>
-            <a class="btn btn-default" href="/mengine/files/[[file.id|u]]/edit">Replace</a>
+            <a class="btn btn-default confirmable" href="/sengine/files/[[file.id|u]]/download">Download</a>
+            <a class="btn btn-default" href="/sengine/files/[[file.id|u]]/edit">Edit</a>
             <input type="hidden" name="_method" value="DELETE"/>
             <button type="submit" class="btn btn-danger confirmable">Delete</button>
             [% endif %]
