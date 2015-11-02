@@ -62,6 +62,7 @@
   (DELETE "/sengine/files/:id" req (allow req :admin (sengine/delete req)))
   (GET "/sengine/files/:id/profile" req (allow req :any (sengine/init-profile-session req)))
   (GET "/sengine/files/:id/profile/:event-id" req (allow req :any (sengine/view-profile req)))
+  (POST "/sengine/files/:id/profile/:event-id" req (allow req :any (sengine/send-profile req)))
 
   (GET "/filler" req (allow req :admin (filler/index req)))
 
