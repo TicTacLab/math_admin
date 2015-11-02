@@ -22,10 +22,10 @@
            [java.io File]))
 
 (defn index [{{storage :storage} :web :as req}]
-  (render "models/index" req {:models (models/get-models storage)}))
+  (render "mengine/index" req {:models (models/get-models storage)}))
 
 (defn upload [{:keys [problems params] :as req}]
-  (render "models/upload" req {:upload-form (assoc form/upload-form
+  (render "mengine/upload" req {:upload-form (assoc form/upload-form
                                               :action "/mengine/files"
                                               :method "POST"
                                               :values (merge {:in_sheet_name  "IN"
@@ -86,7 +86,7 @@
              problems :problems
              :as req}]
   (let [model (models/get-model storage (Integer/valueOf ^String id))]
-    (render "models/edit" req {:edit-form (assoc form/edit-form
+    (render "mengine/edit" req {:edit-form (assoc form/edit-form
                                             :values (if problems params model)
                                             :action (str "/mengine/files/" (u id))
                                             :method "PUT"
@@ -230,7 +230,7 @@
                          (re-matches #"^(.*)\..*$" $)
                          (second $))
         render-with-flash (fn [flash & {:as render-data}]
-                            (render "models/profile"
+                            (render "mengine/profile"
                                     (assoc req :flash flash)
                                     (merge {:model-file  model-file
                                             :total-timer 0} render-data)))
