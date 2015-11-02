@@ -54,6 +54,8 @@
   (POST "/mengine/files" req (allow req :admin (mengine/do-upload req)))
 
   (GET "/sengine/files" req (allow req :any (sengine/index req)))
+  (GET "/sengine/files/upload" req (allow req :admin (sengine/upload req)))
+  (POST "/sengine/files" req (allow req :admin (sengine/do-upload req)))
 
   (GET "/filler" req (allow req :admin (filler/index req)))
 
