@@ -25,7 +25,8 @@
        (map :message)
        (s/join " ")))
 
-(defn check-response [resp error-prefix]
+(defn check-response
+  [resp error-prefix]
   (let [{:keys [status body error]} resp
         response (json/parse-string body true)]
     (cond
@@ -153,7 +154,8 @@
                          "Content-Disposition" (:content-disposition headers)}}))))
 
 
-(defn init-profile-session [{params :params web :web :as req}]
+(defn init-profile-session
+  [{:keys [web params]}]
   (let [{:keys [id]} params
         {:keys [sengine-addr]} web
         event-id (str (UUID/randomUUID))
@@ -165,8 +167,8 @@
       (redirect-with-flash (format "/sengine/files/%s/profile/%s" id event-id) {}))))
 
 (defn render-profile [req event-log out]
-  (render "sengine/profile" req {:event-log event-log
-                                 :out out}))
+  (render "sengine/profile" req {:event-log (json/generate-string event-log {:pretty true})
+                                 :out       (json/generate-string out {:pretty true})}))
 
 (defn view-profile
   [{:keys [params web] :as r}]
