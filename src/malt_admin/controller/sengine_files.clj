@@ -209,7 +209,8 @@
         {:keys [sengine-addr]} web
         url (format "http://%s/events/%s/event-log/%s"
                     sengine-addr event-id send-type)
-        resp @(http/post url {:body event-log})
+        body (format "{\"params\":%s}" event-log)
+        resp @(http/post url {:body body})
         error-prefix "Error while setting event log: "
         [_ error] (check-response resp error-prefix)]
     (if error
