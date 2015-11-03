@@ -8,9 +8,12 @@
 
 <div class="row">
     <div class="col-md-4">
-        <form method="POST">
+        <form class="form-horizontal" method="POST">
             <div class="form-group">
-                <textarea name="event-log"></textarea>
+                <div class="col-sm-12">
+                    <p>New event</p>
+                    <textarea class="form-control" name="event-log" rows="10"></textarea>
+                </div>
             </div>
             <div class="radio">
                 <label>
@@ -20,19 +23,23 @@
             </div>
             <div class="radio">
                 <label>
-                    <input type="radio" name="send-type" value="set" checked="true"/>
+                    <input type="radio" name="send-type" value="set" checked/>
                     Set
                 </label>
             </div>
             <div class="form-group">
-                <button type="submit">Send</button>
+                <div class="col-sm-12">
+                    <button class="btn btn-primary" type="submit">Send</button>
+                </div>
             </div>
         </form>
     </div>
     <div class="col-md-4">
+        <p>Event log</p>
         <pre>[[ event-log ]]</pre>
     </div>
     <div class="col-md-4">
+        <p>Out</p>
         <pre>[[ out ]]</pre>
     </div>
 
