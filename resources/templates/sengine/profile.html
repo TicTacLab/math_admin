@@ -9,14 +9,21 @@
 <div class="row">
     <div class="col-sm-12">
         <h4>File info</h4>
-        <form id="destroy-session" action="destroy" method="POST">
-            <button class="btn btn-danger" type="submit">Destroy session</button>
-        </form>
-        [% if admin? %]
-        <form action="" id="download-workbook" method="POST">
-            <button class="btn btn-primary" type="submit">Download workbook</button>
-        </form>
-        [% endif %]
+
+        <div class="row">
+            <div class="col-sm-2">
+                <form id="destroy-session" action="destroy" method="POST">
+                    <button class="btn btn-danger" type="submit">Destroy session</button>
+                </form>
+            </div>
+            <div class="col-sm-2">
+                [% if admin? %]
+                <form id="download-workbook" method="POST">
+                    <button class="btn btn-primary" type="submit">Download workbook</button>
+                </form>
+                [% endif %]
+            </div>
+        </div>
     </div>
 </div>
 
