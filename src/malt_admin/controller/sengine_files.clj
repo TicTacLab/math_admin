@@ -159,9 +159,11 @@
   (let [{:keys [id]} params
         {:keys [sengine-addr]} web
         event-id (str (UUID/randomUUID))
-        url (format "http://%s/files/%s/%s" sengine-addr id event-id)
+        url (format "http://%s/events" sengine-addr)
+        params {:event-id event-id, :file-id id}
+        body (json/generate-string {:params params})
         error-prefix "Error while creating session: "
-        [_ error] (check-response @(http/post url) error-prefix)]
+        [_ error] (check-response @(http/post url {:body body}) error-prefix)]
     (if error
       (redirect-with-flash "/sengine/files" {:error error})
       (redirect-with-flash (format "/sengine/files/%s/profile/%s" id event-id) {}))))
@@ -186,14 +188,13 @@
   [{:keys [params web] :as r}]
   (let [{:keys [id event-id]} params
         {:keys [sengine-addr]} web
-        url (format "http://%s/files/%s/%s/event-log"
-                    sengine-addr id event-id)
+        url (format "http://%s/events/%s/event-log" sengine-addr event-id)
         error-prefix "Error while getting event log: "
         [event-log error] (check-response @(http/get url) error-prefix)]
     (if error
       (redirect-with-flash "/sengine/files" {:error error})
-      (let [url (format "http://%s/files/%s/%s/settlements"
-                        sengine-addr id event-id)
+      (let [url (format "http://%s/events/%s/settlements"
+                        sengine-addr event-id)
             resp @(http/get url)
             error-prefix "Error while getting settlements: "
             [out error] (check-response resp error-prefix)
@@ -206,8 +207,8 @@
   [{:keys [params web] :as r}]
   (let [{:keys [send-type event-log id event-id]} params
         {:keys [sengine-addr]} web
-        url (format "http://%s/files/%s/%s/event-log/%s"
-                    sengine-addr id event-id send-type)
+        url (format "http://%s/events/%s/event-log/%s"
+                    sengine-addr event-id send-type)
         resp @(http/post url {:body event-log})
         error-prefix "Error while setting event log: "
         [_ error] (check-response resp error-prefix)]
@@ -217,10 +218,10 @@
         (redirect-with-flash url {:success "DONE"})))))
 
 (defn destroy-profile-session
-  [{:keys [params web] :as r}]
+  [{:keys [params web]}]
   (let [{:keys [id event-id]} params
         {:keys [sengine-addr]} web
-        url (format "http://%s/files/%s/%s" sengine-addr id event-id)
+        url (format "http://%s/events/%s" sengine-addr event-id)
         resp @(http/delete url)
         error-prefix "Error while deleting session: "
         [_ error] (check-response resp error-prefix)]
@@ -232,7 +233,7 @@
   [{:keys [params web] :as req}]
   (let [{:keys [sengine-addr]} web
         {:keys [id event-id]} params
-        url (format "http://%s/files/%s/%s" sengine-addr id event-id)
+        url (format "http://%s/events/%s" sengine-addr event-id)
         {:keys [status body error headers]} @(http/get url)
         error-prefix "Error while downloading file from sengine: "]
     (cond
