@@ -166,7 +166,7 @@
         [_ error] (check-response @(http/post url {:body body}) error-prefix)]
     (if error
       (redirect-with-flash "/sengine/files" {:error error})
-      (redirect-with-flash (format "/sengine/files/%s/profile/%s" id event-id) {}))))
+      (redirect-with-flash (format "/sengine/files/profile/%s" event-id) {}))))
 
 (defn render-profile [req event-log out admin?]
   (let [event-log-rows (->> event-log
@@ -186,7 +186,7 @@
 
 (defn view-profile
   [{:keys [params web] :as r}]
-  (let [{:keys [id event-id]} params
+  (let [{:keys [event-id]} params
         {:keys [sengine-addr]} web
         url (format "http://%s/events/%s/event-log" sengine-addr event-id)
         error-prefix "Error while getting event log: "
@@ -205,7 +205,7 @@
 
 (defn send-profile
   [{:keys [params web] :as r}]
-  (let [{:keys [send-type event-log id event-id]} params
+  (let [{:keys [send-type event-log event-id]} params
         {:keys [sengine-addr]} web
         url (format "http://%s/events/%s/event-log/%s"
                     sengine-addr event-id send-type)
@@ -214,25 +214,25 @@
         [_ error] (check-response resp error-prefix)]
     (if error
       (redirect-with-flash (:uri r) {:error error})
-      (let [url (format "/sengine/files/%s/profile/%s" id event-id)]
+      (let [url (format "/sengine/files/profile/%s" event-id)]
         (redirect-with-flash url {:success "DONE"})))))
 
 (defn destroy-profile-session
   [{:keys [params web]}]
-  (let [{:keys [id event-id]} params
+  (let [{:keys [event-id]} params
         {:keys [sengine-addr]} web
         url (format "http://%s/events/%s" sengine-addr event-id)
         resp @(http/delete url)
         error-prefix "Error while deleting session: "
         [_ error] (check-response resp error-prefix)]
     (if error
-      (redirect-with-flash (format "/sengine/files/%s/profile/%s" id event-id) {:error error})
+      (redirect-with-flash (format "/sengine/files/profile/%s" event-id) {:error error})
       (redirect-with-flash "/sengine/files" {:success "DONE"}))))
 
 (defn get-profile-workbook
   [{:keys [params web] :as req}]
   (let [{:keys [sengine-addr]} web
-        {:keys [id event-id]} params
+        {:keys [event-id]} params
         url (format "http://%s/events/%s" sengine-addr event-id)
         {:keys [status body error headers]} @(http/get url)
         error-prefix "Error while downloading file from sengine: "]
@@ -241,7 +241,7 @@
                  (wrap-error error-prefix)
                  (vector)
                  (into {})
-                 (redirect-with-flash (format "/sengine/files/%s/profile/%s" id event-id)))
+                 (redirect-with-flash (format "/sengine/files/profile/%s" event-id)))
       (not= status 200) (as-> (String. body) $
                               (json/parse-string $ true)
                               (error-response->string-message $)
@@ -250,7 +250,7 @@
                               (into {} $)
                               (redirect-with-flash "/sengine/files" $))
       :else (do
-              (audit/info req :download-sengine-model {:id id})
+              (audit/info req :download-sengine-model {:id event-id})
               {:body body
                :headers {"Content-Type" (:content-type headers)
                          "Content-Disposition" (:content-disposition headers)}}))))

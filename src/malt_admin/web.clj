@@ -61,10 +61,10 @@
   (GET "/sengine/files/:id/download" req (allow req :admin (sengine/download req)))
   (DELETE "/sengine/files/:id" req (allow req :admin (sengine/delete req)))
   (GET "/sengine/files/:id/profile" req (allow req :any (sengine/init-profile-session req)))
-  (GET "/sengine/files/:id/profile/:event-id" req (allow req :any (sengine/view-profile req)))
-  (POST "/sengine/files/:id/profile/:event-id" req (allow req :any (sengine/send-profile req)))
-  (POST "/sengine/files/:id/profile/:event-id/destroy" req (allow req :any (sengine/destroy-profile-session req)))
-  (POST "/sengine/files/:id/profile/:event-id/workbook" req (allow req :admin (sengine/get-profile-workbook req)))
+  (GET "/sengine/files/profile/:event-id" req (allow req :any (sengine/view-profile req)))
+  (POST "/sengine/files/profile/:event-id" req (allow req :any (sengine/send-profile req)))
+  (POST "/sengine/files/profile/:event-id/destroy" req (allow req :any (sengine/destroy-profile-session req)))
+  (POST "/sengine/files/profile/:event-id/workbook" req (allow req :admin (sengine/get-profile-workbook req)))
 
   (GET "/filler" req (allow req :admin (filler/index req)))
 

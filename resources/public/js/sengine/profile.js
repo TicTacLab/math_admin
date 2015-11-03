@@ -1,10 +1,9 @@
 (function() {
 var parts = window.location.pathname.split('/');
-var fileId = parts[3];
-var eventId = parts[5];
-var destroyUrl = '/sengine/files/' + fileId + '/profile/' + eventId + '/destroy';
+var eventId = parts[4];
+var destroyUrl = '/sengine/files/profile/' + eventId + '/destroy';
 $('#destroy-session').attr('action', destroyUrl);
-var downloadWorkbookUrl = '/sengine/files/' + fileId + '/profile/' + eventId + '/workbook';
+var downloadWorkbookUrl = '/sengine/files/profile/' + eventId + '/workbook';
 $('#download-workbook').attr('action', downloadWorkbookUrl);
 
 })();
