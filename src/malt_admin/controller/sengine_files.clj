@@ -166,13 +166,14 @@
       (redirect-with-flash "/sengine/files" {:error error})
       (redirect-with-flash (format "/sengine/files/%s/profile/%s" id event-id) {}))))
 
-(defn render-profile [req event-log out]
+(defn render-profile [req event-log out admin?]
   (let [event-log-rows (mapv json/generate-string event-log)
         out-header-keys (->> (first out)
                          (keys)
                          (vec))
         out-rows (map (fn [row] (map #(get row %) out-header-keys)) out)]
-    (render "sengine/profile" req {:event-log event-log-rows
+    (render "sengine/profile" req {:admin? admin?
+                                   :event-log event-log-rows
                                    :out {:header (mapv name out-header-keys)
                                          :rows out-rows}})))
 
@@ -190,10 +191,11 @@
                         sengine-addr id event-id)
             resp @(http/get url)
             error-prefix "Error while getting settlements: "
-            [out error] (check-response resp error-prefix)]
+            [out error] (check-response resp error-prefix)
+            admin? (get-in r [:session :is-admin] false)]
         (if error
           (redirect-with-flash "/sengine/files" {:error error})
-          (render-profile r event-log out))))))
+          (render-profile r event-log out admin?))))))
 
 (defn send-profile
   [{:keys [params web] :as r}]
@@ -220,3 +222,29 @@
     (if error
       (redirect-with-flash (format "/sengine/files/%s/profile/%s" id event-id) {:error error})
       (redirect-with-flash "/sengine/files" {:success "DONE"}))))
+
+(defn get-profile-workbook
+  [{:keys [params web] :as req}]
+  (let [{:keys [sengine-addr]} web
+        {:keys [id event-id]} params
+        url (format "http://%s/files/%s/%s" sengine-addr id event-id)
+        {:keys [status body error headers]} @(http/get url)
+        error-prefix "Error while downloading file from sengine: "]
+    (cond
+      error (->> error
+                 (wrap-error error-prefix)
+                 (vector)
+                 (into {})
+                 (redirect-with-flash (format "/sengine/files/%s/profile/%s" id event-id)))
+      (not= status 200) (as-> (String. body) $
+                              (json/parse-string $ true)
+                              (error-response->string-message $)
+                              (wrap-error error-prefix $)
+                              (vector $)
+                              (into {} $)
+                              (redirect-with-flash "/sengine/files" $))
+      :else (do
+              (audit/info req :download-sengine-model {:id id})
+              {:body body
+               :headers {"Content-Type" (:content-type headers)
+                         "Content-Disposition" (:content-disposition headers)}}))))
