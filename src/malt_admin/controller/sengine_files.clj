@@ -209,3 +209,14 @@
       (let [url (format "/sengine/files/%s/profile/%s" id event-id)]
         (redirect-with-flash url {:success "DONE"})))))
 
+(defn destroy-profile-session
+  [{:keys [params web] :as r}]
+  (let [{:keys [id event-id]} params
+        {:keys [sengine-addr]} web
+        url (format "http://%s/files/%s/%s" sengine-addr id event-id)
+        resp @(http/delete url)
+        error-prefix "Error while deleting session: "
+        [_ error] (check-response resp error-prefix)]
+    (if error
+      (redirect-with-flash (format "/sengine/files/%s/profile/%s" id event-id) {:error error})
+      (redirect-with-flash "/sengine/files" {:success "DONE"}))))
