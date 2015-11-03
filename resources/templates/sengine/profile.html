@@ -24,17 +24,6 @@
 
 <div class="row">
     <div class="col-sm-12">
-        <h4>Event log:</h4>
-        [% for row in event-log %]
-        <pre>[[ row ]]</pre>
-        [% endfor %]
-    </div>
-</div>
-
-<hr>
-
-<div class="row">
-    <div class="col-sm-12">
         <h4>New events</h4>
         <form method="POST">
             <div class="col-sm-6">
@@ -45,19 +34,30 @@
             <div class="col-sm-6">
                 <div class="radio">
                     <label>
-                        <input type="radio" name="send-type" value="append"/>
+                        <input type="radio" name="send-type" value="append" checked/>
                         Append events
                     </label>
                 </div>
                 <div class="radio">
                     <label>
-                        <input type="radio" name="send-type" value="set" checked/>
+                        <input type="radio" name="send-type" value="set"/>
                         Set events
                     </label>
                 </div>
                 <button class="btn btn-primary" type="submit">Send</button>
             </div>
         </form>
+    </div>
+</div>
+
+<hr>
+
+<div class="row">
+    <div class="col-sm-12">
+        <h4>Event log:</h4>
+        [% for row in event-log %]
+        <pre>[[ row ]]</pre>
+        [% endfor %]
     </div>
 </div>
 
