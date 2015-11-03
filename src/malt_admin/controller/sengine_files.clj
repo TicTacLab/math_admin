@@ -179,14 +179,14 @@
         error-prefix "Error while getting event log: "
         [event-log error] (check-response @(http/get url) error-prefix)]
     (if error
-      (redirect-with-flash (:uri r) {:error error})
+      (redirect-with-flash "/sengine/files" {:error error})
       (let [url (format "http://%s/files/%s/%s/settlements"
                         sengine-addr id event-id)
             resp @(http/get url)
             error-prefix "Error while getting settlements: "
             [out error] (check-response resp error-prefix)]
         (if error
-          (redirect-with-flash (:uri r) {:error error})
+          (redirect-with-flash "/sengine/files" {:error error})
           (render-profile r event-log out))))))
 
 (defn send-profile
