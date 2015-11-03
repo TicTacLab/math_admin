@@ -7,36 +7,76 @@
 [% block body %]
 
 <div class="row">
-    <div class="col-md-4">
+    <div class="col-sm-12">
+        <h4>File info</h4>
+    </div>
+</div>
+
+<hr>
+
+<div class="row">
+    <div class="col-sm-12">
+        <h4>Event log:</h4>
+        [% for row in event-log %]
+        <pre>[[ row ]]</pre>
+        [% endfor %]
+    </div>
+</div>
+
+<hr>
+
+<div class="row">
+    <div class="col-sm-12">
+        <h4>New events</h4>
         <form method="POST">
-            <div class="form-group">
-                <p>New event</p>
-                <textarea class="form-control" name="event-log" rows="10"></textarea>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <textarea class="form-control" name="event-log" rows="10"></textarea>
+                </div>
             </div>
-            <div class="radio">
-                <label>
-                    <input type="radio" name="send-type" value="append"/>
-                    Append
-                </label>
+            <div class="col-sm-6">
+                <div class="radio">
+                    <label>
+                        <input type="radio" name="send-type" value="append"/>
+                        Append events
+                    </label>
+                </div>
+                <div class="radio">
+                    <label>
+                        <input type="radio" name="send-type" value="set" checked/>
+                        Set events
+                    </label>
+                </div>
+                <button class="btn btn-primary" type="submit">Send</button>
             </div>
-            <div class="radio">
-                <label>
-                    <input type="radio" name="send-type" value="set" checked/>
-                    Set
-                </label>
-            </div>
-            <button class="btn btn-primary" type="submit">Send</button>
         </form>
     </div>
-    <div class="col-md-4">
-        <p>Event log</p>
-        <pre>[[ event-log ]]</pre>
-    </div>
-    <div class="col-md-4">
-        <p>Out</p>
-        <pre>[[ out ]]</pre>
-    </div>
+</div>
 
+<hr>
+
+<div class="row">
+    <div class="col-sm-12">
+        <h4>Markets</h4>
+        <table class="table table-condensed">
+            <thead>
+              <tr>
+                  [% for val in out.header %]
+                  <th>[[ val ]]</th>
+                  [% endfor %]
+              </tr>
+            </thead>
+            <tbody>
+            [% for row in out.rows %]
+            <tr>
+                [% for val in row %]
+                <td>[[ val ]]</td>
+                [% endfor %]
+            </tr>
+            [% endfor %]
+            </tbody>
+        </table>
+    </div>
 </div>
 
 [% endblock body %]
