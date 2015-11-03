@@ -1,4 +1,4 @@
-(ns malt-admin.controller.models
+(ns malt-admin.controller.mengine-files
   (:require [malt-admin.view :refer (render u)]
             [malt-admin.form.model :as form]
             [malt-admin.audit :as audit]
@@ -22,11 +22,11 @@
            [java.io File]))
 
 (defn index [{{storage :storage} :web :as req}]
-  (render "models/index" req {:models (models/get-models storage)}))
+  (render "mengine/index" req {:models (models/get-models storage)}))
 
 (defn upload [{:keys [problems params] :as req}]
-  (render "models/upload" req {:upload-form (assoc form/upload-form
-                                              :action "/files"
+  (render "mengine/upload" req {:upload-form (assoc form/upload-form
+                                              :action "/mengine/files"
                                               :method "POST"
                                               :values (merge {:in_sheet_name  "IN"
                                                               :out_sheet_name "OUT"}
@@ -59,7 +59,7 @@
 (defn do-upload [{params :params
                   {:keys [storage offloader]} :web
                   :as req}]
-  (fp/with-fallback #(malt-admin.controller.models/upload (assoc req :problems %))
+  (fp/with-fallback #(malt-admin.controller.mengine-files/upload (assoc req :problems %))
     (let [values (->> params
                       (fp/parse-params form/upload-form)
                       (prepare-file-attrs)
@@ -79,23 +79,23 @@
           (models/write-model! storage values)
           (audit/info req :upload-model (dissoc values :file))
           (off/offload-model! offloader (:id values))
-          (redirect-with-flash "/files" {:success "DONE"}))))))
+          (redirect-with-flash "/mengine/files" {:success "DONE"}))))))
 
 (defn edit [{{storage :storage} :web
              {id :id :as params} :params
              problems :problems
              :as req}]
   (let [model (models/get-model storage (Integer/valueOf ^String id))]
-    (render "models/edit" req {:edit-form (assoc form/edit-form
+    (render "mengine/edit" req {:edit-form (assoc form/edit-form
                                             :values (if problems params model)
-                                            :action (str "/files/" (u id))
+                                            :action (str "/mengine/files/" (u id))
                                             :method "PUT"
                                             :problems problems)})))
 
 (defn replace [{{:keys [storage offloader]} :web
                 params             :params
                 :as                req}]
-  (fp/with-fallback #(malt-admin.controller.models/edit (assoc req :problems %))
+  (fp/with-fallback #(malt-admin.controller.mengine-files/edit (assoc req :problems %))
     (let [parsed-params (fp/parse-params form/edit-form params)
           values (-> parsed-params
                      (prepare-file-attrs)
@@ -106,7 +106,7 @@
       (models/replace-model! storage values)
       (audit/info req :replace-model (dissoc values :file))
       (off/offload-model! offloader id)
-      (redirect-with-flash "/files" {:success (format "File with id %d was replaced" id)}))))
+      (redirect-with-flash "/mengine/files" {:success (format "File with id %d was replaced" id)}))))
 
 (defn delete [{{id :id}           :params
                {storage :storage} :web
@@ -117,7 +117,7 @@
     (cache/clear storage model-id rev)
     (in-params/delete! storage model-id)
     (audit/info req :delete-model {:id model-id})
-    (redirect-with-flash "/files"
+    (redirect-with-flash "/mengine/files"
                          {:success (format "File with id %d was deleted"
                                            model-id)})))
 
@@ -230,7 +230,7 @@
                          (re-matches #"^(.*)\..*$" $)
                          (second $))
         render-with-flash (fn [flash & {:as render-data}]
-                            (render "models/profile"
+                            (render "mengine/profile"
                                     (assoc req :flash flash)
                                     (merge {:model-file  model-file
                                             :total-timer 0} render-data)))
@@ -239,7 +239,7 @@
       :ok (let [values (or in-params
                            (malt-params->form-values malt-params))
                 profile-form (merge (malt-params->form malt-params)
-                                    {:action       (str "/files/" (u model-id) "/" (u rev) "/profile")
+                                    {:action       (str "/mengine/files/" (u model-id) "/" (u rev) "/profile")
                                      :method       "POST"
                                      :values       values
                                      :submit-label "Calculate"
