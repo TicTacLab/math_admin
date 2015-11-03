@@ -169,12 +169,7 @@
       (redirect-with-flash (format "/sengine/files/profile/%s" event-id) {}))))
 
 (defn render-profile [req event-log out admin?]
-  (let [event-log-rows (->> event-log
-                            (map (fn [row]
-                                   (->> row
-                                        (remove (comp empty? val))
-                                        (into {}))))
-                            (mapv json/generate-string))
+  (let [event-log-rows (mapv json/generate-string event-log)
         out-header-keys (->> (first out)
                              (keys)
                              (vec))
