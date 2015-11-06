@@ -8,6 +8,7 @@
             [malt-admin.controller
              [mengine-files :as mengine]
              [sengine-files :as sengine]
+             [sengine-events :as sengine-events]
              [users :as users]
              [filler :as filler]
              [auth :as auth]]
@@ -65,6 +66,8 @@
   (POST "/sengine/files/profile/:event-id" req (allow req :any (sengine/send-profile req)))
   (POST "/sengine/files/profile/:event-id/destroy" req (allow req :any (sengine/destroy-profile-session req)))
   (POST "/sengine/files/profile/:event-id/workbook" req (allow req :admin (sengine/get-profile-workbook req)))
+
+  (GET "/sengine/events" req (allow req :any (sengine-events/index req)))
 
   (GET "/filler" req (allow req :admin (filler/index req)))
 

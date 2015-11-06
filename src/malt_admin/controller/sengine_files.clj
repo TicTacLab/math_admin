@@ -160,7 +160,7 @@
         {:keys [sengine-addr]} web
         event-id (str (UUID/randomUUID))
         url (format "http://%s/events" sengine-addr)
-        params {:event-id event-id, :file-id id}
+        params {:event-id event-id :file-id id :description "Admin profile session"}
         body (json/generate-string {:params params})
         error-prefix "Error while creating session: "
         [_ error] (check-response @(http/post url {:body body}) error-prefix)]
