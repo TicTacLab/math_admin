@@ -75,6 +75,14 @@
                          :filter-open \[
                          :filter-close \]})))
 
+(defn render-with-success
+  [template-name req success context]
+  (render template-name (assoc req :flash {:success success}) context))
+
+(defn render-with-error
+  [template-name req error context]
+  (render template-name (assoc req :flash {:error error}) context))
+
 (defn render-error [req code]
   (-> (format "errors/%d" code)
       (render req {})

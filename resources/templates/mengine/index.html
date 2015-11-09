@@ -2,7 +2,7 @@
 [% block body %]
 <h1>Files</h1>
 [% if admin? %]
-<a href="/models/upload" class="btn btn-primary btn-lg">Upload New</a>
+<a href="/mengine/files/upload" class="btn btn-primary btn-lg">Upload New</a>
 [% endif %]
 <table class="table table-hover">
     <tr>
@@ -17,12 +17,12 @@
         <td class="model-file-name">[[model.file_name]]</td>
         <td class="model-last-modified">[[model.last_modified]]</td>
         <td>
-          <form action="/models/[[model.id|u]]" method="POST" class="form-inline">
+          <form action="/mengine/files/[[model.id|u]]" method="POST" class="form-inline">
             <div class="btn-group">
-                <a class="btn btn-primary" href="/models/[[model.id|u]]/[[model.rev|u]]/profile">Profile</a>
+                <a class="btn btn-primary" href="/mengine/files/[[model.id|u]]/[[model.rev|u]]/profile">Profile</a>
                 [% if admin? %]
-                <a class="btn btn-default confirmable" href="/models/[[model.id|u]]/download">Download</a>
-                <a class="btn btn-default" href="/models/[[model.id|u]]/edit">Replace</a>
+                <a class="btn btn-default confirmable" href="/mengine/files/[[model.id|u]]/download">Download</a>
+                <a class="btn btn-default" href="/mengine/files/[[model.id|u]]/edit">Replace</a>
                 <input type="hidden" name="_method" value="DELETE"/>
                 <button type="submit" class="btn btn-danger confirmable">Delete</button>
                 [% endif %]

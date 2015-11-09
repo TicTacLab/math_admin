@@ -9,14 +9,13 @@
   (t/with-system [s (test-system @c/config)]
     (let [b (t/start-browser! s)]
       (signin)
-      (go "/models")
+      (go "/mengine/files")
 
       (let [id (rand-int 1000000)
             model-selector (keyword (format ".model[data-id='%d']" id))]
         (testing "revision creating on model upload"
           (click "Upload New")
           (fill-in "ID" (str id))
-          (fill-in "Name" "SuperName")
           (send-keys "File" *file*)
           (click "Submit")
           (Thread/sleep 300)
@@ -27,8 +26,6 @@
           (let [old-rev (w/attribute model-selector "data-rev")]
             (within b model-selector
               (click "Replace"))
-            (fill-in "In sheet name" "MEGASHIT")
-            (fill-in "Out sheet name" "MEGASHUT")
             (send-keys "File" "/etc/hosts")
             (click "Submit")
             (t/wait-condition b (ExpectedConditions/alertIsPresent))
@@ -42,8 +39,6 @@
           (let [old-rev (w/attribute model-selector "data-rev")]
             (within b model-selector
               (click "Replace"))
-            (fill-in "In sheet name" "MEGASHIT")
-            (fill-in "Out sheet name" "MEGASHUT")
             (click "Submit")
             (t/wait-condition b (ExpectedConditions/alertIsPresent))
             (accept)

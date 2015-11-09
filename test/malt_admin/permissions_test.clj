@@ -11,7 +11,7 @@
       (testing "Model preloading"
         (let [id (rand-int 1000)]
           (signin)
-          (go "/models")
+          (go "/mengine/files")
           (click "Upload New")
           (fill-in "ID" (str id))
           (send-keys "File" "/etc/hosts")
@@ -23,8 +23,8 @@
       (testing "Admin permissions"
         (signin b)
 
-        (go b "/models")
-        (is (seq (find-elements b {:xpath "//h1[text()='Models']"}))
+        (go b "/mengine/files")
+        (is (seq (find-elements b {:xpath "//h1[text()='Files']"}))
             "Should have access to models")
         (is (seq (find-elements b {:xpath "//a[text()='Profile']"}))
             "Should see Profile btn")

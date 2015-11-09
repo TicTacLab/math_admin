@@ -8,9 +8,10 @@
 
 (defn replace-model! [storage model]
   (let [{:keys [conn]} storage]
-    (cql/update conn "models"
-                (set (dissoc model :id))
-                (where [[= :id (:id model)]]))))
+    (if-let [fields (seq (dissoc model :id))]
+      (cql/update conn "models"
+                  (set fields)
+                  (where [[= :id (:id model)]])))))
 
 (defn delete-model! [storage model-id]
   (let [{:keys [conn]} storage]

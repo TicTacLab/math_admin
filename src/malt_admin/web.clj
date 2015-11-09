@@ -6,7 +6,9 @@
             [clojure.tools.logging :as log]
             [clojure.tools.trace :refer (trace)]
             [malt-admin.controller
-             [models :as models]
+             [mengine-files :as mengine]
+             [sengine-files :as sengine]
+             [sengine-events :as sengine-events]
              [users :as users]
              [filler :as filler]
              [auth :as auth]]
@@ -34,35 +36,50 @@
 
 
 (defroutes routes
-  (GET    "/" req (allow req :any (res/redirect "/models")))
+  (GET "/" req (allow req :any (res/redirect "/mengine/files")))
 
-  (GET    "/auth" req (allow req :any (auth/index req)))
-  (POST   "/auth" req (allow req :any (auth/sign-in req)))
+  (GET "/auth" req (allow req :any (auth/index req)))
+  (POST "/auth" req (allow req :any (auth/sign-in req)))
   (DELETE "/auth" req (allow req :any (auth/sign-out req)))
 
-  (GET    "/models"                   req (allow req :any   (models/index req)))
-  (GET    "/models/upload"            req (allow req :admin (models/upload req)))
-  (GET    "/models/:id/edit"          req (allow req :admin (models/edit req)))
-  (GET    "/models/:id/download"      req (allow req :admin (models/download req)))
-  (GET    "/models/:id/:rev/profile"  req (allow req :any   (models/profile req)))
-  (POST   "/models/:id/:rev/profile"  req (allow req :any   (models/profile-execute req)))
-  (DELETE "/models/:id/:rev/session"  req (allow req :any   (models/delete-session req)))
-  (POST   "/models/:id/log"           req (allow req :any   (models/read-log req)))
-  (PUT    "/models/:id"               req (allow req :admin (models/replace req)))
-  (DELETE "/models/:id"               req (allow req :admin (models/delete req)))
-  (POST   "/models"                   req (allow req :admin (models/do-upload req)))
+  (GET "/mengine/files" req (allow req :any (mengine/index req)))
+  (GET "/mengine/files/upload" req (allow req :admin (mengine/upload req)))
+  (GET "/mengine/files/:id/edit" req (allow req :admin (mengine/edit req)))
+  (GET "/mengine/files/:id/download" req (allow req :admin (mengine/download req)))
+  (GET "/mengine/files/:id/:rev/profile" req (allow req :any (mengine/profile req)))
+  (POST "/mengine/files/:id/:rev/profile" req (allow req :any (mengine/profile-execute req)))
+  (DELETE "/mengine/files/:id/:rev/session" req (allow req :any (mengine/delete-session req)))
+  (POST "/mengine/files/:id/log" req (allow req :any (mengine/read-log req)))
+  (PUT "/mengine/files/:id" req (allow req :admin (mengine/replace req)))
+  (DELETE "/mengine/files/:id" req (allow req :admin (mengine/delete req)))
+  (POST "/mengine/files" req (allow req :admin (mengine/do-upload req)))
 
-  (GET    "/filler"                       req (allow req :admin (filler/index req)))
+  (GET "/sengine/files" req (allow req :any (sengine/index req)))
+  (GET "/sengine/files/upload" req (allow req :admin (sengine/upload req)))
+  (POST "/sengine/files" req (allow req :admin (sengine/do-upload req)))
+  (GET "/sengine/files/:id/edit" req (allow req :admin (sengine/edit req)))
+  (POST "/sengine/files/:id/edit" req (allow req :admin (sengine/do-edit req)))
+  (GET "/sengine/files/:id/download" req (allow req :admin (sengine/download req)))
+  (DELETE "/sengine/files/:id" req (allow req :admin (sengine/delete req)))
+  (GET "/sengine/files/:id/profile" req (allow req :any (sengine/init-profile-session req)))
+  (GET "/sengine/files/profile/:event-id" req (allow req :any (sengine/view-profile req)))
+  (POST "/sengine/files/profile/:event-id" req (allow req :any (sengine/send-profile req)))
+  (POST "/sengine/files/profile/:event-id/destroy" req (allow req :any (sengine/destroy-profile-session req)))
+  (POST "/sengine/files/profile/:event-id/workbook" req (allow req :admin (sengine/get-profile-workbook req)))
 
-  (GET    "/users"                        req (allow req :admin (users/index req)))
-  (GET    "/users/new"                    req (allow req :admin (users/new* req)))
-  (POST   "/users"                        req (allow req :admin (users/create req)))
-  (GET    "/users/:login/edit"            req (allow req :admin (users/edit req)))
-  (POST   "/users/pass-analyze"           req (allow req :admin (users/pass-analyze req)))
-  (PUT    "/users/:login"                 req (allow req :admin (users/update req)))
-  (GET    "/users/:login/edit-password"   req (allow req :admin (users/edit-password req)))
-  (PUT    "/users/:login/update-password" req (allow req :admin (users/update-password req)))
-  (PUT    "/users/:login/change-status"   req (allow req :admin (users/change-status req)))
+  (GET "/sengine/events" req (allow req :any (sengine-events/index req)))
+
+  (GET "/filler" req (allow req :admin (filler/index req)))
+
+  (GET "/users" req (allow req :admin (users/index req)))
+  (GET "/users/new" req (allow req :admin (users/new* req)))
+  (POST "/users" req (allow req :admin (users/create req)))
+  (GET "/users/:login/edit" req (allow req :admin (users/edit req)))
+  (POST "/users/pass-analyze" req (allow req :admin (users/pass-analyze req)))
+  (PUT "/users/:login" req (allow req :admin (users/update req)))
+  (GET "/users/:login/edit-password" req (allow req :admin (users/edit-password req)))
+  (PUT "/users/:login/update-password" req (allow req :admin (users/update-password req)))
+  (PUT "/users/:login/change-status" req (allow req :admin (users/change-status req)))
 
   (GET "/static/401" req (render-error req 401))
   (GET "/static/403" req (render-error req 403))
@@ -117,9 +134,10 @@
       :handler nil)))
 
 (def WebSchema
-  {:port     s/Int
-   :host     s/Str
-   :api-addr s/Str})
+  {:port         s/Int
+   :host         s/Str
+   :api-addr     s/Str
+   :sengine-addr s/Str})
 
 (defn new-web [m]
   (as-> m $
