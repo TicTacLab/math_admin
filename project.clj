@@ -42,8 +42,7 @@
                  :init-ns user}
   :main malt-admin.main
   :plugins [[com.aphyr/prism "0.1.1"]
-            [theladders/lein-uberjar-deploy "1.0.0"]
-            [lein-coffee "0.2.1"]]
+            [theladders/lein-uberjar-deploy "1.0.0"]]
   :aliases {"autotest" ["with-profile" "test" "prism"]}
   :repositories ^:replace [["snapshots" {:url "http://52.28.244.218:8080/repository/snapshots"
                                          :username :env
@@ -62,9 +61,6 @@
                   ["change" "version" "leiningen.release/bump-version"]
                   ["vcs" "commit"]
                   ["vcs" "push"]]
-  :lein-coffee {:compile-hook true
-                :jar-hook true
-                :coffee-version "1.10.0"}
   :profiles {:production {:jvm-opts ["-Dlogback.configurationFile=logback.production.xml"]}
              :staging    {:jvm-opts ["-Dlogback.configurationFile=logback.production.xml"]}
              :dev        {:source-paths ["dev"]
