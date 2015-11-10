@@ -93,7 +93,8 @@
                  "font-src 'self' https://themes.googleusercontent.com; "
                  "base-uri 'self'; "
                  "form-action 'self'; "
-                 "frame-ancestors 'self';")]
+                 "frame-ancestors 'self'; "
+                 (format "connect-src 'self' http://%s;" (get-in req [:web :sengine-addr])))]
     (-> (h req)
         (assoc-in [:headers "content-security-policy"] csp)
         (assoc-in [:headers "x-content-security-policy"] csp)

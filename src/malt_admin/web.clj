@@ -9,6 +9,7 @@
              [mengine-files :as mengine]
              [sengine-files :as sengine]
              [sengine-events :as sengine-events]
+             [live-viewer :as live-viewer]
              [users :as users]
              [filler :as filler]
              [auth :as auth]]
@@ -62,6 +63,7 @@
   (GET "/sengine/files/:id/download" req (allow req :admin (sengine/download req)))
   (DELETE "/sengine/files/:id" req (allow req :admin (sengine/delete req)))
   (GET "/sengine/files/:id/profile" req (allow req :any (sengine/init-profile-session req)))
+  (GET "/sengine/live_viewer/:id" req (allow req :any (live-viewer/index req)))
   (GET "/sengine/files/profile/:event-id" req (allow req :any (sengine/view-profile req)))
   (POST "/sengine/files/profile/:event-id" req (allow req :any (sengine/send-profile req)))
   (POST "/sengine/files/profile/:event-id/destroy" req (allow req :any (sengine/destroy-profile-session req)))
@@ -91,7 +93,7 @@
 (defn app [web]
   (-> routes
       (wrap-check-session)
-      (wrap-csp)
+      #_(wrap-csp)
       (wrap-csrf-cookie)
       (wrap-check-csrf)
       (wrap-resource "public")
@@ -106,7 +108,7 @@
       (wrap-with-web web)
       (wrap-with-stacktrace)))
 
-(defrecord Web [host port api-addr server storage handler offloader]
+(defrecord Web [host port api-addr sengine-addr server storage handler offloader]
   component/Lifecycle
 
   (start [component]

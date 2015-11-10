@@ -1,0 +1,58 @@
+[% extends "layout-fluid.html" %]
+[% block body %]
+
+<script>var sengineAddr = "http://[[ env.sengine-addr ]]"</script>
+<script>var eventId = "[[ event-id ]]"</script>
+
+<script id="event-log-tpl" type="text/x-handlebars-template">
+    <div>
+        <h4>Event log:</h4>
+        {{#each eventLog}}
+        <pre>{{this}}</pre>
+        {{/each}}
+    </div>
+</script>
+
+<script id="settlements-tpl" type="text/x-handlebars-template">
+    <h4>Markets</h4>
+    <table class="table table-condensed table-striped">
+        <thead>
+        <tr>
+            {{#each header}}
+            <th>{{this}}</th>
+            {{/each}}
+        </tr>
+        </thead>
+        <tbody>
+        {{#each settlements}}
+        <tr>
+            {{#each this}}
+            <td>{{this}}</td>
+            {{/each}}
+        </tr>
+        {{/each}}
+        </tbody>
+    </table>
+</script>
+
+<div class="row">
+    <div class="col-lg-3">
+        [% if admin? %]
+        <form id="download-workbook" method="POST" action="/sengine/files/profile/[[ event-id ]]/workbook">
+            <button class="btn btn-primary" type="submit">Download workbook</button>
+        </form>
+        [% endif %]
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-3">
+        <div id="event-log"></div>
+    </div>
+    <div class="col-lg-9">
+        <div id="settlements"></div>
+    </div>
+</div>
+
+<script src="/js/compiled/live_viewer.js" type="text/javascript"></script>
+[% endblock %]

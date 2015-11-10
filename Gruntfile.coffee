@@ -1,7 +1,7 @@
 module.exports = (grunt) ->
   grunt.initConfig
     clean:
-      public: ['resources/public/js']
+      public: ['resources/public/js/compiled']
 
     coffee:
       options:
@@ -11,7 +11,7 @@ module.exports = (grunt) ->
         expand: true
         cwd: 'front-src/'
         src: ['**/*.coffee']
-        dest: 'resources/public/js/'
+        dest: 'resources/public/js/compiled'
         ext: '.js'
 
     watch:

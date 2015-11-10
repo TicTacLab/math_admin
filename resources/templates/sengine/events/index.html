@@ -12,9 +12,10 @@
     <tr>
         <td>[[ event.id ]]</td>
         <td>[[ event.description ]]</td>
-        <td><a href="/sengine/files/profile/[[ event.id ]]">View</a></td>
+        <td><a href="/sengine/live_viewer/[[ event.id ]]">View</a></td>
     </tr>
     [% endfor %]
+</table>
 [% else %]
     <div class="alert alert-info" role="alert">There are no active events</div>
 [% endif %]
