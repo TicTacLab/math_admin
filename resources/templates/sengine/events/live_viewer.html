@@ -4,37 +4,6 @@
 <script>var sengineAddr = "http://[[ env.sengine-addr ]]"</script>
 <script>var eventId = "[[ event-id ]]"</script>
 
-<script id="event-log-tpl" type="text/x-handlebars-template">
-    <div>
-        <h4>Event log:</h4>
-        {{#each eventLog}}
-        <pre>{{this}}</pre>
-        {{/each}}
-    </div>
-</script>
-
-<script id="settlements-tpl" type="text/x-handlebars-template">
-    <h4>Markets</h4>
-    <table class="table table-condensed table-striped">
-        <thead>
-        <tr>
-            {{#each header}}
-            <th>{{this}}</th>
-            {{/each}}
-        </tr>
-        </thead>
-        <tbody>
-        {{#each settlements}}
-        <tr>
-            {{#each this}}
-            <td>{{this}}</td>
-            {{/each}}
-        </tr>
-        {{/each}}
-        </tbody>
-    </table>
-</script>
-
 <div class="row">
     <div class="col-lg-3">
         [% if admin? %]
@@ -45,12 +14,42 @@
     </div>
 </div>
 
-<div class="row">
+<div class="row" ng-app="liveViewer" ng-controller="LiveViewerCtrl">
     <div class="col-lg-3">
-        <div id="event-log"></div>
+        <div id="event-log">
+            <div>
+                <h4>Event log:</h4>
+                <pre ng-repeat="item in eventLog track by $index">{{item}}</pre>
+            </div>
+
+        </div>
     </div>
     <div class="col-lg-9">
-        <div id="settlements"></div>
+        <div id="settlements">
+            <h4>Markets</h4>
+            <table class="table table-condensed table-striped">
+                <thead>
+                <tr>
+                    <th ng-repeat="filter in filters track by filter.columnName">
+                        {{filter.columnName}}
+                        <br />
+                        <select name="{{filter.columnName}}"
+                                id="{{filter.columnName}}"
+                                ng-model="activeFilter[filter.columnName]"
+                                ng-options="opt.value as opt.label for opt in filter.columnOptions">
+                        </select>
+                    </th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr ng-repeat="row in settlements.raw | filter:activeFilter:true track by $index">
+                    <td ng-repeat="h in settlements.header track by h">
+                        {{row[h]}}
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 
