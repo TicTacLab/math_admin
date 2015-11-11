@@ -2,9 +2,14 @@ app = angular.module('liveViewer', [])
 
 app.controller 'LiveViewerCtrl', ["$scope", "$http", "$interval", ($scope, $http, $interval) ->
   $scope.eventLog = []
-  $scope.settlements = {header: [], raw: []}
+  $scope.settlements = {header: [], body: []}
   $scope.filters = []
   $scope.activeFilter = {}
+
+  $scope.bodyLimit = 20
+
+  $scope.showMore = ->
+    $scope.bodyLimit += 20
 
   getEventLog = ->
     $http.get("#{sengineAddr}/events/#{eventId}/event-log").then (res) ->
@@ -36,7 +41,7 @@ app.controller 'LiveViewerCtrl', ["$scope", "$http", "$interval", ($scope, $http
       )
 
       $scope.settlements.header = header
-      $scope.settlements.raw = data
+      $scope.settlements.body = data
       $scope.filters = filters
 
   getEventLog()

@@ -46,13 +46,14 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr ng-repeat="row in settlements.raw | filter:activeFilter:true track by $index">
+                <tr ng-repeat="row in settlements.body | filter:activeFilter:true | limitTo:bodyLimit track by $index">
                     <td ng-repeat="h in settlements.header track by h">
                         {{row[h]}}
                     </td>
                 </tr>
                 </tbody>
             </table>
+            <a ng-click="showMore()">Show more...</a>
         </div>
     </div>
 </div>
