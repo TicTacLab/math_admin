@@ -20,7 +20,7 @@
          (fn [srv]
            (if srv
              srv
-             (noilly/start c/config
+             (noilly/start (c/config)
                            #(swap! system
                                    (fn [s]
                                      (when s (component/stop s))
