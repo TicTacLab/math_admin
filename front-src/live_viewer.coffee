@@ -1,4 +1,4 @@
-app = angular.module('liveViewer', [])
+app = angular.module('MathAdmin')
 
 app.controller 'LiveViewerCtrl', ["$scope", "$http", "$interval", ($scope, $http, $interval) ->
   $scope.eventLog = []

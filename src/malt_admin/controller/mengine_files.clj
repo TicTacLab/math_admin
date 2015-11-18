@@ -255,8 +255,7 @@
                                                            (reduce + 0))
                                          :out-values (some->> out-params
                                                               :data
-                                                              (map format-timer-value)
-                                                              (map (apply juxt (concat out-header [:timer]))))
+                                                              (map format-timer-value))
                                          :out-header (map name out-header))
                   :error (render-with-flash {:error out-header}
                                             :profile-form profile-form)))
