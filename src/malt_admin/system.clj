@@ -1,7 +1,6 @@
 (ns malt-admin.system
   (:require [com.stuartsierra.component :as component]
             [malt-admin.web :as web]
-            [malt-admin.offloader :as off]
             [zabbix-clojure-agent.core :as zabbix]
             [malt-admin.storage :as storage]))
 
@@ -10,9 +9,6 @@
     (merge
       {:web       (component/using
                     (web/new-web config)
-                    [:storage :offloader])
-       :offloader (component/using
-                    (off/new-offloader config)
                     [:storage])
        :storage   (storage/new-storage config)}
       (when (:zabbix-host config)

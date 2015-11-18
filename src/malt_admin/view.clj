@@ -66,7 +66,7 @@
          default-context {:signed-in?  (boolean session-id)
                           :admin?      (get-in req [:session :is-admin])
                           :uri         (:uri req)
-                          :env         @c/config
+                          :env         (c/config)
                           :flash       flash}
         context (merge context default-context)]
     (selmer/render-file (str template-name ".html") context

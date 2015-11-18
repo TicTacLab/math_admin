@@ -37,8 +37,8 @@
       :else [(:data response) nil])))
 
 (defn index
-  [{{:keys [sengine-addr]} :web :as req}]
-  (let [url (format "http://%s/files" sengine-addr)
+  [{{:keys [s-engine-api-addr]} :web :as req}]
+  (let [url (format "http://%s/files" s-engine-api-addr)
         resp @(http/get url)
         error-prefix "Error while getting files: "
         [files error] (check-response resp error-prefix)]
@@ -61,7 +61,7 @@
 
 (defn do-upload
   [{params :params
-    {:keys [sengine-addr]} :web
+    {:keys [s-engine-api-addr]} :web
     :as req}]
   (fp/with-fallback #(upload (assoc req :problems %))
     (let [values (check-empty-file (fp/parse-params form/upload-form params))]
@@ -72,7 +72,7 @@
         (let [{:keys [id file]} values
               {:strs [tempfile filename]} file
               error-prefix "Error while uploading file to sengine: "
-              url (format "http://%s/files/%s/upload" sengine-addr id)
+              url (format "http://%s/files/%s/upload" s-engine-api-addr id)
               resp @(http/post url {:multipart [{:name     "file"
                                                  :content  tempfile
                                                  :filename filename}]})
@@ -94,7 +94,7 @@
 (defn do-edit
   [{:keys [params web] :as req}]
   (fp/with-fallback #(upload (assoc req :problems %))
-    (let [{:keys [sengine-addr]} web
+    (let [{:keys [s-engine-api-addr]} web
           values (check-empty-file (fp/parse-params form/upload-form params))]
       (cond
         (not (contains? values :file))
@@ -102,7 +102,7 @@
         :else
         (let [{:keys [id file]} values
               {:strs [tempfile filename]} file
-              url (format "http://%s/files/%s" sengine-addr id)
+              url (format "http://%s/files/%s" s-engine-api-addr id)
               error-prefix "Error while uploading file to sengine: "
               resp @(http/post url {:multipart [{:name     "file"
                                                  :content  tempfile
@@ -116,9 +116,9 @@
 
 (defn delete
   [{:keys [web params] :as req}]
-  (let [{:keys [sengine-addr]} web
+  (let [{:keys [s-engine-api-addr]} web
         {:keys [id]} params
-        url (format "http://%s/files/%s" sengine-addr id)
+        url (format "http://%s/files/%s" s-engine-api-addr id)
         error-prefix "Error while deleting file from sengine: "
         [_ error] (check-response @(http/delete url) error-prefix)]
     (if error
@@ -130,8 +130,8 @@
 (defn download
   [{:keys [params web] :as req}]
   (let [{:keys [id]} params
-        {:keys [sengine-addr]} web
-        url (format "http://%s/files/%s" sengine-addr id)
+        {:keys [s-engine-api-addr]} web
+        url (format "http://%s/files/%s" s-engine-api-addr id)
         {:keys [status body error headers]} @(http/get url)
         error-prefix "Error while downloading file from sengine: "]
     (cond
@@ -157,9 +157,9 @@
 (defn init-profile-session
   [{:keys [web params]}]
   (let [{:keys [id]} params
-        {:keys [sengine-addr]} web
+        {:keys [s-engine-api-addr]} web
         event-id (str (UUID/randomUUID))
-        url (format "http://%s/events" sengine-addr)
+        url (format "http://%s/events" s-engine-api-addr)
         params {:event-id event-id :file-id id :description "Admin profile session"}
         body (json/generate-string {:params params})
         error-prefix "Error while creating session: "
@@ -182,14 +182,14 @@
 (defn view-profile
   [{:keys [params web] :as r}]
   (let [{:keys [event-id]} params
-        {:keys [sengine-addr]} web
-        url (format "http://%s/events/%s/event-log" sengine-addr event-id)
+        {:keys [s-engine-api-addr]} web
+        url (format "http://%s/events/%s/event-log" s-engine-api-addr event-id)
         error-prefix "Error while getting event log: "
         [event-log error] (check-response @(http/get url) error-prefix)]
     (if error
       (redirect-with-flash "/sengine/files" {:error error})
       (let [url (format "http://%s/events/%s/settlements"
-                        sengine-addr event-id)
+                        s-engine-api-addr event-id)
             resp @(http/get url)
             error-prefix "Error while getting settlements: "
             [out error] (check-response resp error-prefix)
@@ -201,9 +201,9 @@
 (defn send-profile
   [{:keys [params web] :as r}]
   (let [{:keys [send-type event-log event-id]} params
-        {:keys [sengine-addr]} web
+        {:keys [s-engine-api-addr]} web
         url (format "http://%s/events/%s/event-log/%s"
-                    sengine-addr event-id send-type)
+                    s-engine-api-addr event-id send-type)
         body (format "{\"params\":%s}" event-log)
         resp @(http/post url {:body body})
         error-prefix "Error while setting event log: "
@@ -216,8 +216,8 @@
 (defn destroy-profile-session
   [{:keys [params web]}]
   (let [{:keys [event-id]} params
-        {:keys [sengine-addr]} web
-        url (format "http://%s/events/%s" sengine-addr event-id)
+        {:keys [s-engine-api-addr]} web
+        url (format "http://%s/events/%s" s-engine-api-addr event-id)
         resp @(http/delete url)
         error-prefix "Error while deleting session: "
         [_ error] (check-response resp error-prefix)]
@@ -227,9 +227,9 @@
 
 (defn get-profile-workbook
   [{:keys [params web] :as req}]
-  (let [{:keys [sengine-addr]} web
+  (let [{:keys [s-engine-api-addr]} web
         {:keys [event-id]} params
-        url (format "http://%s/events/%s" sengine-addr event-id)
+        url (format "http://%s/events/%s" s-engine-api-addr event-id)
         {:keys [status body error headers]} @(http/get url)
         error-prefix "Error while downloading file from sengine: "]
     (cond

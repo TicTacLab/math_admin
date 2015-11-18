@@ -36,8 +36,8 @@
       :else [(:data response) nil])))
 
 (defn index
-  [{{:keys [sengine-addr]} :web :as req}]
-  (let [url (format "http://%s/events" sengine-addr)
+  [{{:keys [s-engine-api-addr]} :web :as req}]
+  (let [url (format "http://%s/events" s-engine-api-addr)
         resp @(http/get url)
         error-prefix "Error while getting events: "
         [events error] (check-response resp error-prefix)]

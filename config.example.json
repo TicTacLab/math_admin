@@ -1,6 +1,8 @@
 {
-    "app-env": "dev",
+    "app-env": "production",
+
     "noilly-port": 1301,
+
     "session-ttl": 3600,
     "storage-keyspace": "malt",
     "storage-nodes": [
@@ -8,14 +10,16 @@
       "192.168.167.145",
       "192.168.167.146"
     ],
-    "api-addr": "localhost:80",
-    "sengine-addr": "localhost:3001",
-    "offload-repo": null,
+    "storage-password": "CacNeck5",
+    "storage-user": "malt",
+
+    "m-engine-api-addr": "localhost:80",
+    "s-engine-api-addr": "localhost:3001",
+
     "zabbix-host": null,
     "zabbix-port": 10051,
     "monitoring-hostname": null,
-    "storage-password": "CacNeck5",
-    "storage-user": "malt",
+
     "host": "0.0.0.0",
     "port": 8080
 }

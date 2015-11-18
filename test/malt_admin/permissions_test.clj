@@ -5,7 +5,7 @@
             [malt-admin.config :as c]))
 
 (deftest permissions-test
-  (t/with-system [s (test-system @c/config)]
+  (t/with-system [s (test-system (c/config))]
     (let [b (t/start-browser! s)]
 
       (testing "Model preloading"

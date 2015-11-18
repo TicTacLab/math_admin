@@ -3,6 +3,8 @@
   :url "http://example.com/FIXME"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
+  :omit-source true
+  :uberjar-exclusions [#"logback.xml" #"logback.production.xml"]
   :dependencies [[org.clojure/clojure "1.6.0"]
                  [com.betinvest/noilly "0.1.4"]
                  [javax.servlet/javax.servlet-api "3.1.0"]
@@ -19,8 +21,7 @@
                  [cheshire "5.5.0"]
                  [http-kit "2.1.19"]
                  [prismatic/schema "1.0.1"]
-                 [formative "0.8.8" :exclusions [org.clojure/clojurescript
-                                                 clj-time]]
+                 [formative "0.8.8" :exclusions [clj-time prismatic/dommy]]
                  [hiccup "1.0.5"]
                  [com.taoensso/nippy "2.9.0"]
                  [ring-webjars "0.1.1" :exclusions [org.slf4j/slf4j-nop]]
@@ -32,7 +33,6 @@
                  [clj-webdriver "0.7.2" :exclusions [com.google.guava/guava org.seleniumhq.selenium/selenium-server]]
                  [org.seleniumhq.selenium/selenium-server "2.47.1" :exclusions [com.google.guava/guava org.yaml/snakeyaml]]
                  [com.aphyr/prism "0.1.3"]
-                 [org.cassandraunit/cassandra-unit "2.1.9.2" :exclusions [org.slf4j/slf4j-log4j12]]
 
                  [org.owasp.passfault/passfault-core "0.7"]
 

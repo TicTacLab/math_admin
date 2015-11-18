@@ -5,7 +5,7 @@
             [malt-admin.config :as c]))
 
 (deftest users-test
-  (t/with-system [s (test-system @c/config)]
+  (t/with-system [s (test-system (c/config))]
     (let [b (t/start-browser! s)
           login (str "super-duper-" (rand-int 10000))
           user-selector (keyword (format "tr[data-login='%s']" login))]

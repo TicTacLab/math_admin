@@ -107,7 +107,7 @@
       (wrap-with-web web)
       (wrap-with-stacktrace)))
 
-(defrecord Web [host port api-addr sengine-addr server storage handler offloader]
+(defrecord Web [host port m-engine-api-addr s-engine-api-addr server storage handler]
   component/Lifecycle
 
   (start [component]
@@ -117,9 +117,9 @@
                                             :max-body 52428800 ;; 50Mb
                                             :join? false})]
       (selmer.parser/set-resource-path! (clojure.java.io/resource "templates"))
-      (if (= (:app-env @c/config) "production")
-        (selmer.parser/cache-on!)
-        (selmer.parser/cache-off!))
+      (if (= (:app-env (c/config)) "dev")
+        (selmer.parser/cache-off!)
+        (selmer.parser/cache-on!))
 
       (log/info "Web service started at:" (str host ":" port))
       (assoc component
@@ -135,10 +135,10 @@
       :handler nil)))
 
 (def WebSchema
-  {:port         s/Int
-   :host         s/Str
-   :api-addr     s/Str
-   :sengine-addr s/Str})
+  {:port              s/Int
+   :host              s/Str
+   :m-engine-api-addr s/Str
+   :s-engine-api-addr s/Str})
 
 (defn new-web [m]
   (as-> m $

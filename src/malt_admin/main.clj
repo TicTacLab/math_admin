@@ -11,7 +11,7 @@
 
 (defn -main [& _args]
   (try
-    (swap! system #(if % % (component/start (s/new-system @c/config))))
+    (swap! system #(if % % (component/start (s/new-system (c/config)))))
     (catch Exception e
       (println e)
       (log/error e "Exception during startup. Fix configuration and
@@ -24,7 +24,8 @@
                            #(swap! system
                                    (fn [s]
                                      (when s (component/stop s))
-                                     (component/start (s/new-system @c/config))))))))
+                                     (c/load-config)
+                                     (component/start (s/new-system (c/config)))))))))
   (.. Runtime
       (getRuntime)
       (addShutdownHook (Thread. (fn []

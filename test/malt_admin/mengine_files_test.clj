@@ -6,7 +6,7 @@
   (:import (org.openqa.selenium.support.ui ExpectedConditions)))
 
 (deftest models-test
-  (t/with-system [s (test-system @c/config)]
+  (t/with-system [s (test-system (c/config))]
                  (let [b (t/start-browser! s)]
                    (signin)
                    (go "/mengine/files")

@@ -46,7 +46,7 @@
         (res/redirect "/auth")))))
 
 (defn wrap-with-stacktrace [h]
-  (if (not= (:app-env @c/config "production"))
+  (if (= (:app-env (c/config)) "dev")
     (stacktrace/wrap-stacktrace h)
     (fn [req]
       (try
@@ -94,7 +94,7 @@
                  "base-uri 'self'; "
                  "form-action 'self'; "
                  "frame-ancestors 'self'; "
-                 (format "connect-src 'self' http://%s;" (get-in req [:web :sengine-addr])))]
+                 (format "connect-src 'self' http://%s;" (get-in req [:web :s-engine-api-addr])))]
     (-> (h req)
         (assoc-in [:headers "content-security-policy"] csp)
         (assoc-in [:headers "x-content-security-policy"] csp)
