@@ -4,7 +4,6 @@
             [org.httpkit.server :as http-kit]
             [com.stuartsierra.component :as component]
             [clojure.tools.logging :as log]
-            [clojure.tools.trace :refer (trace)]
             [malt-admin.controller
              [mengine-files :as mengine]
              [sengine-files :as sengine]

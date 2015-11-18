@@ -11,7 +11,6 @@
             [malt-admin.helpers :refer [redirect-with-flash error!]]
             [formative.parse :as fp]
             [org.httpkit.client :as http]
-            [clojure.tools.trace :refer [trace]]
             [clojure.string :as s]
             [clojure.walk :refer [keywordize-keys]]
             [clojure.tools.logging :as log]
