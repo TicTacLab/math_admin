@@ -4,7 +4,9 @@
 (def cfg (atom nil))
 
 (defn load-config []
-  (reset! cfg (json/parse-string (slurp "config.json") true)))
+  (let [file-path (or (System/getProperty "math_engine.config_file")
+                      "config.json")]
+    (reset! cfg (json/parse-string (slurp file-path) true))))
 
 (defn config []
   (if-let [c @cfg]
