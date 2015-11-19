@@ -5,6 +5,7 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :omit-source true
   :uberjar-exclusions [#"logback.xml" #"logback.production.xml"]
+  :uberjar-name "math_admin_standalone.jar"
   :dependencies [[org.clojure/clojure "1.6.0"]
                  [com.betinvest/noilly "0.1.4"]
                  [javax.servlet/javax.servlet-api "3.1.0"]
@@ -51,7 +52,6 @@
                                         :username :env
                                         :password :env}]]
   :jvm-opts ["-Dlogback.configurationFile=logback.xml" "-Dwebdriver.chrome.driver=/usr/lib/chromium-browser/chromedriver"]
-  :uberjar-name "malt-admin-standalone.jar"
   :release-tasks [["vcs" "assert-committed"]
                   ["change" "version"
                    "leiningen.release/bump-version" "release"]
