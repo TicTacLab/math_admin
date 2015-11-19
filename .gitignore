@@ -14,4 +14,4 @@ resources/public/cljs/
 .idea
 *.iml
 node_modules
-resources/public/js
+resources/public/js/compiled
