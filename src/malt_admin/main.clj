@@ -12,6 +12,7 @@
 (defn -main [& _args]
   (try
     (swap! system #(if % % (component/start (s/new-system (c/config)))))
+    (println "MathAdmin is started!")
     (catch Exception e
       (println e)
       (log/error e "Exception during startup. Fix configuration and
