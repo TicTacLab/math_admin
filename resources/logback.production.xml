@@ -2,24 +2,24 @@
 
 <configuration>
     <appender name="R" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <File>/var/log/malt_admin/malt_admin.log</File>
+        <File>log/malt_admin/malt_admin.log</File>
         <encoder>
             <pattern>%5p | %d | [%t] ||| %m%n</pattern>
         </encoder>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <maxHistory>3</maxHistory>
-            <FileNamePattern>/var/log/malt_admin/malt_admin.%d{yyyy-MM-dd}.log</FileNamePattern>
+            <FileNamePattern>log/malt_admin/malt_admin.%d{yyyy-MM-dd}.log</FileNamePattern>
         </rollingPolicy>
     </appender>
 
 
     <appender name="AUDIT" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <File>/var/log/malt_admin/audit.log</File>
+        <File>log/malt_admin/audit.log</File>
         <encoder>
             <pattern>%d: %m%n</pattern>
         </encoder>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>/var/log/malt_admin/audit.log.%d{yyyy-MM-dd}</fileNamePattern>
+            <fileNamePattern>log/malt_admin/audit.log.%d{yyyy-MM-dd}</fileNamePattern>
             <maxHistory>7</maxHistory>
         </rollingPolicy>
     </appender>
