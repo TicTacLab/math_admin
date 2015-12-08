@@ -7,6 +7,17 @@ app.filter 'format_timer', ->
     else
       String.fromCharCode("0x2264") + " 1"
 
+app.filter 'format_if_float', ->
+
+  isNeedRounding = (number, digits) ->
+    roundTo = 10 ** digits
+    number * roundTo % roundTo isnt 0
+
+  (number, digits) ->
+    if typeof number is 'number' and isNeedRounding(number, digits)
+      number.toFixed digits
+    else
+      number
 
 app.controller 'MengineProfileCtrl', ($scope) ->
   $scope.out = window.out

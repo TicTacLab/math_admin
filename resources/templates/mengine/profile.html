@@ -70,7 +70,7 @@
                 <tbody>
                 <tr ng-repeat="row in out.values | filter:activeFilter:true | limitTo:rowLimit track by row.id">
                     <td ng-repeat="h in out.header track by h">
-                        {{row[h]}}
+                        {{row[h]|format_if_float:3}}
                     </td>
                     <td><span ng-class="{'slow-timer': row.timer > 1}">{{row.timer|format_timer}}</span></td>
                 </tr>
