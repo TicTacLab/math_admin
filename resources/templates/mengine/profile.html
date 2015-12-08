@@ -72,7 +72,7 @@
                     <td ng-repeat="h in out.header track by h">
                         {{row[h]}}
                     </td>
-                    <td>{{row.timer}}</td>
+                    <td><span ng-class="{'slow-timer': row.timer > 1}">{{row.timer|format_timer}}</span></td>
                 </tr>
                 <tr>
                     <td colspan="{{out.header.length}}">

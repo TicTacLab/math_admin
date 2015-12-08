@@ -1,5 +1,13 @@
 app = angular.module('MathAdmin')
 
+app.filter 'format_timer', ->
+  (timer) ->
+    if timer > 1
+      Math.round timer
+    else
+      String.fromCharCode("0x2264") + " 1"
+
+
 app.controller 'MengineProfileCtrl', ($scope) ->
   $scope.out = window.out
   $scope.activeFilter = {}
