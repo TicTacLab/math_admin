@@ -5,6 +5,7 @@ pom.xml
 pom.xml.asc
 config.json
 *.jar
+!obfuscator/*.jar
 *.class
 /.lein-*
 /.nrepl-port
