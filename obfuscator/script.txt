@@ -53,6 +53,9 @@ exclude     malt.^main^ public static main(java.lang.String[]) and
             javax.servlet*.^* and
             javax.servlet*.^* * and
             javax.servlet*.^* *(*) and
+            ch.qos.logback*.^* and
+            ch.qos.logback*.^* * and
+            ch.qos.logback*.^* *(*) and
             selmer*.^* and
             org.joda.time*.^* and
             *.^*__init and
