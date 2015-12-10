@@ -24,6 +24,7 @@
              [webjars :refer (wrap-webjars)]
              [keyword-params :refer (wrap-keyword-params)]
              [multipart-params :refer (wrap-multipart-params)]]
+            [ring.middleware.multipart-params.temp-file :refer (temp-file-store)]
             [malt-admin.config :as c]))
 
 
@@ -98,7 +99,7 @@
       (wrap-resource "public")
       (wrap-webjars)
       (wrap-keyword-params)
-      (wrap-multipart-params)
+      (wrap-multipart-params :store (temp-file-store))
       (wrap-params)
       (wrap-flash)
       (wrap-session {:cookie-name "id"})

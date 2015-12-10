@@ -6,7 +6,7 @@
   :omit-source true
   :uberjar-exclusions [#"logback.xml" #"logback.production.xml"]
   :uberjar-name "math_admin_standalone.jar"
-  :dependencies [[org.clojure/clojure "1.6.0"]
+  :dependencies [[org.clojure/clojure "1.8.0-RC3"]
                  [com.betinvest/noilly "0.1.4"]
                  [javax.servlet/javax.servlet-api "3.1.0"]
                  [com.stuartsierra/component "0.2.3"]
