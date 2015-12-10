@@ -3,7 +3,7 @@
             [metrics.core :refer [default-registry]])
   (:import (com.codahale.metrics JmxReporter)))
 
-(defrecord JmxReporterComp [reporter]
+(defrecord JmxReporterComp [^JmxReporter reporter]
   component/Lifecycle
   (start [this]
     (let [reporter (.build (JmxReporter/forRegistry default-registry))]

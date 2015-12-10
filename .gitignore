@@ -15,3 +15,5 @@ resources/public/cljs/
 *.iml
 node_modules
 resources/public/js/compiled
+ZKM_log.txt
+ChangeLog.txt

@@ -32,7 +32,6 @@
                  [org.clojure/test.check "0.8.1"]
                  [com.betinvest/zabbix-clojure-agent "0.1.8"]
                  [clj-webdriver "0.7.2" :exclusions [com.google.guava/guava org.seleniumhq.selenium/selenium-server]]
-                 [org.seleniumhq.selenium/selenium-server "2.47.1" :exclusions [com.google.guava/guava org.yaml/snakeyaml]]
                  [com.aphyr/prism "0.1.3"]
 
                  [org.owasp.passfault/passfault-core "0.7"]
@@ -70,7 +69,8 @@
                                          [http-kit.fake "0.2.2"]
                                          [criterium "0.4.3"]
                                          [im.chit/vinyasa "0.4.1"]
-                                         [org.clojure/tools.trace "0.7.8"]]
+                                         [org.clojure/tools.trace "0.7.8"]
+                                         [org.seleniumhq.selenium/selenium-server "2.47.1" :exclusions [com.google.guava/guava org.yaml/snakeyaml]]]
                           :injections [(require '[vinyasa.inject :as inject])
                                        (require 'aprint.core)
                                        (require 'clojure.pprint)
