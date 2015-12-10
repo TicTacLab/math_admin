@@ -45,7 +45,7 @@
   :plugins [[com.aphyr/prism "0.1.1"]
             [theladders/lein-uberjar-deploy "1.0.0"]]
   :aliases {"autotest" ["with-profile" "test" "prism"]}
-  :repositories ^:replace [["snapshots" {:url "http://52.28.244.218:8080/repository/snapshots"
+  :repositories [["snapshots" {:url "http://52.28.244.218:8080/repository/snapshots"
                                          :username :env
                                          :password :env}]
                            ["releases" {:url "http://52.28.244.218:8080/repository/internal"
