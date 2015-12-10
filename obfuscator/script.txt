@@ -70,7 +70,7 @@ obfuscateFlowExclude clojure*.* and com.datastax*.* and javax*.* and malcolmx*.*
 
 obfuscate   changeLogFileIn=""
             changeLogFileOut="ChangeLog.txt"
-            obfuscateFlow=none //light
+            obfuscateFlow=light
             exceptionObfuscation=none //light
             encryptStringLiterals=none
             mixedCaseClassNames=false
