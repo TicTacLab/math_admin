@@ -4,7 +4,7 @@
 (def form
   {:fields      [{:name :id :type :text :datatype :int}
                  {:name :file :type :file}
-                 {:name :name :type :text}]
+                 {:name :name :type :text :label "Description"}]
    :validations [[:required [:id]]]
    :enctype     "multipart/form-data"})
 
