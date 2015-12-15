@@ -160,6 +160,12 @@
       (log/error (str log-error-prefix error))
       [:error error])))
 
+(defn parse-json [s]
+  (try
+    (json/parse-string s true)
+    (catch Exception e
+      (log/errorf e "Error during parsing string to json: \n\t%s" s))))
+
 (defn error-response->string-message [response]
   (->> response
        :errors
@@ -172,7 +178,7 @@
                     model-id
                     (make-model-sid model-id rev ssid))
         {:keys [status error body]} @(http/get url {:as :text})
-        response (json/parse-string body true)
+        response (parse-json body)
         error-prefix "Error while getting params: "]
     (cond
       error (wrap-error error-prefix error)
@@ -186,7 +192,7 @@
                     model-id
                     (make-model-sid model-id rev ssid))
         {:keys [status error body]} @(http/get url {:as :text})
-        response (json/parse-string body true)]
+        response (parse-json body)]
     (cond
       error (wrap-error error-prefix error)
       (not= 200 status) (wrap-error error-prefix (error-response->string-message response))
@@ -203,7 +209,7 @@
         {:keys [body error status]} @(http/post url {:body    (json/generate-string malt-params)
                                                      :timeout 60000
                                                      :as      :text})
-        json-response (json/parse-string body true)]
+        json-response (parse-json body)]
     (cond
       error (wrap-error error-prefix error)
       (not= status 200) (wrap-error error-prefix (error-response->string-message json-response))
