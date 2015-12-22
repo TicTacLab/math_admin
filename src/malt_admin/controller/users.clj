@@ -1,4 +1,5 @@
 (ns malt-admin.controller.users
+  (:refer-clojure :exclude [update])
   (:require [malt-admin.view :refer (render u)]
             [malt-admin.form.user :as form]
             [malt-admin.helpers :refer [redirect-with-flash]]
