@@ -42,14 +42,15 @@
                  :init-ns user}
   :main malt-admin.main
   :plugins [[com.aphyr/prism "0.1.1"]
-            [theladders/lein-uberjar-deploy "1.0.0"]]
+            [theladders/lein-uberjar-deploy "1.0.0"]
+            [s3-wagon-private "1.1.2"]]
   :aliases {"autotest" ["with-profile" "test" "prism"]}
-  :repositories [["snapshots" {:url "http://52.28.244.218:8080/repository/snapshots"
-                                         :username :env
-                                         :password :env}]
-                           ["releases" {:url "http://52.28.244.218:8080/repository/internal"
-                                        :username :env
-                                        :password :env}]]
+  :repositories [["snapshots" {:url "s3p://com.betengines.repo/snapshots"
+                               :username   "AKIAJULDYNE45TDQBDUQ"
+                               :passphrase "xpNOSHkr069mqbY1tbWZjzTQPO0o5H0cmd568c1V"}]
+                 ["releases" {:url "s3p://com.betengines.repo/releases"
+                              :username   "AKIAJULDYNE45TDQBDUQ"
+                              :passphrase "xpNOSHkr069mqbY1tbWZjzTQPO0o5H0cmd568c1V"}]]
   :jvm-opts ["-Dlogback.configurationFile=logback.xml" "-Dwebdriver.chrome.driver=/usr/lib/chromium-browser/chromedriver"]
   :release-tasks [["vcs" "assert-committed"]
                   ["change" "version"

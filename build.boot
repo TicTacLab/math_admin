@@ -1,19 +1,20 @@
 (require '[clojure.java.shell :as s])
 
 (set-env!
+  :wagons       '[[s3-wagon-private "1.1.2"]]
  :source-paths #{"src"}
  :resource-paths #{"resources"}
- :repositories {"snapshots" {:url      "http://52.28.244.218:8080/repository/snapshots"
-                             :username "admin"
-                             :password "NeOpBac8"
-                             :snapshots true
-                             :releases false}
-                "releases" {:url      "http://52.28.244.218:8080/repository/internal"
-                             :username "admin"
-                             :password "NeOpBac8"
-                             :releases true
-                            :snapshots false}
-                "central" "http://repo1.maven.org/maven2/"}
+ :repositories {"snapshots" {:url        "s3://com.betengines.repo/snapshots/"
+                             :username   "AKIAJULDYNE45TDQBDUQ"
+                             :passphrase "xpNOSHkr069mqbY1tbWZjzTQPO0o5H0cmd568c1V"
+                             :snapshots  true
+                             :releases   false}
+                "releases"  {:url        "s3://com.betengines.repo/releases/"
+                             :username   "AKIAJULDYNE45TDQBDUQ"
+                             :passphrase "xpNOSHkr069mqbY1tbWZjzTQPO0o5H0cmd568c1V"
+                             :releases   true
+                             :snapshots  false}
+                "central"   "http://repo1.maven.org/maven2/"}
  :uberjar-name "math_admin.jar"
 
  :build-dependencies '[[org.codehaus.groovy/groovy-all "2.4.5"]
