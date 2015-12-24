@@ -31,6 +31,103 @@
 
 <div class="row">
     <div class="col-sm-12">
+        <h4>Add event</h4>
+        <form method="POST">
+            <label>EventType
+                <select class="form-control">
+                    <option>Goal</option>
+                    <option>Red Card</option>
+                    <option>Yellow Card</option>
+                    <option>Corner</option>
+                    <option>Try Penalty</option>
+                    <option>Penalty</option>
+                    <option>Missed Penalty</option>
+                </select>
+            </label>
+            <label>Team
+                <div class="radio">
+                    <label>
+                        <input type="radio" name="optionsRadios" id="optionsRadios1" value="Team1" checked>
+                        Team1
+                    </label>
+                </div>
+                <div class="radio">
+                    <label>
+                        <input type="radio" name="optionsRadios" id="optionsRadios1" value="Team2">
+                        Team2
+                    </label>
+                </div>
+            </label>
+            <label>GamePart
+                <select class="form-control">
+                    <option>Half1</option>
+                    <option>Half2</option>
+                    <option>Extratime1</option>
+                    <option>Extratime2</option>
+                </select>
+            </label>
+
+            <label>Standart
+                <div class="radio">
+                    <label>
+                        <input type="radio" name="optionsRadios" id="optionsRadios1" value="Corner" checked>
+                        Corner
+                    </label>
+                </div>
+                <div class="radio">
+                    <label>
+                        <input type="radio" name="optionsRadios" id="optionsRadios1" value="Penalty">
+                        Penalty
+                    </label>
+                </div>
+            </label>
+
+            <label>BodyPart
+                <div class="radio">
+                    <label>
+                        <input type="radio" name="optionsRadios" id="optionsRadios1" value="Head" checked>
+                        Head
+                    </label>
+                </div>
+                <div class="radio">
+                    <label>
+                        <input type="radio" name="optionsRadios" id="optionsRadios1" value="Leg">
+                        Leg
+                    </label>
+                </div>
+            </label>
+
+            <label>Accidental
+                <div class="radio">
+                    <label>
+                        <input type="radio" name="optionsRadios" id="optionsRadios1" value="FreeKick">
+                        Freekick
+                    </label>
+                </div>
+            </label>
+
+            <label>Player
+                <select class="form-control">
+                    <option>Player1</option>
+                    <option>Player2</option>
+                    <option>Player3</option>
+                    <option>Player4</option>
+                </select>
+            </label>
+
+            <label>Current Handicap
+                <input type="number" class="form-control" placeholder="">
+            </label>
+                <button class="btn btn-primary" type="submit">Send</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<hr/>
+
+<div class="row">
+    <div class="col-sm-12">
         <h4>New events</h4>
         <form method="POST">
             <div class="col-sm-6">
