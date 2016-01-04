@@ -3,7 +3,8 @@
   (:require [malt-admin.test-helper :as t :refer [test-system signin signout go fill-in wait within]]
             [clj-webdriver.taxi :as w :refer [elements click send-keys text accept implicit-wait]]
             [malt-admin.config :as c])
-  (:import (java.util UUID)))
+  (:import (java.util UUID)
+           (org.openqa.selenium.support.ui ExpectedConditions)))
 
 (deftest models-test
   (t/with-system [s (test-system (c/config))]
