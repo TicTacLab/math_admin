@@ -1,6 +1,7 @@
 app = angular.module('MathAdmin')
 
 app.controller 'SengineProfileCtrl', ($scope, predicates) ->
+# {"Goal": {"Team": [...]}} -> [{"EventType": "Goal", "Team": [...]}]
   $scope.eventTypes = window.event_types
 
   $scope.eventLog = []
