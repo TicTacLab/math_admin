@@ -9,7 +9,7 @@
   :dependencies [[org.clojure/clojure "1.8.0-RC4"]
                  [com.betinvest/noilly "0.1.4"]
                  [javax.servlet/javax.servlet-api "3.1.0"]
-                 [com.stuartsierra/component "0.2.3"]
+                 [com.stuartsierra/component "0.3.1"]
                  [org.slf4j/slf4j-api "1.7.12"]
                  [ch.qos.logback/logback-core "1.1.3"]
                  [ch.qos.logback/logback-classic "1.1.3"]
