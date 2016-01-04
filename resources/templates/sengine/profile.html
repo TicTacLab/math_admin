@@ -42,14 +42,14 @@
                     <select class="form-control"
                             ng-options="value as value for value in eventTypes | eventTypeNames"
                             ng-model="selectedEventType"
-                            ng-change="updateNewEvent(selectedEventType)">
+                            ng-change="cleanNewEvent(selectedEventType)">
                         <option value="">--- Select event type ---</option>
                     </select>
                 </label>
 
                 <br>
 
-                <label ng-repeat="attr in eventTypes[newEvent.EventType] | enumerableAttributes track by attr.name" ng-cloak>
+                <label ng-repeat="attr in getEnumerableAttributes(newEvent.EventType)" ng-cloak>
                     {{attr.name}}
                     <select class="form-control"
                             size="5"
@@ -59,7 +59,7 @@
                     </select>
                 </label>
                 <br>
-                <label ng-repeat="attr in eventTypes[newEvent.EventType] | numericAttributesNames" ng-cloak>
+                <label ng-repeat="attr in getNumericAttributeNames(newEvent.EventType)" ng-cloak>
                     {{attr.name}}
                     <input type="number" class="form-control" ng-model="newEvent[attr.name]">
                 </label>
