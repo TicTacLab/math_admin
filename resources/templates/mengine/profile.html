@@ -8,8 +8,6 @@
 
 <script>
     window.out = {header: [[ out-header|json|safe ]], values: [[ out-values|json|safe ]]};
-
-
 </script>
 
 <div ng-controller="MengineProfileCtrl">
@@ -65,7 +63,7 @@
                         </select>
                     </th>
                     <th>Calc time (ms)</th>
-                </tr>
+                </tr>xb
                 </thead>
                 <tbody>
                 <tr ng-repeat="row in out.values | filter:activeFilter:true | limitTo:rowLimit track by row.id">

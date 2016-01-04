@@ -6,6 +6,10 @@
 
 [% block body %]
 
+<script>
+    window.event_types = [[event-types|json|safe]]
+</script>
+
 <div class="row">
     <div class="col-sm-12">
         <h4>File info</h4>
@@ -29,104 +33,48 @@
 
 <hr>
 
-<div class="row">
-    <div class="col-sm-12">
-        <h4>Add event</h4>
-        <form method="POST">
-            <label>EventType
-                <select class="form-control">
-                    <option>Goal</option>
-                    <option>Red Card</option>
-                    <option>Yellow Card</option>
-                    <option>Corner</option>
-                    <option>Try Penalty</option>
-                    <option>Penalty</option>
-                    <option>Missed Penalty</option>
-                </select>
-            </label>
-            <br>
-            <label><input type="checkbox"> Team
-                <select class="form-control" size="5">
-                    <option>Team1</option>
-                    <option>Team2</option>
-                </select>
-            </label>
+<div ng-controller="SengineProfileCtrl">
+    <div class="row">
+        <div class="col-sm-12">
+            <h4>Event builder</h4>
+            <form method="POST">
+                <label>EventType
+                    <select class="form-control"
+                            ng-options="value as value for value in eventTypes | eventTypeNames"
+                            ng-model="selectedEventType"
+                            ng-change="updateNewEvent(selectedEventType)">
+                        <option value="">--- Select event type ---</option>
+                    </select>
+                </label>
 
-            <label><input type="checkbox"> GamePart
-                <select class="form-control" size="5">
-                    <option>Half1</option>
-                    <option>Half2</option>
-                    <option>Extratime1</option>
-                    <option>Extratime2</option>
-                </select>
-            </label>
+                <br>
 
-            <label><input type="checkbox"> Standart
-                <select class="form-control" size="5">
-                    <option>Corner</option>
-                    <option>Penalty</option>
-                </select>
-            </label>
+                <label ng-repeat="attr in eventTypes[newEvent.EventType] | enumerableAttributes track by attr.name">
+                    {{attr.name}}
+                    <select class="form-control"
+                            size="5"
+                            ng-options="value as value for value in attr.values"
+                            ng-model="newEvent[attr.name]">
+                        <option value="">n/a</option>
+                    </select>
+                </label>
+                <br>
+                <label ng-repeat="attr in eventTypes[newEvent.EventType] | numericAttributesNames">
+                    {{attr.name}}
+                    <input type="number" class="form-control" ng-model="newEvent[attr.name]">
+                </label>
 
-            <label><input type="checkbox"> BodyPart
-                <select class="form-control" size="5">
-                    <option>Head</option>
-                    <option>Leg</option>
-                </select>
-            </label>
-
-            <label><input type="checkbox"> Accidental
-                <select class="form-control" size="5">
-                    <option>Freekick</option>
-                </select>
-            </label>
-
-            <label><input type="checkbox"> Player
-                <select class="form-control" size="5">
-                    <option>Player1</option>
-                    <option>Player2</option>
-                    <option>Player3</option>
-                    <option>Player4</option>
-                    <option>Player5</option>
-                    <option>Player6</option>
-                    <option>Player7</option>
-                    <option>Player8</option>
-                    <option>Player9</option>
-                    <option>Player10</option>
-                    <option>Player11</option>
-                    <option>Player12</option>
-                </select>
-            </label>
-            <br>
-            <label><input type="checkbox"> Current Handicap
-                <input type="number" class="form-control" placeholder="">
-            </label>
-
-            <label><input type="checkbox"> Some other numeric
-                <input type="number" class="form-control" placeholder="">
-            </label>
-
-            <label><input type="checkbox"> Yet another numeric
-                <input type="number" class="form-control" placeholder="">
-            </label>
-            <button class="btn btn-primary" type="submit">Send</button>
-            </div>
-        </form>
+                <button class="btn btn-primary" type="button" ng-click="printState()">Print</button>
+                <br>
+                <button ng-if="newEvent.EventType" class="btn btn-primary" type="button" ng-click="appendToEventLog()">Build</button>
+            </form>
+        </div>
     </div>
-</div>
 
-<hr/>
-
-<div class="row">
-    <div class="col-sm-12">
-        <h4>New events</h4>
-        <form method="POST">
-            <div class="col-sm-6">
-                <div class="form-group">
-                    <textarea class="form-control" name="event-log" rows="10"></textarea>
-                </div>
-            </div>
-            <div class="col-sm-6">
+    <div class="row" ng-if="eventLog.length">
+        <div class="col-sm-12">
+            <h4>Built events</h4>
+            <form method="POST" class="form-inline">
                 <div class="radio">
                     <label>
                         <input type="radio" name="send-type" value="append" checked/>
@@ -139,13 +87,25 @@
                         Set events
                     </label>
                 </div>
+                <input type="hidden" name="event-log" value="{{eventLogJson}}" />
                 <button class="btn btn-primary" type="submit">Send</button>
-            </div>
-        </form>
+            </form>
+                <div class="col-sm-12">
+                    <table class="table table-striped">
+                        <tr ng-repeat="event in eventLog">
+                            <td><span class="btn glyphicon glyphicon-remove" aria-hidden="true" ng-click="removeFromLog($index)"></span></td>
+                            <td contenteditable="">{{event}}</td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="col-sm-4">
+
+                </div>
+        </div>
     </div>
 </div>
 
-<hr>
+<hr/>
 
 <div class="row">
     <div class="col-sm-12">
@@ -183,6 +143,7 @@
 </div>
 
 <script src="/js/sengine/profile.js" type="text/javascript"></script>
+<script src="/js/compiled/sengine_profile.js"></script>
 <script src="/js/compiled/formative-submit-disabler.js"></script>
 
 [% endblock body %]

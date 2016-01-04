@@ -168,13 +168,14 @@
       (redirect-with-flash "/sengine/files" {:error error})
       (redirect-with-flash (format "/sengine/files/profile/%s" event-id) {}))))
 
-(defn render-profile [req event-log out admin?]
+(defn render-profile [req event-types event-log out admin?]
   (let [event-log-rows (mapv json/generate-string event-log)
         out-header-keys (->> (first out)
                              (keys)
                              (vec))
         out-rows (map (fn [row] (map #(get row %) out-header-keys)) out)]
     (render "sengine/profile" req {:admin? admin?
+                                   :event-types event-types
                                    :event-log event-log-rows
                                    :out {:header (mapv name out-header-keys)
                                          :rows out-rows}})))
@@ -196,7 +197,14 @@
             admin? (get-in r [:session :is-admin] false)]
         (if error
           (redirect-with-flash "/sengine/files" {:error error})
-          (render-profile r event-log out admin?))))))
+          (let [url (format "http://%s/events/%s/event-types"
+                            s-engine-api-addr event-id)
+                resp @(http/get url)
+                error-prefix "Error while getting event-types: "
+                [event-types error] (check-response resp error-prefix)]
+            (if error
+              (redirect-with-flash "/sengine/files" {:error error})
+              (render-profile r event-types event-log out admin?))))))))
 
 (defn send-profile
   [{:keys [params web] :as r}]
@@ -204,6 +212,7 @@
         {:keys [s-engine-api-addr]} web
         url (format "http://%s/events/%s/event-log/%s"
                     s-engine-api-addr event-id send-type)
+        _ (println event-log)
         body (format "{\"params\":%s}" event-log)
         resp @(http/post url {:body body})
         error-prefix "Error while setting event log: "
