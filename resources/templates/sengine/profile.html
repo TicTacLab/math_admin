@@ -40,7 +40,7 @@
             <form method="POST">
                 <label>EventType
                     <select class="form-control"
-                            ng-options="value as value for value in eventTypes | eventTypeNames"
+                            ng-options="value.EventType as value.EventType for value in eventTypes | orderBy:'EventType'"
                             ng-model="selectedEventType"
                             ng-change="cleanNewEvent(selectedEventType)">
                         <option value="">--- Select event type ---</option>
@@ -59,7 +59,7 @@
                     </select>
                 </label>
                 <br>
-                <label ng-repeat="attr in getNumericAttributeNames(newEvent.EventType)" ng-cloak>
+                <label ng-repeat="attr in getNumericAttributes(newEvent.EventType)" ng-cloak>
                     {{attr.name}}
                     <input type="number" class="form-control" ng-model="newEvent[attr.name]">
                 </label>
