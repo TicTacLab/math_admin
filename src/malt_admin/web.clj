@@ -136,10 +136,10 @@
       :handler nil)))
 
 (def WebSchema
-  {:port              s/Int
-   :host              s/Str
-   :m-engine-api-addr s/Str
-   :s-engine-api-addr s/Str})
+  {:port                               s/Int
+   :host                               s/Str
+   :m-engine-api-addr                  s/Str
+   (s/optional-key :s-engine-api-addr) s/Str})
 
 (defn new-web [m]
   (as-> m $
