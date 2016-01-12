@@ -2,140 +2,149 @@
 
 [% block head %]
 <link href="/css/models/profile.css" rel="stylesheet" />
+<link href="/css/live_viewer.css" rel="stylesheet" />
 [% endblock %]
 
 [% block body %]
 
 <script>
-    window.event_types = [[event-types|json|safe]]
+  window.event_types = [[event-types|json|safe]]
+  window.event_log_length = [[event-log|count]]
 </script>
 
 <div class="row">
-    <div class="col-sm-12">
-        <h4>File info</h4>
+  <div class="col-sm-12">
+    <h4>File info</h4>
 
-        <div class="row">
-            <div class="col-sm-2">
-                <form id="destroy-session" action="destroy" method="POST">
-                    <button class="btn btn-danger" type="submit">Destroy session</button>
-                </form>
-            </div>
-            <div class="col-sm-2">
-                [% if admin? %]
-                <form id="download-workbook" method="POST">
-                    <button class="btn btn-primary" type="submit">Download workbook</button>
-                </form>
-                [% endif %]
-            </div>
-        </div>
+    <div class="row">
+      <div class="col-sm-2">
+        <form id="destroy-session" action="destroy" method="POST">
+          <button class="btn btn-danger" type="submit">Destroy session</button>
+        </form>
+      </div>
+      <div class="col-sm-2 col-sm-offset-8">
+        [% if admin? %]
+        <form id="download-workbook" method="POST" class="pull-right">
+          <button class="btn btn-primary" type="submit">Download workbook</button>
+        </form>
+        [% endif %]
+      </div>
     </div>
+  </div>
 </div>
 
 <hr>
 
 <div ng-controller="SengineProfileCtrl">
-    <div class="row">
-        <div class="col-sm-12">
-            <h4>Event builder</h4>
-            <form method="POST">
-                <label>EventType
-                    <select class="form-control"
-                            ng-options="value.EventType as value.EventType for value in eventTypes | orderBy:'EventType'"
-                            ng-model="selectedEventType"
-                            ng-change="cleanNewEvent(selectedEventType)">
-                        <option value="">--- Select event type ---</option>
-                    </select>
-                </label>
+  <div class="row">
+    <div class="col-sm-12">
+      <h4>Event builder</h4>
+      <form method="POST">
+        <label>EventType
+          <select class="form-control"
+              ng-options="value.EventType as value.EventType for value in eventTypes | orderBy:'EventType'"
+              ng-model="selectedEventType"
+              ng-change="cleanNewEvent(selectedEventType)">
+            <option value="">--- Select event type ---</option>
+          </select>
+        </label>
 
-                <br>
+        <br>
 
-                <label ng-repeat="attr in getEnumerableAttributes(newEvent.EventType)" ng-cloak>
-                    {{attr.name}}
-                    <select class="form-control"
-                            size="5"
-                            ng-options="value as value for value in attr.values"
-                            ng-model="newEvent[attr.name]">
-                        <option value="">n/a</option>
-                    </select>
-                </label>
-                <br>
-                <label ng-repeat="attr in getNumericAttributes(newEvent.EventType)" ng-cloak>
-                    {{attr.name}}
-                    <input type="number" class="form-control" ng-model="newEvent[attr.name]">
-                </label>
+        <label ng-repeat="attr in getEnumerableAttributes(newEvent.EventType)" ng-cloak>
+          {{attr.name}}
+          <select class="form-control"
+              size="5"
+              ng-options="value as value for value in attr.values"
+              ng-model="newEvent[attr.name]">
+            <option value="">n/a</option>
+          </select>
+        </label>
+        <br>
+        <label ng-repeat="attr in getNumericAttributes(newEvent.EventType)" ng-cloak>
+          {{attr.name}}
+          <input type="number" class="form-control" ng-model="newEvent[attr.name]">
+        </label>
 
-                <br>
-                <button ng-if="newEvent.EventType" class="btn btn-primary" type="button" ng-click="appendToEventLog()" ng-cloak>Build</button>
-            </form>
-        </div>
+        <br>
+        <button ng-if="newEvent.EventType" class="btn btn-primary" type="button" ng-click="appendToEventLog()" ng-cloak>Build</button>
+      </form>
     </div>
+  </div>
 
-    <div class="row" ng-if="eventLog.length" ng-cloak>
-        <div class="col-sm-12">
-            <h4>Built events</h4>
-            <form method="POST" class="form-inline" action="">
-                <div class="radio">
-                    <label>
-                        <input type="radio" name="send-type" value="append" checked/>
-                        Append events
-                    </label>
-                </div>
-                <div class="radio">
-                    <label>
-                        <input type="radio" name="send-type" value="set"/>
-                        Set events
-                    </label>
-                </div>
-                <input type="hidden" name="event-log" value="{{eventLogJson}}" />
-                <button class="btn btn-primary" type="submit">Send</button>
-            </form>
-            <div class="col-sm-12">
-                <table class="table table-striped">
-                    <tr ng-repeat="event in eventLog">
-                        <td><span class="btn glyphicon glyphicon-remove" aria-hidden="true" ng-click="removeFromEventLog($index)"></span></td>
-                        <td contenteditable="">{{event}}</td>
-                    </tr>
-                </table>
-            </div>
+  <div class="row" ng-if="eventLog.length" ng-cloak>
+    <div class="col-sm-12">
+      <h4>Built events</h4>
+      <form method="POST" class="form-inline" action="">
+        <div class="radio">
+          <label>
+            <input type="radio" name="send-type" value="append" ng-checked="isAppendEvents" ng-click="isAppendEvents = true"/>
+            Append events
+          </label>
         </div>
+        <div class="radio">
+          <label>
+            <input type="radio" name="send-type" value="set" ng-click="isAppendEvents = false"/>
+            Set events
+          </label>
+        </div>
+        <input type="hidden" name="event-log" value="{{eventLogJson}}" />
+        <button class="btn btn-primary" type="submit">Send</button>
+      </form>
+      <div class="col-sm-12">
+        <table class="table table-striped">
+          <tr ng-repeat="event in eventLog">            
+            <td style="width: 20px; vertical-align: middle;"><b>#{{getEventIndex(isAppendEvents, eventLog.length, $index, serverEventLogLength)}}</b></td>
+            <td style="vertical-align: middle;" contenteditable="">{{event}}</td>
+            <td style="width: 20px;"><span class="btn glyphicon glyphicon-remove" aria-hidden="true" ng-click="removeFromEventLog($index)"></span></td>
+          </tr>
+        </table>
+      </div>
     </div>
+  </div>
+</div>
 </div>
 
 <hr/>
 
-<div class="row">
-    <div class="col-sm-12">
+<div>
+  <div class="row">
+    <div class="col-lg-3">
+      <div>
         <h4>Event log:</h4>
-        [% for row in event-log %]
-        <pre>[[ row ]]</pre>
-        [% endfor %]
+        <ul class="list-group">
+          [% for event in event-log %]   
+          <li class="list-group-item">     
+            <b>#[[  forloop.revcounter0 ]] [[ event.event-type ]]</b>
+            <pre>[[ event.json ]]</pre>      
+          </li>
+          [% endfor %]
+        </ul>
+      </div>
     </div>
-</div>
 
-<hr>
-
-<div class="row">
-    <div class="col-sm-12">
+    <div class="col-lg-9">
         <h4>Markets</h4>
         <table class="table table-condensed table-striped">
-            <thead>
-              <tr>
-                  [% for val in out.header %]
-                  <th>[[ val ]]</th>
-                  [% endfor %]
-              </tr>
-            </thead>
-            <tbody>
-            [% for row in out.rows %]
+          <thead>
             <tr>
-                [% for val in row %]
-                <td>[[ val ]]</td>
-                [% endfor %]
+              [% for val in out.header %]
+              <th>[[ val ]]</th>
+              [% endfor %]
             </tr>
+          </thead>
+          <tbody>
+          [% for row in out.rows %]
+          <tr>
+            [% for val in row %]
+            <td>[[ val ]]</td>
             [% endfor %]
-            </tbody>
+          </tr>
+          [% endfor %]
+          </tbody>
         </table>
-    </div>
+      </div>
+  </div>
 </div>
 
 <script src="/js/sengine/profile.js" type="text/javascript"></script>

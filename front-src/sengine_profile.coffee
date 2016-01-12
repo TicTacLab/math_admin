@@ -8,6 +8,8 @@ app.controller 'SengineProfileCtrl', ['$scope', 'predicates', ($scope, preds) ->
 
       $scope.eventLog = []
       $scope.eventLogJson = ""
+      $scope.serverEventLogLength = event_log_length
+      $scope.isAppendEvents = true
 
       $scope.appendToEventLog = ->
         $scope.eventLog.unshift(_.chain($scope.newEvent)
@@ -35,6 +37,12 @@ app.controller 'SengineProfileCtrl', ['$scope', 'predicates', ($scope, preds) ->
 
       $scope.getEnumerableAttributes = _.memoize _.partial filterAttributes, _.negate preds.isNumericAttribute
       $scope.getNumericAttributes = _.memoize _.partial filterAttributes, preds.isNumericAttribute
+      $scope.getEventIndex = (isApeendEvents, eventLogLength, eventIndex, serverEventLogLength) ->
+        console.log isApeendEvents, eventLogLength, eventIndex, serverEventLogLength
+        if isApeendEvents
+          serverEventLogLength + eventLogLength - eventIndex
+        else
+          eventLogLength - eventIndex
   ]
 
 app.factory 'predicates', ->

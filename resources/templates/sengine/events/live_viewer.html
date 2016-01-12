@@ -8,54 +8,54 @@
 <script>var eventId = "[[ event-id ]]"</script>
 
 <div class="row">
-    <div class="col-lg-3">
-        [% if admin? %]
-        <form id="download-workbook" method="POST" action="/sengine/files/profile/[[ event-id ]]/workbook">
-            <button class="btn btn-primary" type="submit">Download workbook</button>
-        </form>
-        [% endif %]
-    </div>
+  <div class="col-lg-3">
+    [% if admin? %]
+    <form id="download-workbook" method="POST" action="/sengine/files/profile/[[ event-id ]]/workbook">
+      <button class="btn btn-primary" type="submit">Download workbook</button>
+    </form>
+    [% endif %]
+  </div>
 </div>
 
 <div class="row" ng-controller="LiveViewerCtrl">
-    <div class="col-lg-3">
-        <div id="event-log">
-            <h4>Event log:</h4>
-            <ul class="list-group">
-                <li ng-repeat="item in eventLog track by $index" class="list-group-item">
-                    <b>{{item.EventType}}</b>:
-                    <pre>{{item | json}}</pre>
-                </li>
-            </ul>
-        </div>
+  <div class="col-lg-3">
+    <div>
+      <h4>Event log:</h4>
+      <ul class="list-group">
+        <li ng-repeat="item in eventLog track by $index" class="list-group-item">
+          <b>{{item.EventType}}</b>:
+          <pre>{{item | json}}</pre>
+        </li>
+      </ul>
     </div>
-    <div class="col-lg-9">
-        <div id="settlements">
-            <h4>Markets</h4>
-            <table class="table table-condensed table-striped">
-                <thead>
-                <tr>
-                    <th ng-repeat="filter in filters track by filter.columnName">
-                        {{filter.columnName}}
-                        <br />
-                        <select name="{{filter.columnName}}"
-                                ng-model="activeFilter[filter.columnName]"
-                                ng-options="opt.value as opt.label for opt in filter.columnOptions">
-                        </select>
-                    </th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr ng-repeat="row in settlements.body | filter:activeFilter:true | limitTo:bodyLimit track by $index">
-                    <td ng-repeat="h in settlements.header track by h">
-                        {{row[h]}}
-                    </td>
-                </tr>
-                </tbody>
-            </table>
-            <a ng-click="showMore()">Show more...</a>
-        </div>
+  </div>
+  <div class="col-lg-9">
+    <div id="settlements">
+      <h4>Markets</h4>
+      <table class="table table-condensed table-striped">
+        <thead>
+        <tr>
+          <th ng-repeat="filter in filters track by filter.columnName">
+            {{filter.columnName}}
+            <br />
+            <select name="{{filter.columnName}}"
+                ng-model="activeFilter[filter.columnName]"
+                ng-options="opt.value as opt.label for opt in filter.columnOptions">
+            </select>
+          </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr ng-repeat="row in settlements.body | filter:activeFilter:true | limitTo:bodyLimit track by $index">
+          <td ng-repeat="h in settlements.header track by h">
+            {{row[h]}}
+          </td>
+        </tr>
+        </tbody>
+      </table>
+      <a ng-click="showMore()">Show more...</a>
     </div>
+  </div>
 </div>
 
 <script src="/js/compiled/live_viewer.js" type="text/javascript"></script>
