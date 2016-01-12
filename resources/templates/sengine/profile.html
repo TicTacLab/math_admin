@@ -2,7 +2,6 @@
 
 [% block head %]
 <link href="/css/models/profile.css" rel="stylesheet" />
-<link href="/css/live_viewer.css" rel="stylesheet" />
 [% endblock %]
 
 [% block body %]
@@ -34,73 +33,72 @@
 <hr>
 
 <div ng-controller="SengineProfileCtrl">
-  <div class="row">
-    <div class="col-sm-12">
-      <h4>Event builder</h4>
-      <form method="POST">
-        <label>EventType
-          <select class="form-control"
-              ng-options="value.EventType as value.EventType for value in eventTypes | orderBy:'EventType'"
-              ng-model="selectedEventType"
-              ng-change="cleanNewEvent(selectedEventType)">
-            <option value="">--- Select event type ---</option>
-          </select>
-        </label>
-
-        <br>
-
-        <label ng-repeat="attr in getEnumerableAttributes(newEvent.EventType)" ng-cloak>
-          {{attr.name}}
-          <select class="form-control"
-              size="5"
-              ng-options="value as value for value in attr.values"
-              ng-model="newEvent[attr.name]">
-            <option value="">n/a</option>
-          </select>
-        </label>
-        <br>
-        <label ng-repeat="attr in getNumericAttributes(newEvent.EventType)" ng-cloak>
-          {{attr.name}}
-          <input type="number" class="form-control" ng-model="newEvent[attr.name]">
-        </label>
-
-        <br>
-        <button ng-if="newEvent.EventType" class="btn btn-primary" type="button" ng-click="appendToEventLog()" ng-cloak>Build</button>
-      </form>
-    </div>
-  </div>
-
-  <div class="row" ng-if="eventLog.length" ng-cloak>
-    <div class="col-sm-12">
-      <h4>Built events</h4>
-      <form method="POST" class="form-inline" action="">
-        <div class="radio">
-          <label>
-            <input type="radio" name="send-type" value="append" ng-checked="isAppendEvents" ng-click="isAppendEvents = true"/>
-            Append events
-          </label>
-        </div>
-        <div class="radio">
-          <label>
-            <input type="radio" name="send-type" value="set" ng-click="isAppendEvents = false"/>
-            Set events
-          </label>
-        </div>
-        <input type="hidden" name="event-log" value="{{eventLogJson}}" />
-        <button class="btn btn-primary" type="submit">Send</button>
-      </form>
+    <div class="row">
       <div class="col-sm-12">
-        <table class="table table-striped">
-          <tr ng-repeat="event in eventLog">            
-            <td style="width: 20px; vertical-align: middle;"><b>#{{getEventIndex(isAppendEvents, eventLog.length, $index, serverEventLogLength)}}</b></td>
-            <td style="vertical-align: middle;" contenteditable="">{{event}}</td>
-            <td style="width: 20px;"><span class="btn glyphicon glyphicon-remove" aria-hidden="true" ng-click="removeFromEventLog($index)"></span></td>
-          </tr>
-        </table>
+        <h4>Event builder</h4>
+        <form method="POST">
+          <label>EventType
+            <select class="form-control"
+                ng-options="value.EventType as value.EventType for value in eventTypes | orderBy:'EventType'"
+                ng-model="selectedEventType"
+                ng-change="cleanNewEvent(selectedEventType)">
+              <option value="">--- Select event type ---</option>
+            </select>
+          </label>
+
+          <br>
+
+          <label ng-repeat="attr in getEnumerableAttributes(newEvent.EventType)" ng-cloak>
+            {{attr.name}}
+            <select class="form-control"
+                size="5"
+                ng-options="value as value for value in attr.values"
+                ng-model="newEvent[attr.name]">
+              <option value="">n/a</option>
+            </select>
+          </label>
+          <br>
+          <label ng-repeat="attr in getNumericAttributes(newEvent.EventType)" ng-cloak>
+            {{attr.name}}
+            <input type="number" class="form-control" ng-model="newEvent[attr.name]">
+          </label>
+
+          <br>
+          <button ng-if="newEvent.EventType" class="btn btn-primary" type="button" ng-click="appendToEventLog()" ng-cloak>Build</button>
+        </form>
       </div>
     </div>
-  </div>
-</div>
+
+    <div class="row" ng-if="eventLog.length" ng-cloak>
+      <div class="col-sm-12">
+        <h4>Built events</h4>
+        <form method="POST" class="form-inline" action="">
+          <div class="radio">
+            <label>
+              <input type="radio" name="send-type" value="append" ng-checked="isAppendEvents" ng-click="isAppendEvents = true"/>
+              Append events
+            </label>
+          </div>
+          <div class="radio">
+            <label>
+              <input type="radio" name="send-type" value="set" ng-click="isAppendEvents = false"/>
+              Set events
+            </label>
+          </div>
+          <input type="hidden" name="event-log" value="{{eventLogJson}}" />
+          <button class="btn btn-primary" type="submit">Send</button>
+        </form>
+        <div class="col-sm-12">
+          <table class="table table-striped">
+            <tr ng-repeat="event in eventLog">            
+              <td style="width: 20px; vertical-align: middle;"><b>#{{getEventIndex(isAppendEvents, eventLog.length, $index, serverEventLogLength)}}</b></td>
+              <td style="vertical-align: middle;" contenteditable="">{{event}}</td>
+              <td style="width: 20px;"><span class="btn glyphicon glyphicon-remove" aria-hidden="true" ng-click="removeFromEventLog($index)"></span></td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
 </div>
 
 <hr/>
