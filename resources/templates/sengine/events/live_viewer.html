@@ -22,10 +22,10 @@
 <div class="row" ng-controller="LiveViewerCtrl">
   <div class="col-lg-3">
     <div>
-      <h4>Event log:</h4>
+      <h4>Event log</h4>
       <ul class="list-group">
-        <li ng-repeat="item in eventLog track by $index" class="list-group-item">
-          <b>{{item.EventType}}</b>:
+        <li ng-repeat="item in eventLog.slice().reverse() track by $index" class="list-group-item">
+          <b>#{{eventLog.length - $index}} {{item.EventType}}</b>:
           <pre>{{item | json}}</pre>
         </li>
       </ul>
