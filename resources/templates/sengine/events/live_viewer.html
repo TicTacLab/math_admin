@@ -55,7 +55,7 @@
         </tr>
         </tbody>
       </table>
-      <a ng-click="showMore()">Show more...</a>
+      <a ng-click="showMore()" ng-hide="bodyLimit >= settlements.body.length">Show more...</a>
     </div>
   </div>
 </div>
