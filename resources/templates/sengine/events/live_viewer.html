@@ -8,14 +8,16 @@
 <script>var eventId = "[[ event-id ]]"</script>
 
 <div class="row">
-  <div class="col-lg-3">
+  <div class="col-lg-2 col-lg-offset-10">
     [% if admin? %]
-    <form id="download-workbook" method="POST" action="/sengine/files/profile/[[ event-id ]]/workbook">
-      <button class="btn btn-primary" type="submit">Download workbook</button>
+    <form id="download-workbook" method="POST" action="/sengine/files/profile/[[ event-id ]]/workbook" class="pull-right">
+      <button class="btn btn-default" type="submit">Download workbook</button>
     </form>
     [% endif %]
   </div>
 </div>
+
+<hr>
 
 <div class="row" ng-controller="LiveViewerCtrl">
   <div class="col-lg-3">

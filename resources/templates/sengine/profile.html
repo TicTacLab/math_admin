@@ -14,8 +14,6 @@
 
 <div class="row">
   <div class="col-sm-12">
-    <h4>File info</h4>
-
     <div class="row">
       <div class="col-sm-2">
         <form id="destroy-session" action="destroy" method="POST">
@@ -25,7 +23,7 @@
       <div class="col-sm-2 col-sm-offset-8">
         [% if admin? %]
         <form id="download-workbook" method="POST" class="pull-right">
-          <button class="btn btn-primary" type="submit">Download workbook</button>
+          <button class="btn btn-default" type="submit">Download workbook</button>
         </form>
         [% endif %]
       </div>
