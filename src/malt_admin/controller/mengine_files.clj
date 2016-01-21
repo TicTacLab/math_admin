@@ -13,11 +13,20 @@
             [org.httpkit.client :as http]
             [clojure.string :as s]
             [clojure.walk :refer [keywordize-keys]]
-            [clojure.tools.logging :as log])
+            [clojure.tools.logging :as log]
+            [clojure.data.codec.base64 :as b64]
+            [ring.util.response :as res])
   (:refer-clojure :exclude [replace])
   (:import (java.nio.file Files Paths)
            [java.util UUID Date]
            [java.io File]))
+
+
+(defn bet-engines-auth-header [session-id]
+  {"Authorization" (str "BetEngines " (-> session-id
+                                          (.getBytes)
+                                          (b64/encode)
+                                          (String.)))})
 
 (defn index [{{storage :storage} :web :as req}]
   (render "mengine/index" req {:models (models/get-models storage)}))
@@ -172,12 +181,13 @@
        (map :message)
        (s/join " ")))
 
-(defn get-malt-params [m-engine-api-addr model-id rev ssid]
+(defn get-malt-params [session-id m-engine-api-addr model-id rev ssid]
   (let [url (format "http://%s/files/%s/%s/in-params"
                     m-engine-api-addr
                     model-id
                     (make-model-sid model-id rev ssid))
-        {:keys [status error body]} @(http/get url {:as :text})
+        {:keys [status error body]} @(http/get url {:as      :text
+                                                    :headers (bet-engines-auth-header session-id)})
         response (parse-json body)
         error-prefix "Error while getting params: "]
     (cond
@@ -185,20 +195,21 @@
       (not= status 200) (wrap-error error-prefix (error-response->string-message response))
       :else [:ok (:data response)])))
 
-(defn get-model-out-values-header [m-engine-api-addr model-id rev ssid]
+(defn get-model-out-values-header [session-id m-engine-api-addr model-id rev ssid]
   (let [error-prefix "Error while getting header: "
         url (format "http://%s/files/%s/%s/out-values-header"
                     m-engine-api-addr
                     model-id
                     (make-model-sid model-id rev ssid))
-        {:keys [status error body]} @(http/get url {:as :text})
+        {:keys [status error body]} @(http/get url {:as :text
+                                                    :headers (bet-engines-auth-header session-id)})
         response (parse-json body)]
     (cond
       error (wrap-error error-prefix error)
       (not= 200 status) (wrap-error error-prefix (error-response->string-message response))
       :else [:ok (->> response :data (map keyword))])))
 
-(defn calculate [m-engine-api-addr ssid id rev params]
+(defn calculate [session-id m-engine-api-addr ssid id rev params]
   (let [error-prefix "Error while calculation: "
         malt-session-id (make-model-sid id rev ssid)
         url (format "http://%s/files/%s/%s/profile"
@@ -208,7 +219,8 @@
                      :params   (map (fn [[id value]] {:id id :value value}) params)}
         {:keys [body error status]} @(http/post url {:body    (json/generate-string malt-params)
                                                      :timeout 60000
-                                                     :as      :text})
+                                                     :as      :text
+                                                     :headers (bet-engines-auth-header session-id)})
         json-response (parse-json body)]
     (cond
       error (wrap-error error-prefix error)
@@ -234,9 +246,11 @@
         render-with-flash (fn [flash & {:as render-data}]
                             (render "mengine/profile"
                                     (assoc req :flash flash)
-                                    (merge {:model-file  model-file
+                                    (merge {:model-id model-id
+                                            :model-rev rev
+                                            :model-file  model-file
                                             :total-timer 0} render-data)))
-        [malt-params-code malt-params] (get-malt-params m-engine-api-addr model-id rev (:session-id req))]
+        [malt-params-code malt-params] (get-malt-params (:session-id req) m-engine-api-addr model-id rev (:session-id req))]
     (condp = malt-params-code
       :ok (let [values (or in-params
                            (malt-params->form-values malt-params))
@@ -247,7 +261,7 @@
                                      :submit-label "Calculate"
                                      :problems     problems})]
             (if out-params
-              (let [[out-header-code out-header] (get-model-out-values-header m-engine-api-addr model-id rev (:session-id req))]
+              (let [[out-header-code out-header] (get-model-out-values-header (:session-id req) m-engine-api-addr model-id rev (:session-id req))]
                 (condp = out-header-code
                   :ok (render-with-flash flash
                                          :profile-form profile-form
@@ -275,13 +289,14 @@
         m-engine-api-addr (-> req :web :m-engine-api-addr)
         in-params (dissoc params :id :submit :rev :csrf)
         render (partial render-profile-page req id rev :in-params in-params)
-        [malt-params-code malt-params] (get-malt-params m-engine-api-addr id rev session-id)]
+        [malt-params-code malt-params] (get-malt-params session-id m-engine-api-addr id rev session-id)]
     (condp = malt-params-code
       :ok (fp/with-fallback #(render-profile-page req id
                                                   :problems %
                                                   :in-params in-params)
                             (fp/parse-params (malt-params->form malt-params) in-params)
-                            (let [[type result] (calculate m-engine-api-addr
+                            (let [[type result] (calculate session-id
+                                                           m-engine-api-addr
                                                            session-id
                                                            id
                                                            rev
@@ -293,14 +308,16 @@
 
 (defn delete-session [{ssid :session-id
                        {:keys [id rev]} :params
+                       session-id :session-id
                        :as req}]
   (let [{m-engine-api-addr :m-engine-api-addr} (:web req)]
     @(http/delete (format "http://%s/files/%s/%s"
                           m-engine-api-addr id (make-model-sid id rev ssid))
                   {:body    ""
                    :timeout 1000
-                   :as      :text})
-    {:status 200}))
+                   :as      :text
+                   :headers (bet-engines-auth-header session-id)})
+    (res/redirect "/mengine/files")))
 
 (defn read-log [{{storage :storage} :web
                  {:keys [id ssid]} :params :as req}]
