@@ -15,12 +15,13 @@
             [clojure.walk :refer [keywordize-keys]]
             [clojure.tools.logging :as log]
             [clojure.data.codec.base64 :as b64]
-            [ring.util.response :as res])
+            [ring.util.response :as res]
+            [malt-admin.model-validator :as validator]
+            [malcolmx.core :as mx])
   (:refer-clojure :exclude [replace])
   (:import (java.nio.file Files Paths)
            [java.util UUID Date]
            [java.io File]))
-
 
 (defn bet-engines-auth-header [session-id]
   {"Authorization" (str "BetEngines " (-> session-id
@@ -72,7 +73,8 @@
                       (prepare-file-attrs)
                       (add-last-modified)
                       (add-default-fields)
-                      (generate-revision))]
+                      (generate-revision))
+          model (validator/is-model-file? (:file values))]
 
       (cond
         (models/model-exists? storage (:id values))
@@ -80,6 +82,27 @@
 
         (not (contains? values :file))
         (error! [:file] "You should specify file!")
+
+        (not model)
+        (error! [:file] "File should be a model")
+
+        (not (validator/has-sheet? model "IN"))
+        (error! [:file] "Model should have IN sheet")
+
+        (not (validator/has-sheet? model "OUT"))
+        (error! [:file] "Model should have OUT sheet")
+
+        (not (validator/has-column? model "IN" "id"))
+        (error! [:file] "IN sheet must contain id column")
+
+        (not (validator/has-column? model "IN" "value"))
+        (error! [:file] "IN sheet must contain value column")
+
+        (not (validator/ids-are-numbers? model "IN"))
+        (error! [:file] "Ids on IN sheet must be numbers")
+
+        (not (validator/ids-are-unique? model "IN"))
+        (error! [:file] "Ids on IN sheet must be unique")
 
         :else
         (do
