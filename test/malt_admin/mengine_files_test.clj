@@ -42,7 +42,7 @@
             (is (= model-description (text :.model-description)))))
 
 
-        (testing "Replace"
+        (testing "Replace with not a model"
           (within b model-selector
             (click "Replace"))
           (send-keys "File" "/etc/hosts")
@@ -50,13 +50,72 @@
           (click "Submit")
           (t/wait-condition (ExpectedConditions/alertIsPresent))
           (accept)
-          (wait 100)
-          (within b model-selector
-            (is (= "hosts" (text :.model-file-name)))
-            (is (= (str model-description \!)
-                   (text :.model-description)))))
+          (Thread/sleep 300)
+          (is (= "File: File should be a model"
+                 (text b :.control-label))))
+
+        (testing "Replace with model with no IN sheet"
+          (send-keys "File" no-in-model-path)
+          (fill-in "Description" (str model-description \!))
+          (click "Submit")
+          (t/wait-condition (ExpectedConditions/alertIsPresent))
+          (accept)
+          (Thread/sleep 300)
+          (is (= "File: Model should have IN sheet"
+                 (text b :.control-label))))
+
+        (testing "Replace with model with no OUT sheet"
+          (send-keys "File" no-out-model-path)
+          (fill-in "Description" (str model-description \!))
+          (click "Submit")
+          (t/wait-condition (ExpectedConditions/alertIsPresent))
+          (accept)
+          (Thread/sleep 300)
+          (is (= "File: Model should have OUT sheet"
+                 (text b :.control-label))))
+
+        (testing "Replace with model with non unique ids"
+          (send-keys "File" non-unique-ids-model)
+          (fill-in "Description" (str model-description \!))
+          (click "Submit")
+          (t/wait-condition (ExpectedConditions/alertIsPresent))
+          (accept)
+          (Thread/sleep 300)
+          (is (= "File: Ids on IN sheet must be unique"
+                 (text b :.control-label))))
+
+        (testing "Replace with model with non number ids"
+          (send-keys "File" non-number-ids-model)
+          (fill-in "Description" (str model-description \!))
+          (click "Submit")
+          (t/wait-condition (ExpectedConditions/alertIsPresent))
+          (accept)
+          (Thread/sleep 300)
+          (is (= "File: Ids on IN sheet must be numbers"
+                 (text b :.control-label))))
+
+        (testing "Replace with model without id column"
+          (send-keys "File" no-id-column-model)
+          (fill-in "Description" (str model-description \!))
+          (click "Submit")
+          (t/wait-condition (ExpectedConditions/alertIsPresent))
+          (accept)
+          (Thread/sleep 300)
+          (is (= "File: IN sheet must contain id column"
+                 (text b :.control-label))))
+
+        (testing "Replace with model without value column"
+          (send-keys "File" no-value-column-model)
+          (fill-in "Description" (str model-description \!))
+          (click "Submit")
+          (t/wait-condition (ExpectedConditions/alertIsPresent))
+          (accept)
+          (Thread/sleep 300)
+          (is (= "File: IN sheet must contain value column"
+                 (text b :.control-label))))
 
         (testing "Download"
+          (go "/mengine/files")
           (within b model-selector
             (click "Download")
             (t/wait-condition b (ExpectedConditions/alertIsPresent))
@@ -161,7 +220,7 @@
           (is (= "File: IN sheet must contain id column"
                  (text b :.control-label))))
 
-        (testing "Model uploading without id column"
+        (testing "Model uploading without value column"
           (go "/mengine/files")
 
           (is (empty? (elements model-selector)))

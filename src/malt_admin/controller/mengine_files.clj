@@ -64,6 +64,32 @@
     :in_sheet_name "IN"
     :out_sheet_name "OUT"))
 
+(defn validate-model [file]
+  (let [model (validator/is-model-file? file)]
+    (cond
+      (not model)
+      (error! [:file] "File should be a model")
+
+      (not (validator/has-sheet? model "IN"))
+      (error! [:file] "Model should have IN sheet")
+
+      (not (validator/has-sheet? model "OUT"))
+      (error! [:file] "Model should have OUT sheet")
+
+      (not (validator/has-column? model "IN" "id"))
+      (error! [:file] "IN sheet must contain id column")
+
+      (not (validator/has-column? model "IN" "value"))
+      (error! [:file] "IN sheet must contain value column")
+
+      (not (validator/ids-are-numbers? model "IN"))
+      (error! [:file] "Ids on IN sheet must be numbers")
+
+      (not (validator/ids-are-unique? model "IN"))
+      (error! [:file] "Ids on IN sheet must be unique")
+
+      :else true)))
+
 (defn do-upload [{params :params
                   {:keys [storage]} :web
                   :as req}]
@@ -73,8 +99,7 @@
                       (prepare-file-attrs)
                       (add-last-modified)
                       (add-default-fields)
-                      (generate-revision))
-          model (validator/is-model-file? (:file values))]
+                      (generate-revision))]
 
       (cond
         (models/model-exists? storage (:id values))
@@ -83,28 +108,7 @@
         (not (contains? values :file))
         (error! [:file] "You should specify file!")
 
-        (not model)
-        (error! [:file] "File should be a model")
-
-        (not (validator/has-sheet? model "IN"))
-        (error! [:file] "Model should have IN sheet")
-
-        (not (validator/has-sheet? model "OUT"))
-        (error! [:file] "Model should have OUT sheet")
-
-        (not (validator/has-column? model "IN" "id"))
-        (error! [:file] "IN sheet must contain id column")
-
-        (not (validator/has-column? model "IN" "value"))
-        (error! [:file] "IN sheet must contain value column")
-
-        (not (validator/ids-are-numbers? model "IN"))
-        (error! [:file] "Ids on IN sheet must be numbers")
-
-        (not (validator/ids-are-unique? model "IN"))
-        (error! [:file] "Ids on IN sheet must be unique")
-
-        :else
+        (validate-model (:file values))
         (do
           (models/write-model! storage values)
           (audit/info req :upload-model (dissoc values :file))
@@ -132,6 +136,7 @@
                      (generate-revision)
                      (select-keys [:id :file :name :file_name :content_type :in_sheet_name :out_sheet_name :rev :last_modified]))
           id (:id values)]
+      (validate-model (:file values))
       (models/replace-model! storage values)
       (audit/info req :replace-model (dissoc values :file))
       (redirect-with-flash "/mengine/files" {:success (format "File with id %d was replaced" id)}))))
