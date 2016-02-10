@@ -4,7 +4,8 @@
             [clojurewerkz.cassaforte.client :as cc]
             [clojurewerkz.cassaforte.policies :as cp]
             [clojure.tools.logging :as log])
-  (:import [com.datastax.driver.core.exceptions NoHostAvailableException]))
+  (:import [com.datastax.driver.core.exceptions NoHostAvailableException]
+           (com.datastax.driver.core.policies DCAwareRoundRobinPolicy)))
 
 (defn try-connect-times [times delay-ms nodes keyspace opts]
   (let [result (try
@@ -23,17 +24,20 @@
                     storage-keyspace
                     storage-user
                     storage-password
+                    storage-default-dc
                     session-ttl]
   component/Lifecycle
 
   (start [component]
-    (let [conn (try-connect-times 1000
-                                  1000
-                                  storage-nodes
-                                  storage-keyspace
-                                  {:credentials         {:username storage-user
-                                                         :password storage-password}
-                                   :reconnection-policy (cp/constant-reconnection-policy 100)})]
+    (let [conn (try-connect-times
+                 1000
+                 1000
+                 storage-nodes
+                 storage-keyspace
+                 {:credentials           {:username storage-user
+                                          :password storage-password}
+                  :reconnection-policy   (cp/constant-reconnection-policy 100)
+                  :load-balancing-policy (DCAwareRoundRobinPolicy. storage-default-dc 2)})]
       (log/info "Storage started")
       (assoc component :conn conn)))
 
@@ -49,6 +53,7 @@
    :storage-keyspace s/Str
    :storage-user s/Str
    :storage-password s/Str
+   :storage-default-dc s/Str
    :session-ttl s/Int})
 
 (defn new-storage [m]

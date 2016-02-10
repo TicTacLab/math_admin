@@ -12,7 +12,8 @@
 
   (stop [this]
     (when reporter
-      (.stop reporter))))
+      (.stop reporter))
+    (assoc this :reporter nil)))
 
 (defn new-jmx-reporter []
   (JmxReporterComp. nil))
