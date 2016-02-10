@@ -7,11 +7,6 @@
     ((set (mx/get-sheets-names model)) sheet)
     (catch Exception _ false)))
 
-(defn is-model-file? [model]
-  "returns model or false if it is not a model"
-  (try (mx/parse model)
-       (catch Exception _ false)))
-
 (defn ids-are-numbers? [model sheet]
   (try
     (->> (mx/get-sheet-with-row model sheet)

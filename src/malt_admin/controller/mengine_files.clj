@@ -65,30 +65,30 @@
     :out_sheet_name "OUT"))
 
 (defn validate-model [file]
-  (let [model (validator/is-model-file? file)]
-    (cond
-      (not model)
-      (error! [:file] "File should be a model")
+  (if (or (mx/excel-file? file "xlsx")
+          (mx/excel-file? file "xls"))
+    (let [model (mx/parse file)]
+      (cond
+        (not (validator/has-sheet? model "IN"))
+        (error! [:file] "Your excel file must contain \"IN\" worksheet. See docs")
 
-      (not (validator/has-sheet? model "IN"))
-      (error! [:file] "Model should have IN sheet")
+        (not (validator/has-sheet? model "OUT"))
+        (error! [:file] "Your excel file must contain \"OUT\" worksheet. See docs")
 
-      (not (validator/has-sheet? model "OUT"))
-      (error! [:file] "Model should have OUT sheet")
+        (not (validator/has-column? model "IN" "id"))
+        (error! [:file] "\"IN\" worksheet in your file must contain \"id\" column. See docs")
 
-      (not (validator/has-column? model "IN" "id"))
-      (error! [:file] "IN sheet must contain id column")
+        (not (validator/has-column? model "IN" "value"))
+        (error! [:file] "\"IN\" worksheet in your file must contain \"value\" column. See docs")
 
-      (not (validator/has-column? model "IN" "value"))
-      (error! [:file] "IN sheet must contain value column")
+        (not (validator/ids-are-numbers? model "IN"))
+        (error! [:file] "\"id\" column of \"IN\" worksheet must contain only numbers. See docs")
 
-      (not (validator/ids-are-numbers? model "IN"))
-      (error! [:file] "Ids on IN sheet must be numbers")
+        (not (validator/ids-are-unique? model "IN"))
+        (error! [:file] "\"id\" column of \"IN\" worksheet must contain only unique values. See docs")
 
-      (not (validator/ids-are-unique? model "IN"))
-      (error! [:file] "Ids on IN sheet must be unique")
-
-      :else true)))
+        :else true))
+    (error! [:file] "Your file must be of XLS or XLSX type")))
 
 (defn do-upload [{params :params
                   {:keys [storage]} :web

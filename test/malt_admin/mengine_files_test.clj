@@ -51,7 +51,7 @@
           (t/wait-condition (ExpectedConditions/alertIsPresent))
           (accept)
           (Thread/sleep 300)
-          (is (= "File: File should be a model"
+          (is (= "File: Your file must be of XLS or XLSX type"
                  (text b :.control-label))))
 
         (testing "Replace with model with no IN sheet"
@@ -61,7 +61,7 @@
           (t/wait-condition (ExpectedConditions/alertIsPresent))
           (accept)
           (Thread/sleep 300)
-          (is (= "File: Model should have IN sheet"
+          (is (= "File: Your excel file must contain \"IN\" worksheet. See docs"
                  (text b :.control-label))))
 
         (testing "Replace with model with no OUT sheet"
@@ -71,7 +71,7 @@
           (t/wait-condition (ExpectedConditions/alertIsPresent))
           (accept)
           (Thread/sleep 300)
-          (is (= "File: Model should have OUT sheet"
+          (is (= "File: Your excel file must contain \"OUT\" worksheet. See docs"
                  (text b :.control-label))))
 
         (testing "Replace with model with non unique ids"
@@ -81,7 +81,7 @@
           (t/wait-condition (ExpectedConditions/alertIsPresent))
           (accept)
           (Thread/sleep 300)
-          (is (= "File: Ids on IN sheet must be unique"
+          (is (= "File: \"id\" column of \"IN\" worksheet must contain only unique values. See docs"
                  (text b :.control-label))))
 
         (testing "Replace with model with non number ids"
@@ -91,7 +91,7 @@
           (t/wait-condition (ExpectedConditions/alertIsPresent))
           (accept)
           (Thread/sleep 300)
-          (is (= "File: Ids on IN sheet must be numbers"
+          (is (= "File: \"id\" column of \"IN\" worksheet must contain only numbers. See docs"
                  (text b :.control-label))))
 
         (testing "Replace with model without id column"
@@ -101,7 +101,7 @@
           (t/wait-condition (ExpectedConditions/alertIsPresent))
           (accept)
           (Thread/sleep 300)
-          (is (= "File: IN sheet must contain id column"
+          (is (= "File: \"IN\" worksheet in your file must contain \"id\" column. See docs"
                  (text b :.control-label))))
 
         (testing "Replace with model without value column"
@@ -111,7 +111,7 @@
           (t/wait-condition (ExpectedConditions/alertIsPresent))
           (accept)
           (Thread/sleep 300)
-          (is (= "File: IN sheet must contain value column"
+          (is (= "File: \"IN\" worksheet in your file must contain \"value\" column. See docs"
                  (text b :.control-label))))
 
         (testing "Download"
@@ -142,7 +142,7 @@
           (click "Submit")
           (Thread/sleep 300)
 
-          (is (= "File: Model should have IN sheet"
+          (is (= "File: Your excel file must contain \"IN\" worksheet. See docs"
                  (text b :.control-label))))
 
         (testing "Model uploading with no OUT sheet"
@@ -157,7 +157,7 @@
           (click "Submit")
           (Thread/sleep 300)
 
-          (is (= "File: Model should have OUT sheet"
+          (is (= "File: Your excel file must contain \"OUT\" worksheet. See docs"
                  (text b :.control-label))))
 
         (testing "Model uploading not a model"
@@ -172,7 +172,7 @@
           (click "Submit")
           (Thread/sleep 300)
 
-          (is (= "File: File should be a model"
+          (is (= "File: Your file must be of XLS or XLSX type"
                  (text b :.control-label))))
 
         (testing "Model uploading with non unique ids"
@@ -187,7 +187,7 @@
           (click "Submit")
           (Thread/sleep 300)
 
-          (is (= "File: Ids on IN sheet must be unique"
+          (is (= "File: \"id\" column of \"IN\" worksheet must contain only unique values. See docs"
                  (text b :.control-label))))
 
         (testing "Model uploading with non number ids"
@@ -202,7 +202,7 @@
           (click "Submit")
           (Thread/sleep 300)
 
-          (is (= "File: Ids on IN sheet must be numbers"
+          (is (= "File: \"id\" column of \"IN\" worksheet must contain only numbers. See docs"
                  (text b :.control-label))))
 
         (testing "Model uploading without id column"
@@ -217,7 +217,7 @@
           (click "Submit")
           (Thread/sleep 300)
 
-          (is (= "File: IN sheet must contain id column"
+          (is (= "File: \"IN\" worksheet in your file must contain \"id\" column. See docs"
                  (text b :.control-label))))
 
         (testing "Model uploading without value column"
@@ -232,7 +232,7 @@
           (click "Submit")
           (Thread/sleep 300)
 
-          (is (= "File: IN sheet must contain value column"
+          (is (= "File: \"IN\" worksheet in your file must contain \"value\" column. See docs"
                  (text b :.control-label))))
 
         ))))
