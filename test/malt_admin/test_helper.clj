@@ -5,7 +5,9 @@
             [clj-webdriver.taxi :as w]
             [clojure.string :as str]
             [com.stuartsierra.component :as component]
-            [malt-admin.system :as sys]))
+            [malt-admin.system :as sys]
+            [clojure.string :as s])
+  (:import (java.io File)))
 
 (defonce browser (atom nil))
 (defonce base-url (atom nil))
@@ -103,3 +105,6 @@
        ~@body
        (finally
          (component/stop ~nm)))))
+
+(defn get-model-path [model-name]
+  (s/join (File/separator) [(System/getProperty "user.dir") "test" "resources" model-name]))

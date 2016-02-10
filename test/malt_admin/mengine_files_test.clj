@@ -1,15 +1,11 @@
 (ns malt-admin.mengine-files-test
   (:use clojure.test)
-  (:require [malt-admin.test-helper :as t :refer [test-system signin signout go fill-in wait within]]
+  (:require [malt-admin.test-helper :as t :refer [get-model-path test-system signin signout go fill-in wait within]]
             [clj-webdriver.taxi :as w :refer [elements click send-keys text accept implicit-wait]]
-            [malt-admin.config :as c]
-            [clojure.string :as s])
+            [malt-admin.config :as c])
   (:import (java.util UUID)
-           (java.io File)
            (org.openqa.selenium.support.ui ExpectedConditions)))
 
-(defn get-model-path [model-name]
-  (s/join (File/separator) [(System/getProperty "user.dir") "test" "resources" model-name]))
 
 (def no-in-model-path (get-model-path "test-model-no-in.xls"))
 (def no-out-model-path (get-model-path "test-model-no-out.xls"))
