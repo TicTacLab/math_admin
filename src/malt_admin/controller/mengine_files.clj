@@ -265,7 +265,7 @@
 (defn format-timer-value [out-value]
   (update-in out-value [:timer] #(format "%.2f" %)))
 
-(defn render-profile-page [req model-id rev & {:keys [problems flash in-params out-params]}]
+(defn render-profile-page [req model-id rev & {:keys [problems flash in-params out-params active-filters]}]
   (let [m-engine-api-addr (-> req :web :m-engine-api-addr)
         model-file (as-> req $
                          (:web $)
@@ -280,6 +280,7 @@
                                     (merge {:model-id model-id
                                             :model-rev rev
                                             :model-file  model-file
+                                            :active-filters (or active-filters {})
                                             :total-timer 0} render-data)))
         [malt-params-code malt-params] (get-malt-params (:session-id req) m-engine-api-addr model-id rev (:session-id req))]
     (condp = malt-params-code
@@ -318,8 +319,9 @@
   (let [id (Integer/valueOf ^String (:id params))
         rev (:rev params)
         m-engine-api-addr (-> req :web :m-engine-api-addr)
-        in-params (dissoc params :id :submit :rev :csrf)
-        render (partial render-profile-page req id rev :in-params in-params)
+        active-filters (json/decode (:active-filters params))
+        in-params (dissoc params :id :submit :rev :csrf :active-filters)
+        render (partial render-profile-page req id rev :in-params in-params :active-filters active-filters)
         [malt-params-code malt-params] (get-malt-params session-id m-engine-api-addr id rev session-id)]
     (condp = malt-params-code
       :ok (fp/with-fallback #(render-profile-page req id

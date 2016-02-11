@@ -50,4 +50,7 @@ app.controller 'MengineProfileCtrl', ($scope) ->
       options
     )
 
+  $scope.activeFilter = window.prevActiveFilters
+  $scope.$watchCollection('activeFilter', -> $('#active-filters').val angular.toJson $scope.activeFilter)
+  
   $scope.filters = createFilters($scope.out)

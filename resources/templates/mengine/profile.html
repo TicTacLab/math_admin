@@ -8,7 +8,7 @@
 
 <script>
     window.out = {header: [[ out-header|json|safe ]], values: [[ out-values|json|safe ]]};
-
+    window.prevActiveFilters = [[ active-filters|json|safe ]]
 
 </script>
 
@@ -116,6 +116,7 @@
 
 <script src="/assets/metroui/min/metro.min.js" type="text/javascript"></script>
 <script src="/js/models/profile.js" type="text/javascript"></script>
+<script src="/js/compiled/formative-hidden-field-injector.js"></script>
 <script src="/js/compiled/mengine_profile.js" type="text/javascript"></script>
 <script src="/js/compiled/formative-submit-disabler.js"></script>
 [% endblock %]
