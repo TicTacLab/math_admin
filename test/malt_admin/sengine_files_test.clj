@@ -26,7 +26,7 @@
                        (send-keys "File" (.getAbsolutePath test-file))
                        (click "Submit")
                        (Thread/sleep 300)
-                       (is (seq (elements  model-selector))))
+                       (is (seq (elements model-selector))))
 
                      (testing "Edit"
                        (within b model-selector

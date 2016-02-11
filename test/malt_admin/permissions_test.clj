@@ -2,7 +2,8 @@
   (:use clojure.test)
   (:require [malt-admin.test-helper :as t :refer [test-system signin signout go fill-in within]]
             [clj-webdriver.taxi :as w :refer [click send-keys text find-elements elements]]
-            [malt-admin.config :as c]))
+            [malt-admin.config :as c]
+            ))
 
 (deftest permissions-test
   (t/with-system [s (test-system (c/config))]
@@ -14,11 +15,11 @@
           (go "/mengine/files")
           (click "Upload New")
           (fill-in "ID" (str id))
-          (send-keys "File" "/etc/hosts")
+          (send-keys "File" (t/get-model-path "test-model.xls"))
           (click "Submit")
           (Thread/sleep 300)
           (within b (keyword (format ".model[data-id='%d']" id))
-            (is (= "hosts" (text :.model-file-name))))))
+            (is (= "test-model.xls" (text :.model-file-name))))))
 
       (testing "Admin permissions"
         (signin b)

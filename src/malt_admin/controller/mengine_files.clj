@@ -15,12 +15,13 @@
             [clojure.walk :refer [keywordize-keys]]
             [clojure.tools.logging :as log]
             [clojure.data.codec.base64 :as b64]
-            [ring.util.response :as res])
+            [ring.util.response :as res]
+            [malt-admin.model-validator :as validator]
+            [malcolmx.core :as mx])
   (:refer-clojure :exclude [replace])
   (:import (java.nio.file Files Paths)
            [java.util UUID Date]
            [java.io File]))
-
 
 (defn bet-engines-auth-header [session-id]
   {"Authorization" (str "BetEngines " (-> session-id
@@ -63,6 +64,32 @@
     :in_sheet_name "IN"
     :out_sheet_name "OUT"))
 
+(defn validate-model [file]
+  (if (or (mx/excel-file? file "xlsx")
+          (mx/excel-file? file "xls"))
+    (let [model (mx/parse file)]
+      (cond
+        (not (validator/has-sheet? model "IN"))
+        (error! [:file] "Your excel file must contain \"IN\" worksheet. See docs")
+
+        (not (validator/has-sheet? model "OUT"))
+        (error! [:file] "Your excel file must contain \"OUT\" worksheet. See docs")
+
+        (not (validator/has-column? model "IN" "id"))
+        (error! [:file] "\"IN\" worksheet in your file must contain \"id\" column. See docs")
+
+        (not (validator/has-column? model "IN" "value"))
+        (error! [:file] "\"IN\" worksheet in your file must contain \"value\" column. See docs")
+
+        (not (validator/ids-are-numbers? model "IN"))
+        (error! [:file] "\"id\" column of \"IN\" worksheet must contain only numbers. See docs")
+
+        (not (validator/ids-are-unique? model "IN"))
+        (error! [:file] "\"id\" column of \"IN\" worksheet must contain only unique values. See docs")
+
+        :else true))
+    (error! [:file] "Your file must be of XLS or XLSX type")))
+
 (defn do-upload [{params :params
                   {:keys [storage]} :web
                   :as req}]
@@ -81,7 +108,7 @@
         (not (contains? values :file))
         (error! [:file] "You should specify file!")
 
-        :else
+        (validate-model (:file values))
         (do
           (models/write-model! storage values)
           (audit/info req :upload-model (dissoc values :file))
@@ -109,6 +136,10 @@
                      (generate-revision)
                      (select-keys [:id :file :name :file_name :content_type :in_sheet_name :out_sheet_name :rev :last_modified]))
           id (:id values)]
+
+      (when (contains? values :file)
+        (validate-model (:file values)))
+
       (models/replace-model! storage values)
       (audit/info req :replace-model (dissoc values :file))
       (redirect-with-flash "/mengine/files" {:success (format "File with id %d was replaced" id)}))))
