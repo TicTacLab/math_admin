@@ -10,6 +10,7 @@
       "192.168.167.145",
       "192.168.167.146"
     ],
+    "storage-default-dc": "DC01",
     "storage-password": "CacNeck5",
     "storage-user": "malt",
 
