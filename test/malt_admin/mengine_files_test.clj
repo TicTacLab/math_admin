@@ -118,7 +118,7 @@
           (t/wait-condition (ExpectedConditions/alertIsPresent))
           (accept)
           (Thread/sleep 300)
-          (is (= "File: This cells contain not supported functions: OUT!D2: [\"BIN2HEX\"]; OUT!D3: [\"BIN2OCT\"]"
+          (is (= "File: Unfortunately following cells contain not supported functions: OUT!D2 - [\"BIN2HEX\"]; OUT!D3 - [\"BIN2OCT\"]. Please, try to use functions from the list of supported functions"
                  (text b :.control-label))))
 
         (testing "Download"
@@ -254,5 +254,5 @@
           (click "Submit")
           (Thread/sleep 300)
 
-          (is (= "File: This cells contain not supported functions: OUT!D2: [\"BIN2HEX\"]; OUT!D3: [\"BIN2OCT\"]"
+          (is (= "File: Unfortunately following cells contain not supported functions: OUT!D2 - [\"BIN2HEX\"]; OUT!D3 - [\"BIN2OCT\"]. Please, try to use functions from the list of supported functions"
                  (text b :.control-label))))))))

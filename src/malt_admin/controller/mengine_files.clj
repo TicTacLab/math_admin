@@ -69,9 +69,10 @@
           (mx/excel-file? file "xls"))
     (let [model (mx/parse file)]
       (if-let [unsup-funs (seq (validator/has-not-supported-functions? model))]
-        (error! [:file] (str "This cells contain not supported functions: "
-                             (s/join "; " (map #(format "%s: %s" (:cell %) (vec (:fns %)))
-                                   unsup-funs))))
+        (error! [:file] (str "Unfortunately following cells contain not supported functions: "
+                             (s/join "; " (map #(format "%s - %s" (:cell %) (vec (:fns %)))
+                                   unsup-funs))
+                             ". Please, try to use functions from the list of supported functions"))
         (cond
           (not (validator/has-sheet? model "IN"))
           (error! [:file] "Your excel file must contain \"IN\" worksheet. See docs")
