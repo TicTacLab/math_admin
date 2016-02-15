@@ -106,5 +106,5 @@
        (finally
          (component/stop ~nm)))))
 
-(defn get-model-path [model-name]
+(defn get-file-path [model-name]
   (s/join (File/separator) [(System/getProperty "user.dir") "test" "resources" model-name]))

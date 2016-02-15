@@ -15,7 +15,7 @@
           (go "/mengine/files")
           (click "Upload New")
           (fill-in "ID" (str id))
-          (send-keys "File" (t/get-model-path "test-model.xls"))
+          (send-keys "File" (t/get-file-path "test-model.xls"))
           (click "Submit")
           (Thread/sleep 300)
           (within b (keyword (format ".model[data-id='%d']" id))

@@ -16,7 +16,7 @@
         (testing "revision creating on model upload"
           (click "Upload New")
           (fill-in "ID" (str id))
-          (send-keys "File" (t/get-model-path "test-model.xls"))
+          (send-keys "File" (t/get-file-path "test-model.xls"))
           (click "Submit")
           (Thread/sleep 300)
           (is (seq (w/attribute model-selector "data-rev"))
@@ -26,7 +26,7 @@
           (let [old-rev (w/attribute model-selector "data-rev")]
             (within b model-selector
               (click "Replace"))
-            (send-keys "File" (t/get-model-path "test-model.xls"))
+            (send-keys "File" (t/get-file-path "test-model.xls"))
             (click "Submit")
             (t/wait-condition b (ExpectedConditions/alertIsPresent))
             (accept)
