@@ -1,22 +1,18 @@
 Start ::= Constant
-| '=' Formula
-| ArrayFormula;
-ArrayFormula ::= '{=' Formula '}';
+| Formula;
 Formula ::= Constant
 | Reference
 | FunctionCall
 | '(' Formula ')'
-| ConstantArray
 | RESERVED-NAME;
 Constant ::= NUMBER | STRING | BOOL | ERROR;
-FunctionCall ::= Function Arguments ')'
+FunctionCall ::= FUNCTION Arguments ')'
 | UnOpPrefix Formula
 | Formula '%'
 | Formula BinOp Formula;
 UnOpPrefix ::= '+' | '-';
 BinOp ::= '+' | '-' | '*' | '/' | '^'
 | '<' | '>' | '=' | '<=' | '>=' | '<>';
-Function ::= FUNCTION;
 Arguments ::= Argument
 | Argument ',' #' *' Arguments;
 Argument ::= Formula | '';
@@ -64,7 +60,7 @@ HORIZONTAL-RANGE ::= #'\$?[0-9]+:\$?[0-9]+';
 MULTIPLE-SHEETS ::= #"[a-zA-Z0-9]+:([a-zA-Z0-9_\.]+|'([a-zA-Z0-9_!\^&\*\(\)\+=\{\}:;\|\<\>,\./\?\\]|\")+')!";
 NAMED-RANGE ::= #'[a-zA-Z_][a-zA-Z0-9_\.]*' !'!';
 NAMED-RANGE-PREFIXED ::= ('TRUE' | 'FALSE' | #'([a-zA-Z]+[0-9]+)[a-zA-Z0-9_\.]+');
-NUMBER ::= #'[0-9]+,?[0-9]*(e[0-9]+)?';
+NUMBER ::= #'[0-9]+\.?[0-9]*(e[0-9]+)?';
 QUOTED-FILE-SHEET ::= #"'\[[0-9]+\]([0-9a-zA-Z_ !@#\$%\^&\*\(\)\+=\{\}:;\|\<\>,\./?\\] | \")+'!";
 REFERENCE-FUNCTION ::=  ('INDEX' | 'OFFSET' | 'INDIRECT') <'('>;
 RESERVED-NAME ::= #'_xlnm\.[a-zA-Z_]+';

@@ -20,7 +20,10 @@
                  (vec (concat node children))))
 
 (defn parse [formula]
-  (insta/parse parser formula))
+  (let [res (insta/parse parser formula :partial true)]
+    (when (string? res)
+      (println res))
+    res))
 
 (defn reduce-by-fun-name [func init tree]
   (let [hiccup-zipper (zip/zipper branch? children make-node tree)]
@@ -85,7 +88,7 @@
              :when (= Cell/CELL_TYPE_FORMULA (.getCellType cell))
              :let [formula (.getCellFormula cell)
                    cell-coord (as-a1 cell)
-                   formula-tree (parse (str "=" formula))]]
+                   formula-tree (parse formula)]]
          (when-let [not-sup (seq (collect-not-supported formula-tree))]
            {:cell cell-coord
             :fns  not-sup}))
