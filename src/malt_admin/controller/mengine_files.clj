@@ -68,7 +68,7 @@
   (if (or (mx/excel-file? file "xlsx")
           (mx/excel-file? file "xls"))
     (let [model (mx/parse file)]
-      (if-let [unsup-funs (seq (validator/has-unsupported-functions? model))]
+      (if-let [unsup-funs (seq (validator/has-not-supported-functions? model))]
         (error! [:file] (map #(format "Cell \"%s\" contains not supported functions %s. Please, replace it with supported functions"
                                       (:cell %) (:fns %))
                              unsup-funs))

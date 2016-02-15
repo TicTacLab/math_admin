@@ -78,7 +78,7 @@
          (every? #(get % column)))
     (catch Exception _ false)))
 
-(defn has-unsupported-functions? [file]
+(defn has-not-supported-functions? [file]
   (->> (for [sheet (seq file)
              row (seq sheet)
              cell (seq row)
