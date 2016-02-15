@@ -34,6 +34,7 @@
                  [org.clojure/test.check "0.8.1"]
                  [com.betinvest/zabbix-clojure-agent "0.1.8"]
                  [clj-webdriver "0.7.2" :exclusions [com.google.guava/guava org.seleniumhq.selenium/selenium-server]]
+                 [instaparse "1.4.1"]
                  [com.aphyr/prism "0.1.3"]
                  [org.owasp.passfault/passfault-core "0.7"]
 

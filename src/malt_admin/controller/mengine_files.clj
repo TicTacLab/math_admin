@@ -68,26 +68,30 @@
   (if (or (mx/excel-file? file "xlsx")
           (mx/excel-file? file "xls"))
     (let [model (mx/parse file)]
-      (cond
-        (not (validator/has-sheet? model "IN"))
-        (error! [:file] "Your excel file must contain \"IN\" worksheet. See docs")
+      (if-let [unsup-funs (seq (validator/has-unsupported-functions? model))]
+        (error! [:file] (map #(format "Cell \"%s\" contains not supported functions %s. Please, replace it with supported functions"
+                                      (:cell %) (:fns %))
+                             unsup-funs))
+        (cond
+          (not (validator/has-sheet? model "IN"))
+          (error! [:file] "Your excel file must contain \"IN\" worksheet. See docs")
 
-        (not (validator/has-sheet? model "OUT"))
-        (error! [:file] "Your excel file must contain \"OUT\" worksheet. See docs")
+          (not (validator/has-sheet? model "OUT"))
+          (error! [:file] "Your excel file must contain \"OUT\" worksheet. See docs")
 
-        (not (validator/has-column? model "IN" "id"))
-        (error! [:file] "\"IN\" worksheet in your file must contain \"id\" column. See docs")
+          (not (validator/has-column? model "IN" "id"))
+          (error! [:file] "\"IN\" worksheet in your file must contain \"id\" column. See docs")
 
-        (not (validator/has-column? model "IN" "value"))
-        (error! [:file] "\"IN\" worksheet in your file must contain \"value\" column. See docs")
+          (not (validator/has-column? model "IN" "value"))
+          (error! [:file] "\"IN\" worksheet in your file must contain \"value\" column. See docs")
 
-        (not (validator/ids-are-numbers? model "IN"))
-        (error! [:file] "\"id\" column of \"IN\" worksheet must contain only numbers. See docs")
+          (not (validator/ids-are-numbers? model "IN"))
+          (error! [:file] "\"id\" column of \"IN\" worksheet must contain only numbers. See docs")
 
-        (not (validator/ids-are-unique? model "IN"))
-        (error! [:file] "\"id\" column of \"IN\" worksheet must contain only unique values. See docs")
+          (not (validator/ids-are-unique? model "IN"))
+          (error! [:file] "\"id\" column of \"IN\" worksheet must contain only unique values. See docs")
 
-        :else true))
+          :else true)))
     (error! [:file] "Your file must be of XLS or XLSX type")))
 
 (defn do-upload [{params :params

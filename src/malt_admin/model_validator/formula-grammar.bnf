@@ -1,0 +1,74 @@
+Start ::= Constant
+| '=' Formula
+| ArrayFormula;
+ArrayFormula ::= '{=' Formula '}';
+Formula ::= Constant
+| Reference
+| FunctionCall
+| '(' Formula ')'
+| ConstantArray
+| RESERVED-NAME;
+Constant ::= NUMBER | STRING | BOOL | ERROR;
+FunctionCall ::= Function Arguments ')'
+| UnOpPrefix Formula
+| Formula '%'
+| Formula BinOp Formula;
+UnOpPrefix ::= '+' | '-';
+BinOp ::= '+' | '-' | '*' | '/' | '^'
+| '<' | '>' | '=' | '<=' | '>=' | '<>';
+Function ::= FUNCTION;
+Arguments ::= Argument
+| Argument ',' #' *' Arguments;
+Argument ::= Formula | '';
+Reference ::=  Prefix ReferenceItem
+| ReferenceItem
+| Reference ':' Reference
+| Reference ' ' Reference
+| '(' Union ')'
+| '(' Reference ')'
+| Prefix FUNCTION Arguments ')'
+| DynamicDataExchange
+;
+ReferenceItem ::= CELL
+| NamedRange
+| REFERENCE-FUNCTION Arguments ')'
+| VERTICAL-RANGE
+| HORIZONTAL-RANGE
+| ERROR-REF;
+Prefix ::= SHEET
+| FILE SHEET
+| FILE '!'
+| QUOTED-FILE-SHEET
+| MULTIPLE-SHEETS
+| FILE MULTIPLE-SHEETS;
+NamedRange ::= NAMED-RANGE
+| NAMED-RANGE-PREFIXED;
+Union ::= Reference | Reference ',' Union;
+DynamicDataExchange ::= FILE '!' DDECALL;
+ConstantArray ::= '{' ArrayColumns '}';
+ArrayColumns ::= ArrayRows
+| ArrayRows ';' ArrayColumns;
+ArrayRows ::= ArrayConstant
+| ArrayConstant ',' ArrayRows;
+ArrayConstant ::= Constant
+| UnOpPrefix NUMBER
+| ERROR-REF;
+
+BOOL ::= 'TRUE' | 'FALSE';
+CELL ::= #'\$?[a-zA-Z]+\$?[0-9]+';
+DDECALL ::= #"'([a-zA-Z0-9_ !@#\$%\^&\*\(\)\+=\{\}:;\|\<\>,\./\?'\\] | \")+'";
+ERROR ::= '#NULL!' | '#DIV/0!' | '#VALUE!' | '#NAME?' | '#NUM!' | '#N/A';
+ERROR-REF ::= '#REF!';
+FILE ::= '[' #'[0-9]+' ']';
+HORIZONTAL-RANGE ::= #'\$?[0-9]+:\$?[0-9]+';
+MULTIPLE-SHEETS ::= #"[a-zA-Z0-9]+:([a-zA-Z0-9_\.]+|'([a-zA-Z0-9_!\^&\*\(\)\+=\{\}:;\|\<\>,\./\?\\]|\")+')!";
+NAMED-RANGE ::= #'[a-zA-Z_][a-zA-Z0-9_\.]*' !'!';
+NAMED-RANGE-PREFIXED ::= ('TRUE' | 'FALSE' | #'([a-zA-Z]+[0-9]+)[a-zA-Z0-9_\.]+');
+NUMBER ::= #'[0-9]+,?[0-9]*(e[0-9]+)?';
+QUOTED-FILE-SHEET ::= #"'\[[0-9]+\]([0-9a-zA-Z_ !@#\$%\^&\*\(\)\+=\{\}:;\|\<\>,\./?\\] | \")+'!";
+REFERENCE-FUNCTION ::=  ('INDEX' | 'OFFSET' | 'INDIRECT') <'('>;
+RESERVED-NAME ::= #'_xlnm\.[a-zA-Z_]+';
+SHEET ::= (#'[a-zA-Z0-9_\.]+' | "'" #"[0-9a-zA-Z_ !@#\$%\^&\*\(\)\+=\|:;\<\>,\./?\\]" "'") '!';
+STRING ::= #'"([^"] | "")*"';
+FUNCTION ::= #'(_xll\.)?[a-zA-Z0-9]+' <'('>;
+VERTICAL-RANGE ::= #'\$?[a-zA-Z]+:\$?[a-zA-Z]+';
