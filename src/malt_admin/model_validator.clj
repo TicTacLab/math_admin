@@ -10,7 +10,7 @@
 (def supported (set (WorkbookEvaluator/getSupportedFunctionNames)))
 
 (def parser (-> (slurp "src/malt_admin/model_validator/formula-grammar.bnf")
-                (insta/parser)))
+                (insta/parser :auto-whitespace :standard)))
 
 (def branch? vector?)
 
