@@ -135,11 +135,14 @@
                      (add-last-modified)
                      (generate-revision)
                      (select-keys [:id :file :name :file_name :content_type :in_sheet_name :out_sheet_name :rev :last_modified]))
-          id (:id values)]
+          id (:id values)
+          old-rev (models/get-rev storage id)]
 
       (when (contains? values :file)
         (validate-model (:file values)))
 
+      (in-params/delete! storage id)
+      (cache/clear storage id old-rev)
       (models/replace-model! storage values)
       (audit/info req :replace-model (dissoc values :file))
       (redirect-with-flash "/mengine/files" {:success (format "File with id %d was replaced" id)}))))
