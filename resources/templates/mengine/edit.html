@@ -1,7 +1,32 @@
 [% extends "layout.html" %]
+
+[% block head %]
+<link href="/css/models/upload_indicator.css" rel="stylesheet"/>
+[% endblock %]
+
 [% block body %]
 <h1>Replace File</h1>
+<div class="upload-indicator-container">
+  <div class="progress">
+    <div class="upload-indicator progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="45"
+         aria-valuemin="0" aria-valuemax="100">
+      <span class="sr-only">Loading...</span>
+    </div>
+  </div>
+  <p class="upload-hint">
+    <a data-toggle="tooltip"
+       data-placement="bottom"
+       title="When upload file Math Engine tries to validate and optimize whole file.
+               So it may take some time depending on the complexity of your model.
+               Usually, it take less than minute.">
+      Why so slow?
+    </a>
+  </p>
+</div>
+<div id="upload-form-container">
 [[ edit-form|form|safe ]]
+</div>
 
 <script src="/js/models/edit.js" type="text/javascript"></script>
+<script src="/js/compiled/upload_indicator.js" type="text/javascript"></script>
 [% endblock %]

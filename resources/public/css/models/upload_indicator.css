@@ -1,0 +1,24 @@
+.upload-indicator-container {
+  display: none;
+}
+
+.upload-indicator-container .upload-indicator {
+  width: 100%;
+}
+
+.upload-indicator-container .upload-hint {
+  margin-top: -15px;
+  padding-left: 5px;
+}
+
+.upload-indicator-container .upload-hint a {
+  text-decoration: none;
+  color: #bbb;
+  border-bottom: 1px #bbb dashed;
+  cursor: pointer;
+}
+
+.upload-indicator-container .upload-hint a:hover {
+  color: #999;
+  border-bottom: 1px #999 dashed;
+}
