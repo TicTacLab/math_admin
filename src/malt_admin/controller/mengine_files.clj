@@ -4,9 +4,7 @@
             [malt-admin.audit :as audit]
             [malt-admin.storage
              [log :as slog]
-             [models :as models]
-             [cache :as cache]
-             [in-params :as in-params]]
+             [models :as models]]
             [cheshire.core :as json]
             [malt-admin.helpers :refer [redirect-with-flash error!]]
             [formative.parse :as fp]
@@ -146,8 +144,6 @@
       (when (contains? values :file)
         (validate-model (:file values)))
 
-      (in-params/delete! storage id)
-      (cache/clear storage id old-rev)
       (models/replace-model! storage values)
       (audit/info req :replace-model (dissoc values :file))
       (redirect-with-flash "/mengine/files" {:success (format "File with id %d was replaced" id)}))))
@@ -158,8 +154,6 @@
   (let [model-id (Integer/valueOf ^String id)
         rev (models/get-rev storage model-id)]
     (models/delete-model! storage model-id)
-    (cache/clear storage model-id rev)
-    (in-params/delete! storage model-id)
     (audit/info req :delete-model {:id model-id})
     (redirect-with-flash "/mengine/files"
                          {:success (format "File with id %d was deleted"
