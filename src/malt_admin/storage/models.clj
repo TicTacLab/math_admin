@@ -65,6 +65,9 @@
       first
       (base64-decode [:file])))
 
+(defn file-exists? [{spec :pg-spec} id]
+  (boolean (file-exists*? {:id id} {:connection spec})))
+
 (defn model-exists? [storage id]
   (let [{:keys [conn]} storage]
     (boolean (cql/get-one conn "models"

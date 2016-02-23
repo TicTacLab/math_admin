@@ -49,3 +49,8 @@ WHERE id = :id;
 SELECT rev
 FROM files
 WHERE id = :id;
+
+-- name: file-exists*?
+SELECT id
+FROM files
+WHERE id = :id;

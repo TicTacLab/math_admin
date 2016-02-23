@@ -107,7 +107,7 @@
                       (generate-revision))]
 
       (cond
-        (models/model-exists? storage (:id values))
+        (models/file-exists? storage (:id values))
         (error! [:id] (str "Model with this ID already exists: " (:id values)))
 
         (not (contains? values :file))
