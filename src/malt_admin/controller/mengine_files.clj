@@ -21,7 +21,7 @@
   (:refer-clojure :exclude [replace])
   (:import (java.nio.file Files Paths)
            [java.util UUID Date]
-           [java.io File]))
+           [java.io File ByteArrayInputStream]))
 
 (defn bet-engines-auth-header [session-id]
   {"Authorization" (str "BetEngines " (-> session-id
@@ -168,9 +168,9 @@
 (defn download [{{id :id} :params
                  {storage :storage} :web
                  :as req}]
-  (let [file (models/get-model-file storage (Integer/valueOf ^String id))]
+  (let [file (models/get-raw-file storage (Integer/valueOf ^String id))]
     (audit/info req :download-model {:id id})
-    {:body    (:file file)
+    {:body    (ByteArrayInputStream. (:file file))
      :headers {"Content-Type"        (:content_type file)
                "Content-Disposition" (str "attachment; filename=" (:file_name file))}}))
 

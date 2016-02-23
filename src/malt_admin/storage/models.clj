@@ -19,6 +19,11 @@
             (update acc k #(DatatypeConverter/printBase64Binary %)))
           m ks))
 
+(defn base64-decode [m ks]
+  (reduce (fn [acc k]
+            (update acc k #(DatatypeConverter/parseBase64Binary %)))
+          m ks))
+
 (defqueries "sql/files.sql")
 
 (defn write-file! [{spec :pg-spec} file]
@@ -59,6 +64,11 @@
     (:rev (cql/get-one conn "models"
                   (columns :rev)
                   (where [[= :id id]])))))
+
+(defn get-raw-file [{spec :pg-spec} id]
+  (-> (get-raw-file* {:id id} {:connection spec})
+      first
+      (base64-decode [:file])))
 
 (defn get-model-file [storage id]
   (let [{:keys [conn]} storage]

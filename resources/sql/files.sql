@@ -10,7 +10,12 @@ id, name, file_name, in_sheet_name,
 out_sheet_name, last_modified, rev, content_type
 FROM files;
 
---name: get-file*
+-- name: get-file*
 SELECT id, name, file_name, in_sheet_name, out_sheet_name
+FROM files
+WHERE id = :id;
+
+-- name: get-raw-file*
+SELECT id, name, file, file_name, in_sheet_name, out_sheet_name, last_modified, rev, content_type
 FROM files
 WHERE id = :id;
