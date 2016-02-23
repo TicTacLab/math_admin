@@ -3,15 +3,29 @@
             [clojurewerkz.cassaforte.query :refer [where columns order-by]]
             [yesql.core :refer [defqueries]]
             [clojure.tools.logging :as log])
-  (:import (javax.xml.bind DatatypeConverter)))
+  (:import (javax.xml.bind DatatypeConverter)
+           (java.sql Timestamp)))
+
+(defn to-time [date]
+  (Timestamp. (.getTime date)))
+
+(defn coerce-time [m ks]
+  (reduce (fn [acc k]
+            (update acc k to-time))
+          m ks))
+
+(defn base64-encode [m ks]
+  (reduce (fn [acc k]
+            (update acc k #(DatatypeConverter/printBase64Binary %)))
+          m ks))
 
 (defqueries "sql/files.sql")
 
 (defn write-file! [{spec :pg-spec} file]
-  (println file)
   (try
     (-> file
-        (update :file #(DatatypeConverter/printBase64Binary %))
+        (coerce-time [:last_modified])
+        (base64-encode [:file])
         (write-file*! {:connection spec}))
     (catch Exception e
       (log/error e "Exception occured during file writing into db"))))
@@ -28,11 +42,8 @@
     (cql/delete conn "models"
                 (where [[= :id model-id]]))))
 
-(defn get-models [storage]
-  (let [{:keys [conn]} storage]
-    (sort-by :id (cql/select conn
-                             "models"
-                             (columns :id :name :file :file_name :in_sheet_name :out_sheet_name :last_modified :rev :content_type)))))
+(defn get-files [{spec :pg-spec}]
+  (sort-by :id (get-files* {} {:connection spec})))
 
 (defn get-model [storage id]
   (let [{:keys [conn]} storage]

@@ -5,5 +5,7 @@ CREATE TABLE IF NOT EXISTS files (
  file_name varchar,
  content_type varchar,
  in_sheet_name varchar,
- out_sheet_name varchar
+ out_sheet_name varchar,
+ last_modified timestamp,
+ rev varchar
 );

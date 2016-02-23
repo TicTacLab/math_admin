@@ -30,7 +30,7 @@
                                           (String.)))})
 
 (defn index [{{storage :storage} :web :as req}]
-  (render "mengine/index" req {:models (models/get-models storage)}))
+  (render "mengine/index" req {:models (models/get-files storage)}))
 
 (defn upload [{:keys [problems params] :as req}]
   (render "mengine/upload" req {:upload-form (assoc form/upload-form
