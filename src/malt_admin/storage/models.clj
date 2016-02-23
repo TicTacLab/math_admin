@@ -35,6 +35,14 @@
     (catch Exception e
       (log/error e "Exception occured during file writing into db"))))
 
+(defn update-file! [{spec :pg-spec} file]
+  (if-not (:file file)
+    (update-without-raw-file*! file {:connection spec})
+    (let [file (-> file
+                   (coerce-time [:last_modified])
+                   (base64-encode [:file]))]
+      (update-with-raw-file*! file {:connection spec}))))
+
 (defn replace-model! [storage model]
   (let [{:keys [conn]} storage]
     (if-let [fields (seq (dissoc model :id))]

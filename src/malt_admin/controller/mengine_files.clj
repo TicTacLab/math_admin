@@ -147,8 +147,8 @@
         (validate-model (:file values)))
 
       (in-params/delete! storage id)
-      (cache/clear storage id old-rev)
-      (models/replace-model! storage values)
+#_      (cache/clear storage id old-rev)
+      (models/update-file! storage values)
       (audit/info req :replace-model (dissoc values :file))
       (redirect-with-flash "/mengine/files" {:success (format "File with id %d was replaced" id)}))))
 
