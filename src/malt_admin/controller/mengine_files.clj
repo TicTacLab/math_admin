@@ -123,7 +123,7 @@
              {id :id :as params} :params
              problems :problems
              :as req}]
-  (let [model (models/get-model storage (Integer/valueOf ^String id))]
+  (let [model (models/get-file storage (Integer/valueOf ^String id))]
     (render "mengine/edit" req {:edit-form (assoc form/edit-form
                                             :values (if problems params model)
                                             :action (str "/mengine/files/" (u id))
@@ -278,7 +278,7 @@
         model-file (as-> req $
                          (:web $)
                          (:storage $)
-                         (models/get-model $ model-id)
+                         (models/get-file $ model-id)
                          (:file_name $)
                          (re-matches #"^(.*)\..*$" $)
                          (second $))

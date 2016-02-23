@@ -45,6 +45,9 @@
 (defn get-files [{spec :pg-spec}]
   (sort-by :id (get-files* {} {:connection spec})))
 
+(defn get-file [{spec :pg-spec} id]
+  (first (get-file* {:id id} {:connection spec})))
+
 (defn get-model [storage id]
   (let [{:keys [conn]} storage]
     (cql/get-one conn "models"
