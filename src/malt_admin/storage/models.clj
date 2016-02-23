@@ -70,12 +70,6 @@
       first
       (base64-decode [:file])))
 
-(defn get-model-file [storage id]
-  (let [{:keys [conn]} storage]
-    (cql/get-one conn "models"
-                 (columns :id :name :file :file_name :in_sheet_name :out_sheet_name :last_modified :rev :content_type)
-                 (where [[= :id id]]))))
-
 (defn model-exists? [storage id]
   (let [{:keys [conn]} storage]
     (boolean (cql/get-one conn "models"
