@@ -157,7 +157,7 @@
                :as                req}]
   (let [model-id (Integer/valueOf ^String id)
         rev (models/get-rev storage model-id)]
-    (models/delete-model! storage model-id)
+    (models/delete-file! storage model-id)
     (cache/clear storage model-id rev)
     (in-params/delete! storage model-id)
     (audit/info req :delete-model {:id model-id})

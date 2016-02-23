@@ -40,3 +40,12 @@ UPDATE files
 SET
  name = :name
 WHERE id = :id;
+
+-- name: delete-file*!
+DELETE FROM files
+WHERE id = :id;
+
+-- name: get-rev*
+SELECT rev
+FROM files
+WHERE id = :id;

@@ -43,6 +43,9 @@
                    (base64-encode [:file]))]
       (update-with-raw-file*! file {:connection spec}))))
 
+(defn delete-file! [{spec :pg-spec} id]
+  (delete-file*! {:id id} {:connection spec}))
+
 (defn delete-model! [storage model-id]
   (let [{:keys [conn]} storage]
     (cql/delete conn "models"
@@ -54,17 +57,8 @@
 (defn get-file [{spec :pg-spec} id]
   (first (get-file* {:id id} {:connection spec})))
 
-(defn get-model [storage id]
-  (let [{:keys [conn]} storage]
-    (cql/get-one conn "models"
-                 (columns :id :name :file_name :in_sheet_name :out_sheet_name)
-                 (where [[= :id id]]))))
-
-(defn get-rev [storage id]
-  (let [{:keys [conn]} storage]
-    (:rev (cql/get-one conn "models"
-                  (columns :rev)
-                  (where [[= :id id]])))))
+(defn get-rev [{spec :pg-spec} id]
+  (:rev (get-rev* {:id id} {:connection spec})))
 
 (defn get-raw-file [{spec :pg-spec} id]
   (-> (get-raw-file* {:id id} {:connection spec})
