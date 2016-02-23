@@ -115,7 +115,7 @@
 
         (validate-model (:file values))
         (do
-          (models/write-model! storage values)
+          (models/write-file! storage values)
           (audit/info req :upload-model (dissoc values :file))
           (redirect-with-flash "/mengine/files" {:success "DONE"}))))))
 

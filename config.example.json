@@ -17,10 +17,16 @@
     "m-engine-api-addr": "localhost:80",
     "s-engine-api-addr": "localhost:3001",
 
+    "storage-pg-host": "localhost",
+    "storage-pg-user": "postgres",
+    "storage-pg-pass": "WoonsAkAbIc6",
+    "storage-pg-db": "math_engine",
+
     "zabbix-host": null,
     "zabbix-port": 10051,
     "monitoring-hostname": null,
 
     "host": "0.0.0.0",
-    "port": 8080
+    "port": 8080,
+    "pg pass": "WoonsAkAbIc6"
 }

@@ -1,10 +1,20 @@
 (ns malt-admin.storage.models
   (:require [clojurewerkz.cassaforte.cql :as cql]
-            [clojurewerkz.cassaforte.query :refer [where columns order-by]]))
+            [clojurewerkz.cassaforte.query :refer [where columns order-by]]
+            [yesql.core :refer [defqueries]]
+            [clojure.tools.logging :as log])
+  (:import (javax.xml.bind DatatypeConverter)))
 
-(defn write-model! [storage model]
-  (let [{:keys [conn]} storage]
-    (cql/insert conn "models" model)))
+(defqueries "sql/files.sql")
+
+(defn write-file! [{spec :pg-spec} file]
+  (println file)
+  (try
+    (-> file
+        (update :file #(DatatypeConverter/printBase64Binary %))
+        (write-file*! {:connection spec}))
+    (catch Exception e
+      (log/error e "Exception occured during file writing into db"))))
 
 (defn replace-model! [storage model]
   (let [{:keys [conn]} storage]

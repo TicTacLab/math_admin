@@ -18,6 +18,8 @@
                  [org.clojure/tools.logging "0.3.1"]
                  [clojurewerkz/cassaforte "2.0.2" :exclusions [com.google.guava/guava]]
                  [clojurewerkz/scrypt "1.2.0"]
+                 [yesql "0.5.2"]
+                 [org.postgresql/postgresql "9.4.1208.jre7"]
                  [compojure "1.4.0"]
                  [selmer "0.9.1"]
                  [ring "1.4.0"]

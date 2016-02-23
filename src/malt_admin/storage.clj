@@ -25,6 +25,11 @@
                     storage-user
                     storage-password
                     storage-default-dc
+                    storage-pg-host
+                    storage-pg-user
+                    storage-pg-pass
+                    storage-pg-db
+                    pg-spec
                     session-ttl]
   component/Lifecycle
 
@@ -37,15 +42,22 @@
                  {:credentials           {:username storage-user
                                           :password storage-password}
                   :reconnection-policy   (cp/constant-reconnection-policy 100)
-                  :load-balancing-policy (DCAwareRoundRobinPolicy. storage-default-dc 2)})]
+                  :load-balancing-policy (DCAwareRoundRobinPolicy. storage-default-dc 2)})
+          pg-spec {:classname "org.postgresql.Driver"
+                   :subprotocol "postgresql"
+                   :subname (format "//%s/%s" storage-pg-host storage-pg-db)
+                   :user storage-pg-user
+                   :password storage-pg-pass}]
       (log/info "Storage started")
-      (assoc component :conn conn)))
+      (assoc component :conn conn :pg-spec pg-spec)))
 
   (stop [component]
     (when conn
       (cc/disconnect conn))
+    (when pg-spec
+      #_(.close pg-spec))
     (log/info "Storage stopped")
-    (assoc component :conn nil)))
+    (assoc component :conn nil :pg-spec nil)))
 
 
 (def StorageSchema
@@ -54,7 +66,11 @@
    :storage-user s/Str
    :storage-password s/Str
    :storage-default-dc s/Str
-   :session-ttl s/Int})
+   :session-ttl s/Int
+   :storage-pg-host s/Str
+   :storage-pg-user s/Str
+   :storage-pg-pass s/Str
+   :storage-pg-db s/Str})
 
 (defn new-storage [m]
   (as-> m $
