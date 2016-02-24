@@ -5,7 +5,11 @@
 
 (def sql-exception-handler
   (fn [e & args]
-    (log/error e "Exception occured during file writing into db")))
+    (log/error e "Exception occured during file writing into db")
+    (loop [ne (.getNextException e)]
+      (when ne
+        (log/error ne "next exception:")
+        (recur (.getNextException ne))))))
 
 (defrecord Storage [storage-host
                     storage-user
