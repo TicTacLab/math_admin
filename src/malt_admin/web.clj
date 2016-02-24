@@ -10,7 +10,6 @@
              [sengine-events :as sengine-events]
              [live-viewer :as live-viewer]
              [users :as users]
-             [filler :as filler]
              [auth :as auth]]
             [malt-admin.view :refer (render render-error)]
             [malt-admin.middleware :refer :all]
@@ -50,7 +49,6 @@
   (GET "/mengine/files/:id/:rev/profile" req (allow req :any (mengine/profile req)))
   (POST "/mengine/files/:id/:rev/profile" req (allow req :any (mengine/profile-execute req)))
   (GET "/mengine/files/:id/:rev/profile/finish" req (allow req :any (mengine/delete-session req)))
-  (POST "/mengine/files/:id/log" req (allow req :any (mengine/read-log req)))
   (PUT "/mengine/files/:id" req (allow req :admin (mengine/replace req)))
   (DELETE "/mengine/files/:id" req (allow req :admin (mengine/delete req)))
   (POST "/mengine/files" req (allow req :admin (mengine/do-upload req)))
@@ -70,8 +68,6 @@
   (POST "/sengine/files/profile/:event-id/workbook" req (allow req :admin (sengine/get-profile-workbook req)))
 
   (GET "/sengine/events" req (allow req :any (sengine-events/index req)))
-
-  (GET "/filler" req (allow req :admin (filler/index req)))
 
   (GET "/users" req (allow req :admin (users/index req)))
   (GET "/users/new" req (allow req :admin (users/new* req)))
