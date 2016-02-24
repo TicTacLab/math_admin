@@ -2,9 +2,7 @@
   (:require [malt-admin.view :refer (render u)]
             [malt-admin.form.model :as form]
             [malt-admin.audit :as audit]
-            [malt-admin.storage
-             [log :as slog]
-             [models :as models]]
+            [malt-admin.storage.models :as models]
             [cheshire.core :as json]
             [malt-admin.helpers :refer [redirect-with-flash error!]]
             [formative.parse :as fp]
@@ -354,18 +352,3 @@
                    :headers (bet-engines-auth-header session-id)})
     (res/redirect "/mengine/files")))
 
-(defn read-log [{{storage :storage} :web
-                 {:keys [id ssid]} :params :as req}]
-  (let [model-id (Integer/valueOf ^String id)]
-    (if-let [result (slog/read-log storage model-id ssid)]
-      (render-profile-page req model-id
-                           :in-params (-> result
-                                          :in_params
-                                          (json/parse-string true)
-                                          malt-params->form-values)
-                           :out-params (:out_params result)
-                           :log-session-id ssid
-                           :flash {:success "Loaded from log."})
-      (render-profile-page req model-id
-                           :log-session-id ssid
-                           :flash {:error "No such log entry."}))))
