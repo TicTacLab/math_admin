@@ -2,7 +2,8 @@
   (:require [clojurewerkz.cassaforte.cql :as cql]
             [clojurewerkz.cassaforte.query :refer [where columns using]]
             [clojurewerkz.scrypt.core :as sc]
-            [clojure.set :refer [rename-keys]])
+            [clojure.set :refer [rename-keys]]
+            [malt-admin.storage.users :as user])
   (:import (java.util UUID)))
 
 (defn get-login-by-session-id [{conn :conn} session-id]
@@ -23,10 +24,8 @@
                 (using :ttl session-ttl))
     session-id))
 
-(defn sign-in [{conn :conn :as storage} login password]
-  (let [{:keys [status login is_admin] phash :password :as user} (cql/get-one conn "users"
-                                                                              (columns :password :status :is_admin :login)
-                                                                              (where [[= :login login]]))]
+(defn sign-in [storage login password]
+  (let [{:keys [status login is_admin] phash :password :as user} (user/get-user-with-password storage login)]
     (when (and user
                (= status "active")
                (sc/verify password phash))

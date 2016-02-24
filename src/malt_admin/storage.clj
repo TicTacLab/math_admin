@@ -7,6 +7,11 @@
   (:import [com.datastax.driver.core.exceptions NoHostAvailableException]
            (com.datastax.driver.core.policies DCAwareRoundRobinPolicy)))
 
+(def sql-exception-handler
+  (fn [e & args]
+    (log/error e "Exception occured during file writing into db")))
+
+
 (defn try-connect-times [times delay-ms nodes keyspace opts]
   (let [result (try
                  (cc/connect nodes keyspace opts)

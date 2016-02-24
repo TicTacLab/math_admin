@@ -1,7 +1,7 @@
 (ns malt-admin.storage.models
   (:require [yesql.core :refer [defqueries]]
             [dire.core :refer [with-handler!]]
-            [clojure.tools.logging :as log])
+            [malt-admin.storage :refer [sql-exception-handler]])
   (:import (javax.xml.bind DatatypeConverter)
            (java.sql Timestamp SQLException)))
 
@@ -24,10 +24,6 @@
           m ks))
 
 (defqueries "sql/files.sql")
-
-(def sql-exception-handler
-  (fn [e & args]
-    (log/error e "Exception occured during file writing into db")))
 
 ;; ========= Public API
 

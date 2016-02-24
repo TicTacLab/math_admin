@@ -9,3 +9,16 @@ CREATE TABLE IF NOT EXISTS files (
  last_modified timestamp,
  rev varchar
 );
+
+CREATE TABLE IF NOT EXISTS users (
+ login varchar PRIMARY KEY,
+ name varchar,
+ password varchar,
+ status varchar,
+ is_admin boolean
+);
+
+INSERT INTO users
+(login,name,password,status, is_admin)
+VALUES
+('admin', 'Admin', '$s0$e0801$eRcvK6dZYIhXWbvWJjCZ0g==$8dePdNlKUclyFiXrrMTRXg3xNwuZHVl22yeaBvzU+34=', 'active', true);

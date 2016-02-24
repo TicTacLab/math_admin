@@ -1,20 +1,47 @@
 (ns malt-admin.storage.users
-  (:require [clojurewerkz.cassaforte.cql :as cql]
-            [clojurewerkz.cassaforte.query :refer [where columns]]))
+  (:require [malt-admin.storage :refer [sql-exception-handler]]
+            [yesql.core :refer [defqueries]]
+            [dire.core :refer [with-handler!]])
+  (:import (java.sql SQLException)))
 
-(defn write-user! [{conn :conn} user]
+(defqueries "sql/users.sql")
+
+(defn write-user! [{spec :pg-spec} user]
   (let [defaults {:status "active" :is_admin false}]
-    (cql/insert conn "users" (merge defaults user))))
+    (write-user*! (merge defaults user) {:connection spec})))
 
-(defn get-users [{conn :conn}]
-  (cql/select conn "users"
-              (columns :name :login :status :is_admin)))
+(with-handler! #'write-user!
+  SQLException
+  sql-exception-handler)
 
-(defn get-user [{conn :conn} login]
-  (cql/get-one conn "users"
-              (columns :login :name :is_admin)
-              (where [[= :login login]])))
+(defn get-users [{spec :pg-spec}]
+  (get-users* {} {:connection spec}))
 
-(defn update-user! [{conn :conn} login user]
-  (cql/update conn "users" user
-              (where [[= :login login]])))
+(with-handler! #'get-users
+  SQLException
+  sql-exception-handler)
+
+(defn get-user [{spec :pg-spec} login]
+  (first (get-user* {:login login} {:connection spec})))
+
+(with-handler! #'get-user
+  SQLException
+  sql-exception-handler)
+
+(defn get-user-with-password [{spec :pg-spec} login]
+  (first (get-user-with-password* {:login login} {:connection spec})))
+
+(with-handler! #'get-user-with-password
+  SQLException
+  sql-exception-handler)
+
+(defn update-user! [{spec :pg-spec} login user]
+  (let [params (assoc user :login login)]
+    (cond
+      (:password user) (update-user-password*! params {:connection spec})
+      (:status user)   (update-user-status*! params {:connection spec})
+      :else            (update-user-info*! params {:connection spec}))))
+
+(with-handler! #'update-user!
+  SQLException
+  sql-exception-handler)
