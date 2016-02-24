@@ -16,7 +16,6 @@
                  [ch.qos.logback/logback-core "1.1.3"]
                  [ch.qos.logback/logback-classic "1.1.3"]
                  [org.clojure/tools.logging "0.3.1"]
-                 [clojurewerkz/cassaforte "2.0.2" :exclusions [com.google.guava/guava]]
                  [clojurewerkz/scrypt "1.2.0"]
                  [yesql "0.5.2"]
                  [org.postgresql/postgresql "9.4.1208.jre7"]

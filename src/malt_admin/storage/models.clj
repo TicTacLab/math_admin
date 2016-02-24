@@ -27,7 +27,7 @@
 
 ;; ========= Public API
 
-(defn write-file! [{spec :pg-spec} file]
+(defn write-file! [{spec :spec} file]
   (-> file
       (coerce-time [:last_modified])
       (base64-encode [:file])
@@ -38,7 +38,7 @@
   sql-exception-handler)
 
 
-(defn update-file! [{spec :pg-spec} file]
+(defn update-file! [{spec :spec} file]
   (if-not (:file file)
     (update-without-raw-file*! file {:connection spec})
     (let [file (-> file
@@ -51,7 +51,7 @@
   sql-exception-handler)
 
 
-(defn delete-file! [{spec :pg-spec} id]
+(defn delete-file! [{spec :spec} id]
   (delete-file*! {:id id} {:connection spec}))
 
 (with-handler! #'delete-file!
@@ -59,7 +59,7 @@
   sql-exception-handler)
 
 
-(defn get-files [{spec :pg-spec}]
+(defn get-files [{spec :spec}]
   (sort-by :id (get-files* {} {:connection spec})))
 
 (with-handler! #'get-files
@@ -67,7 +67,7 @@
   sql-exception-handler)
 
 
-(defn get-file [{spec :pg-spec} id]
+(defn get-file [{spec :spec} id]
   (first (get-file* {:id id} {:connection spec})))
 
 (with-handler! #'get-file
@@ -75,7 +75,7 @@
   sql-exception-handler)
 
 
-(defn get-rev [{spec :pg-spec} id]
+(defn get-rev [{spec :spec} id]
   (:rev (get-rev* {:id id} {:connection spec})))
 
 (with-handler! #'get-rev
@@ -83,7 +83,7 @@
   sql-exception-handler)
 
 
-(defn get-raw-file [{spec :pg-spec} id]
+(defn get-raw-file [{spec :spec} id]
   (-> (get-raw-file* {:id id} {:connection spec})
       first
       (base64-decode [:file])))
@@ -93,7 +93,7 @@
   sql-exception-handler)
 
 
-(defn file-exists? [{spec :pg-spec} id]
+(defn file-exists? [{spec :spec} id]
   (boolean (first (file-exists*? {:id id} {:connection spec}))))
 
 (with-handler! #'file-exists?

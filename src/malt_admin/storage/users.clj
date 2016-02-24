@@ -6,7 +6,7 @@
 
 (defqueries "sql/users.sql")
 
-(defn write-user! [{spec :pg-spec} user]
+(defn write-user! [{spec :spec} user]
   (let [defaults {:status "active" :is_admin false}]
     (write-user*! (merge defaults user) {:connection spec})))
 
@@ -14,28 +14,28 @@
   SQLException
   sql-exception-handler)
 
-(defn get-users [{spec :pg-spec}]
+(defn get-users [{spec :spec}]
   (get-users* {} {:connection spec}))
 
 (with-handler! #'get-users
   SQLException
   sql-exception-handler)
 
-(defn get-user [{spec :pg-spec} login]
+(defn get-user [{spec :spec} login]
   (first (get-user* {:login login} {:connection spec})))
 
 (with-handler! #'get-user
   SQLException
   sql-exception-handler)
 
-(defn get-user-with-password [{spec :pg-spec} login]
+(defn get-user-with-password [{spec :spec} login]
   (first (get-user-with-password* {:login login} {:connection spec})))
 
 (with-handler! #'get-user-with-password
   SQLException
   sql-exception-handler)
 
-(defn update-user! [{spec :pg-spec} login user]
+(defn update-user! [{spec :spec} login user]
   (let [params (assoc user :login login)]
     (cond
       (:password user) (update-user-password*! params {:connection spec})
