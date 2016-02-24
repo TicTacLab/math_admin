@@ -38,6 +38,7 @@
                  [clj-webdriver "0.7.2" :exclusions [com.google.guava/guava org.seleniumhq.selenium/selenium-server]]
                  [instaparse "1.4.1"]
                  [com.aphyr/prism "0.1.3"]
+                 [dire "0.5.4"]
                  [org.owasp.passfault/passfault-core "0.7"]
 
                  ;Sanitizers
