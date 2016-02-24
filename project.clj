@@ -39,6 +39,7 @@
                  [instaparse "1.4.1"]
                  [com.aphyr/prism "0.1.3"]
                  [dire "0.5.4"]
+                 [clj-time "0.11.0"]
                  [org.owasp.passfault/passfault-core "0.7"]
 
                  ;Sanitizers

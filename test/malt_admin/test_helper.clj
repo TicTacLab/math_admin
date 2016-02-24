@@ -23,6 +23,8 @@
   (swap! base-url (constantly nil))
   (w/quit))
 
+(comment (stop-browser!) )
+
 (defn not-nil-elements [s]
   (->> s
        (remove #(not (:webelement %)))
