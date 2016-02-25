@@ -26,5 +26,5 @@ CREATE TABLE IF NOT EXISTS users (
 CREATE TABLE IF NOT EXISTS sessions (
  session_id uuid PRIMARY KEY,
  login varchar,
- last_used timestamp
+ expire timestamp
 );

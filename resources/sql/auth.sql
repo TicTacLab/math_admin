@@ -9,7 +9,7 @@ SELECT login
 FROM sessions
 WHERE session_id = :session_id
 
--- name: get-last-used*
+-- name: get-expire*
 SELECT last_used
 FROM sessions
 WHERE session_id = :session_id

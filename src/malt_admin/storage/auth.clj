@@ -5,17 +5,24 @@
             [yesql.core :refer [defqueries]]
             [dire.core :refer [with-handler!]]
             [clj-time.core :as time]
-            [clj-time.coerce :refer [from-date]])
+            [clj-time.coerce :refer [from-date to-timestamp]])
   (:import (java.util UUID Date)
            (java.sql Timestamp SQLException)))
 
 (defqueries "sql/auth.sql")
 
-(defn create-session! [{spec :spec} login]
+(defn expire-time [ttl]
+  (let [now (Date.)]
+    (-> (Date.)
+        (from-date)
+        (time/plus (time/seconds ttl))
+        (to-timestamp))))
+
+(defn create-session! [{spec :spec ttl :session-ttl} login]
   (let [session-id (UUID/randomUUID)]
     (create-session*! {:login      login
                        :session_id session-id
-                       :last_used  (Timestamp. (.getTime (Date.)))}
+                       :expire  (expire-time ttl)}
                       {:connection spec})
     (str session-id)))
 
@@ -24,9 +31,9 @@
   sql-exception-handler)
 
 
-(defn update-session! [{spec :spec} session-id]
+(defn update-session! [{spec :spec ttl :session-ttl} session-id]
   (update-session*! {:session_id (UUID/fromString session-id)
-                     :last_used  (Timestamp. (.getTime (Date.)))}
+                     :expire     (expire-time ttl)}
                     {:connection spec}))
 
 (with-handler! #'update-session!
@@ -50,16 +57,15 @@
   SQLException
   sql-exception-handler)
 
-(defn get-last-used [{spec :spec} session-id]
-  (-> (get-last-used* {:session_id (UUID/fromString session-id)} {:connection spec})
+(defn get-expire [{spec :spec} session-id]
+  (-> (get-expire* {:session_id (UUID/fromString session-id)} {:connection spec})
       first
-      :last_used))
+      :expire))
 
-(with-handler! #'get-last-used
+(with-handler! #'get-expire
   SQLException
   sql-exception-handler)
 
-(defn is-valid-session? [{ttl :session-ttl :as st} session-id]
-  (let [last-used (get-last-used st session-id)
-        elapsed (time/in-seconds (time/interval (from-date last-used) (from-date (Date.))))]
-    (and last-used (<= elapsed ttl))))
+(defn is-valid-session? [st session-id]
+  (let [expire (get-expire st session-id)]
+    (time/after? expire (from-date (Date.)))))
