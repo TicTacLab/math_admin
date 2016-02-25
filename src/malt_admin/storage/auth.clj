@@ -7,16 +7,15 @@
             [clj-time.core :as time]
             [clj-time.coerce :refer [from-date to-timestamp]])
   (:import (java.util UUID Date)
-           (java.sql Timestamp SQLException)))
+           (java.sql SQLException)))
 
 (defqueries "sql/auth.sql")
 
 (defn expire-time [ttl]
-  (let [now (Date.)]
-    (-> (Date.)
-        (from-date)
-        (time/plus (time/seconds ttl))
-        (to-timestamp))))
+  (-> (Date.)
+      (from-date)
+      (time/plus (time/seconds ttl))
+      (to-timestamp)))
 
 (defn create-session! [{spec :spec ttl :session-ttl} login]
   (let [session-id (UUID/randomUUID)]
