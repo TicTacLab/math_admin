@@ -68,4 +68,4 @@
 
 (defn is-valid-session? [st session-id]
   (let [expire (get-expire st session-id)]
-    (time/after? expire (from-date (Date.)))))
+    (time/after? (from-date expire) (from-date (Date.)))))
