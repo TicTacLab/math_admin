@@ -1,8 +1,8 @@
 -- name: create-session*!
 INSERT INTO sessions
-(session_id, login, last_used)
+(session_id, login, expire)
 VALUES
-(:session_id, :login, :last_used);
+(:session_id, :login, :expire);
 
 -- name: get-login-by-session-id*
 SELECT login
@@ -10,7 +10,7 @@ FROM sessions
 WHERE session_id = :session_id
 
 -- name: get-expire*
-SELECT last_used
+SELECT expire
 FROM sessions
 WHERE session_id = :session_id
 
@@ -21,5 +21,5 @@ where session_id = :session_id;
 -- name: update-session*!
 UPDATE sessions
 SET
- last_used = :last_used
+ expire = :expire
 WHERE session_id = :session_id;
