@@ -17,6 +17,5 @@
     "monitoring-hostname": null,
 
     "host": "0.0.0.0",
-    "port": 8080,
-    "pg pass": "WoonsAkAbIc6"
+    "port": 8080
 }
